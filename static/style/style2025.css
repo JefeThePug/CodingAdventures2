@@ -1,0 +1,61 @@
+/* Computer */
+
+:root {
+    --b-main: #52414c;
+    --b-sec: #2d1b42;
+    --b-code: #3c323a;
+
+    --t-main: #6cffb5;
+    --t-focus: #00c2cb;
+    --t-focus-shadow: #97ffe6;
+    --t-link: #ffde7d;
+
+    --c-main: #8effc1;
+    --c-final: #fff4c1;
+
+}
+
+/* Sections */
+.section {
+    border-image: url(/img/scifi.png) 32 repeat;
+    border-radius: 10px 0 10px 0;
+}
+.section::before, .section::after {
+    animation: wipeRevealUp 7s linear infinite;
+    border-image: url(/img/scifi2.png) 32 repeat;
+    clip-path: inset(100% 0 0 0);
+    filter: blur(1px);
+    inset: -32px;
+    z-index: 2;
+}
+.section::after {
+    animation-delay: 3.5s;
+}
+
+
+
+
+
+
+
+
+
+
+/* Animations */
+@keyframes wipeRevealUp {
+  12.5% {
+    clip-path: polygon(
+      0 calc(100% - 30px),100% calc(100% - 30px),100% 100%,0 100%
+    );
+  }
+  62.5%, 68% {
+    clip-path: polygon(
+      0 0,100% 0,100% 15px,0 30px
+    );
+  }
+  0%, 68.01%, 100% {
+    clip-path: polygon(
+      0 100%,100% 100%,100% 100%,0 100%
+    );
+  }
+}

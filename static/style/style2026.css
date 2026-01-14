@@ -1,0 +1,29 @@
+/* Paper */
+
+:root {
+    --b-main: #99b0d1;
+    --b-sec: #b79162;
+    --b-sec-lite: #fffef0;
+    --b-code: #dadada;
+
+    --t-main: #643f1e;
+    --t-focus: #916541;
+    --t-focus-shadow: #cdb394;
+    --t-link: #B03A2E;
+
+    --c-main: #282e13;
+    --c-final: #9a931b;
+}
+
+/* Sections */
+.section {
+    background-clip: padding-box;
+    border-image: url(/img/paper.png) 32 repeat;
+}
+.section::before {
+    background: var(--b-sec-lite);
+    border-image: url(/img/paper2.png) 32 repeat;
+    filter: blur(15px);
+    inset: -0.2em;
+    z-index: -1;
+}
