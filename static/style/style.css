@@ -2,12 +2,7 @@
 
 @font-face {
     font-family: 'dejavu_sans_monobook';
-    src: url('DejaVuSansMono-webfont.eot');
-    src: url('DejaVuSansMono-webfont.eot?#iefix') format('embedded-opentype'),
-            url('DejaVuSansMono-webfont.woff2') format('woff2'),
-            url('DejaVuSansMono-webfont.woff') format('woff'),
-            url('DejaVuSansMono-webfont.ttf') format('truetype'),
-            url('DejaVuSansMono-webfont.svg#dejavu_sans_monobook') format('svg');
+    src: url('DejaVuSansMono-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 }
@@ -46,13 +41,13 @@ header {
     padding: 5px;
     position: relative;
     text-align: center;
+    width: calc(100% - 96px);
 }
 .section {
     background: var(--b-sec);
     border: 32px solid transparent;
     color: var(--t-main);
     filter: drop-shadow(0 2px 3px var(--trans-80));
-    overflow: hidden;
     padding: 0.3em 1em;
     position: relative;
     z-index: 1;
@@ -73,7 +68,7 @@ a {
 }
 a.float {
     background-color: var(--b-code);
-    box-shadow: 0 0 5px var(--t-code), inset 0 0 5px var(--t-code);
+    box-shadow: 0 0 5px var(--c-main), inset 0 0 5px var(--c-main);
     color: var(--t-main);
     font-size: large;
     margin: 10px;

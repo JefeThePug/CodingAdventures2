@@ -12,17 +12,16 @@
 
     --c-main: #8effc1;
     --c-final: #fff4c1;
-
 }
 
 /* Sections */
 .section {
-    border-image: url(../images/2025/style_bg/scifi.png) 32 repeat;
+    border-image: url("/static/images/2025/style_bg/scifi.png") 32 repeat;
     border-radius: 10px 0 10px 0;
 }
 .section::before, .section::after {
     animation: wipeRevealUp 7s linear infinite;
-    border-image: url(../images/2025/style_bg/scifi2.png) 32 repeat;
+    border-image: url("/static/images/2025/style_bg/scifi2.png") 32 repeat;
     clip-path: inset(100% 0 0 0);
     filter: blur(1px);
     inset: -32px;
