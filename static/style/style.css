@@ -13,15 +13,16 @@
 }
 
 .material-symbols-outlined {
-    font-size: 20px;
+    font-size: 10px;
 }
 
-body {
+html, body {
     background-color: var(--b-main);
     color: var(--t-main);
     font-family: "Roboto Mono", monospace;
     font-optical-sizing: auto;
     font-weight: 400;
+    font-size: medium;
     margin: 0;
 }
 
@@ -31,7 +32,7 @@ hr {
 
 /* Sections */
 section {
-    margin: 1em;
+    margin: 16px;
 }
 header {
     align-items: center;
@@ -39,16 +40,20 @@ header {
     justify-content: center;
     margin: 0;
     padding: 5px;
-    position: relative;
     text-align: center;
     width: calc(100% - 96px);
+}
+header.section {
+    position: sticky;
+    top: 54px;
+    z-index: 10;
 }
 .section {
     background: var(--b-sec);
     border: 32px solid transparent;
     color: var(--t-main);
     filter: drop-shadow(0 2px 3px var(--trans-80));
-    padding: 0.3em 1em;
+    padding: 5px 16px;
     position: relative;
     z-index: 1;
 }
@@ -71,18 +76,15 @@ a.float {
     box-shadow: 0 0 5px var(--c-main), inset 0 0 5px var(--c-main);
     color: var(--t-main);
     font-size: large;
-    margin: 10px;
+    margin: 10px 10px 10px 35px;
     padding: 8px 12px;
     position: fixed;
-    text-shadow: 0 0 0.1em var(--t-focus-shadow);
+    text-shadow: 0 0 2px var(--t-focus-shadow);
     width: fit-content;
     z-index: 90;
-    &::after {
-        content: "";
-    }
-    &:hover::after {
-        content: " BACK";
-    }
+    top: 82px;
+    &::after {content: "";}
+    &:hover::after {content: " BACK";}
 }
 .skip-link {
     left: 0;
@@ -90,7 +92,128 @@ a.float {
     position: absolute;
     top: -100px;
     z-index: 1;
-    &:focus {
-        top: 0;
+    &:focus {top: 0;}
+}
+
+/* Text */
+h1 {
+    margin: 0;
+}
+h2 {
+    border-bottom: 2px solid var(--t-main);
+}
+h3 {
+    color: var(--c-main);
+}
+.icon {
+    vertical-align: middle;
+}
+.on {
+    color: var(--i-on);
+}
+.off {
+    color: var(--i-off);
+}
+.main {
+    color: var(--c-main);
+    width: calc(100% - 20px);
+}
+.b {
+    color: var(--t-focus);
+    font-weight: bold;
+    text-shadow: 0 0 0.1em var(--t-focus-shadow);
+}
+.i {
+    font-style: italic;
+}
+.u {
+    text-decoration: underline;
+}
+.cross{
+    text-decoration: line-through;
+}
+.lg {
+    font-size: larger;
+}
+.sm {
+    font-size: small;
+}
+.ssm {
+    font-size: x-small;
+}
+.false-link {
+    color: var(--t-link);
+    text-shadow: none;
+}
+.hint-label {
+    margin-bottom: 0;
+}
+.hint {
+    background-color: var(--b-code);
+    color: var(--b-code);
+    height: 10px;
+    margin-top: 0;
+    overflow: hidden;
+    transition: height 1.5s ease 1s;
+    &:hover {
+        color: var(--t-main);
+        height: fit-content;
+        transition: color 1.5s linear 1s;
+    }
+}
+
+/* Containers */
+.logo-container {
+    box-shadow: 2px 2px 22px 0 var(--t-main);
+}
+.img-container, .logo-container {
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0 auto;
+    max-width: fit-content;
+}
+.logo-container img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    max-height: 500px;
+    width: auto;
+}
+.img-container img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    max-height: 400px;
+    width: auto;
+}
+
+button {
+    background: none;
+    border: none;
+    white-space: nowrap;
+}
+button {
+    color: var(--t-focus);
+    font-family: "Roboto Mono", monospace;
+    font-size: 15px;
+    font-weight: bold;
+    &::before {
+        content: "{ ";
+        font-size: 1.5em;
+    }
+    &::after {
+        content: " }";
+        font-size: 1.5em;
+    }
+}
+
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: large;
+    }
+    .section::before {
+        border: 16px solid transparent;
     }
 }

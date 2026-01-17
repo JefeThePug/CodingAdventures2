@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Practical Python Code Adventure</title>
+    <link href="/static/style/navbar.css" rel="stylesheet">
+    <link href="/static/style/style.css" rel="stylesheet">
+    <link href="/static/style/style2026.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0"
+          rel="stylesheet">
+    <link as="image" href="/static/images/2025/style_bg/scifi.png" rel="preload">
+    <link as="image" href="/static/images/2025/style_bg/scifi2.png" rel="preload">
+    <link as="image" href="/static/images/2026/style_bg/paper.png" rel="preload">
+    <link as="image" href="/static/images/2026/style_bg/paper2.png" rel="preload">
+    <link href="/static/favicon.svg" rel="icon" type="image/svg+xml"/>
+    <link href="/static/favicon.ico" rel="icon"/>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to Main content</a>
+<!--<a class="float" href="/">&lt;</a>-->
+
+<nav class="navbar">
+    <div class="nav">
+        <div class="false-link year-menu">
+            <span class="material-symbols-outlined">
+                calendar_clock
+            </span>
+            <span class="nav-text">2025</span>
+            <div class="dropdown">
+                <a href="#"><p>2026</p></a>
+                <a href="#"><p>2025</p></a>
+            </div>
+        </div>
+        <a href="#">
+            <span class="material-symbols-outlined">
+                help
+            </span>
+            <span class="nav-text">How-To</span>
+        </a>
+        <a href="#">
+            <span class="material-symbols-outlined">
+                trophy
+            </span>
+            <span class="nav-text">Champions</span>
+        </a>
+        <a href="#">
+            <span class="material-symbols-outlined">
+                favorite
+            </span>
+            <span class="nav-text">Gratitude</span>
+        </a>
+        <a href="#">
+            <span class="material-symbols-outlined">
+            star_shine
+            </span>
+            <span class="nav-text">Sponsors</span>
+        </a>
+        <a class="user-menu hidden" href="#">
+            <img alt="Logout" src="/static/images/2026/index/logo.png">
+            <span class="material-symbols-outlined user-action">emoji_people</span>
+            <span class="user-action move-left">Logout</span>
+        </a>
+        <a class="user-menu" href="#">
+            <span class="material-symbols-outlined user-label">emoji_people</span>
+            <span class="user-label move-left">Guest</span>
+            <span class="material-symbols-outlined user-action">emoji_people</span>
+            <span class="user-action move-left">Login</span>
+        </a>
+    </div>
+</nav>
+
+<header class="section">
+    <h1>Instructions</h1>
+</header>
+
+<section class="section" id="announcement">
+    <div class="img-container">
+        <img src="/static/images/how_to.png" alt="How-To Image">
+    </div>
+    <div>
+        <h2>Welcome to Practical Python Code Adventure.</h2>
+        <h3> Concept</h3>
+        <p>
+            Each week, for ten weeks, there will be one challenge with two parts. In most cases, Part 1 will be
+            a bit easier, and Part 2 will either be a continuation of Part 1, a variation on the concept,
+            or a similar concept in the same realm of problem-solving.
+        </p>
+        <p>
+            Each part has its own separate solutions and puzzle inputs.
+        </p>
+        <h3> Puzzle Inputs</h3>
+        <p>
+            Each challenge has at least one file that must be used to arrive at the correct solution. Usually,
+            this is a text file, but other types of files may also be used. Additionally, there may be
+            supplemental images to solve the puzzle which can also be downloaded. It is up to you to read
+            this data into your own code for each challenge. For each required puzzle input, you will see
+            text indicating it can be downloaded which looks like this...
+        </p>
+        <p class="main lg" style="margin-left: 50px;">[ click to get input ]</p>
+        <h3> Solutions</h3>
+        <p>
+            This site offers no online IDE or Python Interpreter. You should write any code used to deduce the
+            solutions on your own machine using the downloaded puzzle input files. Each challenge has
+            exactly one correct solution for each of its two parts, which can be obtained using the puzzle
+            input and implementing the correct algorithm hinted in the text of the problem.
+        </p>
+        <p>
+            The solutions will always be text and should be copied and pasted into the solution form on the site for
+            submission. Make sure not to forget any part of it. For Part 1, if the correct solution is
+            submitted, you will immediately be able to view Part 2 of the challenge. For Part 2, if the
+            correct solution is submitted, and you are logged in with Discord, you will be awarded a
+            congratulatory screen with a link to the private discussion channel for that challenge in the
+            Practical Python server.
+        </p>
+        <p>
+            Practical Python also offers a public channel for help if you are struggling with a challenge. However,
+            please be fair to all and avoid posting the solutions to any challenges there. While there is no
+            real penalty for cheating or sharing the answer, it does ruin the fun.
+        </p>
+        <h3> Progress</h3>
+        <p>
+            On the main page, your progress with the challenges is indicated using progress icons:
+        </p>
+        <p>
+            <span class="material-symbols-outlined icon off">
+                nest_eco_leaf
+            </span>
+            <span class="material-symbols-outlined icon off">
+                psychiatry
+            </span>
+            <span class="material-symbols-outlined icon on">
+                nest_eco_leaf
+            </span>
+            <span class="material-symbols-outlined icon on">
+                psychiatry
+            </span>
+        </p>
+        <p>
+            These icons will light up when you have completed each part of the challenge:<br>the
+            single leaf
+            for Part 1 and the
+            double leaf
+            for Part 2.
+        </p>
+        <p>
+            When you are logged in with your Discord account, this progress is saved in a database. This allows you to
+            keep your progress across multiple browsers and computers indefinitely. If you choose not to log
+            into Discord, your progress is stored via browser cookies and cannot be carried over to a different
+            browser. Additionally, they cannot be relied upon to remain for any amount of time, subject to your
+            own cookie settings and this server's session. Plan ahead to remember the previously completed
+            challenge solutions while using this site as a Guest account, in case you lose your progress.
+        </p>
+    </div>
+</section>
+<section class="closing">
+    <p>
+        As always, the staff and friendly users at Practical Python are happy to help if you are experiencing any difficulties.
+        Please contact them via the Discord server.
+    </p>
+    <p>
+        Good luck and happy coding!
+    </p>
+    <p>
+        <button onclick="location.href='/index.html'">
+            Home
+        </button>
+    </p>
+</section>
+
+</body>
+</html>

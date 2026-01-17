@@ -10,6 +10,11 @@
     --t-focus: #916541;
     --t-focus-shadow: #cdb394;
     --t-link: #B03A2E;
+    --t-nav: #fffef0;
+    --t-nav-special: #B03A2E;
+
+    --i-on: #6a6c33;
+    --i-off: #dadada;
 
     --c-main: #282e13;
     --c-final: #9a931b;
@@ -22,16 +27,21 @@
 .section {
     background-clip: padding-box;
     border-image: url(../images/2026/style_bg/paper.png) 32 repeat;
-}
-.section::before {
-    background: var(--b-sec-lite);
-    border-image: url(../images/2026/style_bg/paper2.png) 32 repeat;
-    filter: blur(15px);
-    inset: -0.2em;
-    z-index: -1;
+    &::before {
+        background: var(--b-sec-lite);
+        border-image: url(../images/2026/style_bg/paper2.png) 32 repeat;
+        filter: blur(15px);
+        inset: -3px;
+        z-index: -1;
+    }
 }
 
-/* Link */
+/* Images */
+.img-container {
+    border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+    overflow: hidden;
+}
+
 
 
 /* Stone Elements */

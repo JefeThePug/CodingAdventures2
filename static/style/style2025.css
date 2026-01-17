@@ -9,26 +9,39 @@
     --t-focus: #00c2cb;
     --t-focus-shadow: #97ffe6;
     --t-link: #ffde7d;
+    --t-nav: #ffde7d;
+    --t-nav-special: #ff6b6b;
+
+    --i-on: #97ffe6;
+    --i-off: #52414c;
 
     --c-main: #8effc1;
     --c-final: #fff4c1;
 }
 
 /* Sections */
+header {
+    border-radius: 0 0 10px 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    &::before, &::after {
+        animation: none !important;
+    }
+}
 .section {
     border-image: url("/static/images/2025/style_bg/scifi.png") 32 repeat;
     border-radius: 10px 0 10px 0;
-}
-.section::before, .section::after {
-    animation: wipeRevealUp 7s linear infinite;
-    border-image: url("/static/images/2025/style_bg/scifi2.png") 32 repeat;
-    clip-path: inset(100% 0 0 0);
-    filter: blur(1px);
-    inset: -32px;
-    z-index: 2;
-}
-.section::after {
-    animation-delay: 3.5s;
+    &::before, &::after {
+        animation: wipeRevealUp 7s linear infinite;
+        border-image: url("/static/images/2025/style_bg/scifi2.png") 32 repeat;
+        clip-path: inset(100% 0 0 0);
+        filter: blur(1px);
+        inset: -32px;
+        z-index: 2;
+    }
+    &::after {
+        animation-delay: 3.5s;
+    }
 }
 
 /* Links */
@@ -36,8 +49,9 @@ a.float {
     border-radius: 30px;
 }
 
-
-
+nav a:hover {
+    filter: saturate(10) brightness(5) !important;
+}
 
 
 

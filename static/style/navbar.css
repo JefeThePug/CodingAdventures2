@@ -1,104 +1,135 @@
-/* =========================
-   Base reset
-   ========================= */
+/* Navbar */
+
 body {
     margin: 0;
 }
 
-/* =========================
-   Navbar
-   ========================= */
 .navbar {
     position: sticky;
     top: 0;
     z-index: 1000;
-
     display: flex;
-    justify-content: space-evenly;
+    justify-content: center;
     align-items: center;
-    margin: 0;
-    padding: 0.75rem 1.25rem;
-    background-color: var(--b-sec);
-    color: var(--t-main);
+    padding: 0.75rem 0;
+    background: var(--b-sec);
+    color: var(--t-nav);
+}
+
+.nav {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    gap: 5%;
+    height: 30px;
+}
+.nav a, .nav .false-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--t-nav);
+    text-decoration: none;
+    font-weight: bold;
+    &:hover {
+        filter: saturate(10);
+    }
+}
+
+.move-left {
+    margin-left: -6px;
 }
 
 /* =========================
-   Left navigation links
+   User menu (hover swap)
    ========================= */
-.nav {
-    display: flex;
-    gap: 1.25rem;
-}
-
-.nav a {
-    color: var(--t-main);
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.nav a:hover {
-    text-decoration: underline;
-}
-
-/* User menu container */
 .user-menu {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+/* Prevent text selection */
+.user-menu span {
+    user-select: none;
+}
+.user-menu img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: block;
+}
+
+/* =========================
+   Hover swap behavior
+   ========================= */
+/* Action hidden by default */
+.user-action {
+    display: none !important;
+    color: var(--t-nav-special);
+}
+/* Fade polish */
+.user-label,
+.user-action,
+.user-menu img {
+    transition: opacity 0.15s ease;
+}
+/* Hide label / image on hover */
+.user-menu:hover .user-label,
+.user-menu:hover img {
+    opacity: 0;
+    display: none;
+}
+/* Show action on hover */
+.user-menu:hover .user-action {
+    display: inline-flex !important;
+    opacity: 1;
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    background-color: var(--b-sec);
+    /*border: 1px solid var(--t-main);*/
+    border-radius: 4px;
+    display: none;
+    width: 100%;
+    min-width: 3em;
+    filter: saturate(0.1) !important;
+}
+.dropdown a {
+    display: block;
+    border: 1px solid var(--t-main);
+    text-decoration: none;
+    text-align: center;
+    width: 100%;
+    &:hover {
+        color: var(--t-nav);
+    }
+}
+.dropdown a p {
+    margin: 5px;
+}
+
+.year-menu {
     position: relative;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     cursor: pointer;
     color: var(--t-main);
+    padding: 5px;
 }
-
-/* Guest label */
-.user-menu span {
-    user-select: none;
-}
-
-/* Profile image */
-.user-menu img {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+.year-menu:hover .dropdown {
     display: block;
 }
 
-/* =========================
-   Dropdown menu
-   ========================= */
-.dropdown {
-    position: absolute;
-    right: 0;
-    top: calc(100% + 0.5rem);
-
-    background-color: var(--b-sec);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 4px;
-
-    min-width: 120px;
-    display: none;
-}
-
-/* Dropdown links */
-.dropdown a {
-    display: block;
-    padding: 0.5rem 0.75rem;
-    color: var(--t-main);
-    text-decoration: none;
-}
-
-.dropdown a:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Show dropdown on hover */
-.user-menu:hover .dropdown {
-    display: block;
-}
-
-/* =========================
-   Utilities
-   ========================= */
 .hidden {
-    display: none;
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    .nav-text {
+        display: none;
+    }
 }
