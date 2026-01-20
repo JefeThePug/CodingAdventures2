@@ -8,6 +8,10 @@ class Config:
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID")
+    DISCORD_CLIENT_SECRET = os.getenv("DISCORD_CLIENT_SECRET")
+    DISCORD_REDIRECT_URI = os.getenv("DISCORD_REDIRECT_URI")
+
 
 class DevConfig(Config):
     DEBUG = True

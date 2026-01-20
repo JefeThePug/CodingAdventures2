@@ -1,8 +1,29 @@
+from typing import TypedDict
+
 from flask import session, request, current_app
 
 
+class ProgressPayload(TypedDict):
+    """Structure returned by get_progress() for templates and handlers."""
+    id: str | None
+    img: str
+    progress: dict[str, list[bool]]
+    rockets: list[list[bool]]
+
+
+def sync_progress(user_id: str) -> None:
+    """Synchronize the user's progress from the database into the session.
+    Loads the user's progress via the DataCache and stores it in the Flask
+    session so request handlers and templates can access it without
+    additional database queries.
+    Args:
+        user_id (str): The Discord user ID.
+    """
+    session["progress"] = current_app.data_cache.load_progress(user_id)
+
+
 def set_progress(challenge_num: int, progress: int) -> str | None:
-    """Set the progress for a user in the database.
+    """Update the progress for the current user in the database.
     Args:
         challenge_num (int): The challenge number.
         progress (int): The specific progress index (0 or 1).
@@ -11,14 +32,19 @@ def set_progress(challenge_num: int, progress: int) -> str | None:
     """
     if "user_data" in session:
         # Change database and update Data Cache
-        current_app.data_cache.update_progress(session["user_data"]["id"], challenge_num, progress)
-        session["progress"] = current_app.data_cache.load_progress(session["user_data"]["id"])
+
+        current_app.data_cache.update_progress(
+            session["user_data"]["id"],
+            challenge_num,
+            progress,
+        )
+        sync_progress(session["user_data"]["id"])
     else:
         # Alter Browser Cookies
         return current_app.serializer.dumps(f"{challenge_num}{'AB'[progress]}")
 
 
-def get_progress() -> dict[str, str | None | list | dict[str, bool]]:
+def get_progress() -> ProgressPayload:
     """Retrieve the progress of the user.
     Returns:
         dict: A dictionary containing user progress and session information.
