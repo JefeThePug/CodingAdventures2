@@ -23,14 +23,15 @@ def create_app(env):
     app.data_cache = DataCache(app)
 
     from .templating import register_globals
-    from .blueprints import main_bp, auth_bp, challenge_bp, admin_bp, errors_bp
+    from .blueprints import main_bp, auth_bp, route_bp, challenge_bp, admin_bp, errors_bp
 
     with app.app_context():
         register_globals()
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(route_bp)
     app.register_blueprint(challenge_bp)
-    app.register_blueprint(admin_bp)
+    # app.register_blueprint(admin_bp)
     app.register_blueprint(errors_bp)
 
     return app
