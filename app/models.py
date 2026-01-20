@@ -49,7 +49,7 @@ class Obfuscation(db.Model):
     html_key: Mapped[str] = mapped_column(db.String(255))
 
 
-class Users(db.Model):
+class User(db.Model):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     user_id: Mapped[str] = mapped_column(db.String(20), nullable=False, unique=True)
@@ -75,7 +75,7 @@ class Progress(db.Model):
     c10: Mapped[list[bool]] = mapped_column(db.ARRAY(db.Boolean))
 
     # Define the relationship
-    user: Mapped[Users] = relationship("Users", backref="progress")
+    user: Mapped[User] = relationship("User", backref="progress")
 
 
 class Solution(db.Model):
@@ -88,14 +88,14 @@ class Solution(db.Model):
     part2: Mapped[str] = mapped_column(db.Text)
 
 
-class Permissions(db.Model):
+class Permission(db.Model):
     __tablename__ = "permissions"
 
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     user_id: Mapped[str] = mapped_column(db.String(20))
 
 
-class Releases(db.Model):
+class Release(db.Model):
     __tablename__ = "releases"
 
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
