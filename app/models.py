@@ -5,28 +5,28 @@ from app.extensions import db
 
 
 class DiscordID(db.Model):
-    __tablename__ = 'discord_ids'
+    __tablename__ = "discord_ids"
 
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-    year: Mapped[str] = mapped_column(db.String(10), nullable=False)
+    year: Mapped[str] = mapped_column(db.String(4), nullable=False)
     name: Mapped[str] = mapped_column(db.String(10), nullable=False)
     discord_id: Mapped[str] = mapped_column(db.String(20), nullable=False)
 
 
 class MainEntry(db.Model):
-    __tablename__ = 'main_entries'
+    __tablename__ = "main_entries"
 
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-    year: Mapped[str] = mapped_column(db.String(10), nullable=False)
+    year: Mapped[str] = mapped_column(db.String(4), nullable=False)
     val: Mapped[int] = mapped_column(db.Integer, nullable=False)
     ee: Mapped[str] = mapped_column(db.Text)
 
 
 class SubEntry(db.Model):
-    __tablename__ = 'sub_entries'
+    __tablename__ = "sub_entries"
 
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-    main_entry_id: Mapped[int] = mapped_column(ForeignKey('main_entries.id', ondelete='CASCADE'))
+    main_entry_id: Mapped[int] = mapped_column(ForeignKey("main_entries.id", ondelete="CASCADE"))
     part: Mapped[int] = mapped_column(db.Integer)
     title: Mapped[str] = mapped_column(db.Text)
     content: Mapped[str] = mapped_column(db.Text)
@@ -36,24 +36,33 @@ class SubEntry(db.Model):
     solution: Mapped[str] = mapped_column(db.Text)
 
     # Define the relationship
-    main_entry: Mapped[MainEntry] = relationship('MainEntry', backref='sub_entries')
+    main_entry: Mapped[MainEntry] = relationship("MainEntry", backref="sub_entries")
 
 
 class Obfuscation(db.Model):
-    __tablename__ = 'obfuscation'
+    __tablename__ = "obfuscation"
 
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-    year: Mapped[str] = mapped_column(db.String(10), nullable=False)
+    year: Mapped[str] = mapped_column(db.String(4), nullable=False)
     val: Mapped[int] = mapped_column(db.Integer, nullable=False)
     obfuscated_key: Mapped[str] = mapped_column(db.String(255))
     html_key: Mapped[str] = mapped_column(db.String(255))
 
 
-class Progress(db.Model):
-    __tablename__ = 'progress'
-
+class Users(db.Model):
+    __tablename__ = "users"
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     user_id: Mapped[str] = mapped_column(db.String(20), nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(db.String(50))
+    github: Mapped[str] = mapped_column(db.String(50))
+
+
+class Progress(db.Model):
+    __tablename__ = "progress"
+
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    year: Mapped[str] = mapped_column(db.String(4), nullable=False)
     c1: Mapped[list[bool]] = mapped_column(db.ARRAY(db.Boolean))
     c2: Mapped[list[bool]] = mapped_column(db.ARRAY(db.Boolean))
     c3: Mapped[list[bool]] = mapped_column(db.ARRAY(db.Boolean))
@@ -64,30 +73,31 @@ class Progress(db.Model):
     c8: Mapped[list[bool]] = mapped_column(db.ARRAY(db.Boolean))
     c9: Mapped[list[bool]] = mapped_column(db.ARRAY(db.Boolean))
     c10: Mapped[list[bool]] = mapped_column(db.ARRAY(db.Boolean))
-    name: Mapped[str] = mapped_column(db.String(255))
-    github: Mapped[str] = mapped_column(db.String(255))
+
+    # Define the relationship
+    user: Mapped[Users] = relationship("Users", backref="progress")
 
 
 class Solution(db.Model):
-    __tablename__ = 'solutions'
+    __tablename__ = "solutions"
 
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-    year: Mapped[str] = mapped_column(db.String(10), nullable=False)
+    year: Mapped[str] = mapped_column(db.String(4), nullable=False)
     val: Mapped[int] = mapped_column(db.Integer, nullable=False)
     part1: Mapped[str] = mapped_column(db.Text)
     part2: Mapped[str] = mapped_column(db.Text)
 
 
 class Permissions(db.Model):
-    __tablename__ = 'permissions'
+    __tablename__ = "permissions"
 
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     user_id: Mapped[str] = mapped_column(db.String(20))
 
 
-class Release(db.Model):
-    __tablename__ = 'release'
+class Releases(db.Model):
+    __tablename__ = "releases"
 
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-    year: Mapped[str] = mapped_column(db.String(10), nullable=False)
-    release: Mapped[int] = mapped_column(db.Integer)
+    year: Mapped[str] = mapped_column(db.String(4), nullable=False)
+    release_number: Mapped[int] = mapped_column(db.Integer)
