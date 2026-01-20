@@ -1,4 +1,1 @@
-from .globals import register
-
-def init_app():
-    register()
+from .globals import register_globals

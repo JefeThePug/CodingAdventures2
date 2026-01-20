@@ -22,11 +22,11 @@ def create_app(env):
     db.init_app(app)
     app.data_cache = DataCache(app)
 
-    from .templating import init_app
+    from .templating import register_globals
     from .blueprints import main_bp, auth_bp, challenge_bp, admin_bp, errors_bp
 
     with app.app_context():
-        init_app()
+        register_globals()
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(challenge_bp)

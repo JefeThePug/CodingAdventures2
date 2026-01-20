@@ -1,10 +1,15 @@
 from flask import current_app
 
 
-def register():
+def register_globals():
+    """Register global Jinja template helpers.
+    Attaches utility functions to the Flask application so they can be
+    used directly inside Jinja templates.
+    """
+
     @current_app.template_global()
     def obfuscate(value: str | int) -> str | int:
-        """Obfuscate a value using the obfuscation database.
+        """Obfuscate a value using the obfuscation mapping.
         Args:
             value (str | int): The value to obfuscate.
         Returns:
@@ -14,11 +19,11 @@ def register():
 
     @current_app.template_global()
     def obscure_post(value: str | int) -> str:
-        """Obscures week number using Data Cache (from database)
+        """Obscure a challenge number for display in templates.
         Args:
             value (str | int): The number to obfuscate.
         Returns:
-            str: The obfuscated number to pass to the HTML.
+            str: The obfuscated number for HTML output.
         """
         if isinstance(value, str):
             value = int(value)
