@@ -2,21 +2,27 @@ from flask import Flask
 from itsdangerous import URLSafeTimedSerializer
 
 from .cache import DataCache
-from .config import Config, ProdConfig, DevConfig
+from .config import ProdConfig, DevConfig
 from .extensions import db
 
+SERIALIZER_SALT = "cookie"
 CONFIG_MAP = {
     "development": DevConfig,
     "production": ProdConfig,
 }
 
 
-def create_app(env):
+def create_app(env: str) -> Flask:
+    try:
+        config_type = CONFIG_MAP[env]
+    except KeyError:
+        raise RuntimeError(f"Unknown environment: {env}")
+
     app = Flask(__name__)
-    app.config.from_object(CONFIG_MAP[env])
+    app.config.from_object(config_type)
     app.serializer = URLSafeTimedSerializer(
         app.secret_key,
-        salt="cookie"
+        salt=SERIALIZER_SALT
     )
 
     db.init_app(app)
@@ -27,11 +33,14 @@ def create_app(env):
 
     with app.app_context():
         register_globals()
-    app.register_blueprint(main_bp)
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(route_bp)
-    app.register_blueprint(challenge_bp)
-    # app.register_blueprint(admin_bp)
-    app.register_blueprint(errors_bp)
+    for bp in (
+            main_bp,
+            auth_bp,
+            route_bp,
+            challenge_bp,
+            # admin_bp,
+            errors_bp,
+    ):
+        app.register_blueprint(bp)
 
     return app
