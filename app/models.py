@@ -51,6 +51,7 @@ class Obfuscation(db.Model):
 
 class User(db.Model):
     __tablename__ = "users"
+
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     user_id: Mapped[str] = mapped_column(db.String(20), nullable=False, unique=True)
     name: Mapped[str] = mapped_column(db.String(50))
@@ -101,3 +102,14 @@ class Release(db.Model):
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     year: Mapped[str] = mapped_column(db.String(4), nullable=False)
     release_number: Mapped[int] = mapped_column(db.Integer)
+
+
+class Sponsor(db.Model):
+    __tablename__ = "sponsors"
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(db.String(100), nullable=False)
+    type: Mapped[str] = mapped_column(db.String(10), nullable=False)
+    website: Mapped[str] = mapped_column(db.Text)
+    image: Mapped[str] = mapped_column(db.Text)
+    blurb: Mapped[str] = mapped_column(db.Text)
+    disabled: Mapped[bool] = mapped_column(db.Boolean, default=False, nullable=False)
