@@ -211,7 +211,7 @@ class HtmlCache:
     @staticmethod
     def normalize(s: str) -> str:
         """Normalize line endings in a string to LF (\n)."""
-        return s.replace('\r\n', '\n').replace('\r', '\n')
+        return s.replace("\r\n", "\n").replace("\r", "\n")
 
     def count_changes(self, year: str, week: int, part: int, data: dict) -> int:
         """Return the number of changed fields for a given SubEntry part."""
@@ -274,7 +274,7 @@ class DataCache:
         with get_app().app_context():
             progress = Progress.query.join(User).filter(User.user_id == user_id, Progress.year == year).one_or_none()
             if progress is None:
-                get_app().logger.warning(f"User {user_id} not found in database when updating data.")
+                warning(f"User {user_id} not found in database when updating data.")
                 return False
             col_name = f"c{challenge_num}"
             challenge = getattr(progress, col_name, None)
