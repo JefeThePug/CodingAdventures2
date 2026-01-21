@@ -1,6 +1,8 @@
 from typing import TypedDict
 
-from flask import session, request, current_app
+from flask import session, request
+
+from app.appctx import get_app
 
 
 class ProgressPayload(TypedDict):
@@ -19,7 +21,7 @@ def sync_progress(user_id: str) -> None:
     Args:
         user_id (str): The Discord user ID.
     """
-    session["progress"] = current_app.data_cache.load_progress(user_id)
+    session["progress"] = get_app().data_cache.progress.load_progress(user_id)
 
 
 def set_progress(challenge_num: int, progress: int) -> str | None:
@@ -33,7 +35,7 @@ def set_progress(challenge_num: int, progress: int) -> str | None:
     if "user_data" in session:
         # Change database and update Data Cache
 
-        current_app.data_cache.update_progress(
+        get_app().data_cache.update_progress(
             session["user_data"]["id"],
             challenge_num,
             progress,
@@ -41,7 +43,7 @@ def set_progress(challenge_num: int, progress: int) -> str | None:
         sync_progress(session["user_data"]["id"])
     else:
         # Alter Browser Cookies
-        return current_app.serializer.dumps(f"{challenge_num}{'AB'[progress]}")
+        return get_app().serializer.dumps(f"{challenge_num}{'AB'[progress]}")
 
 
 def get_progress() -> ProgressPayload:
@@ -51,7 +53,7 @@ def get_progress() -> ProgressPayload:
     """
     if "user_data" in session:
         # Retrieve information from Flask session and Data Cache
-        session["progress"] = current_app.data_cache.load_progress(session["user_data"]["id"])
+        session["progress"] = get_app().data_cache.progress.load_progress(session["user_data"]["id"])
         return {
             "id": session["user_data"]["id"],
             "img": session["user_data"]["img"],
@@ -60,7 +62,7 @@ def get_progress() -> ProgressPayload:
         }
     # Else, retrieve information from Browser Cookies
     cookies = [*request.cookies.keys()]
-    s = [current_app.serializer.loads(x) for x in cookies if len(x) > 40]
+    s = [get_app().serializer.loads(x) for x in cookies if len(x) > 40]
     rockets = [[f"{n}{p}" in s for p in "AB"] for n in range(1, 11)]
     progress = {f"c{i}": r for i, r in enumerate(rockets, 1)}
     return {
