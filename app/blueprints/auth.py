@@ -5,7 +5,7 @@ import requests
 from flask import Blueprint, Response, redirect, render_template, session, url_for, request
 
 from app.services import get_progress, exchange_code, sync_progress
-from app.appctx import get_app
+from app.appctx import get_app, exception, warning
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -44,7 +44,7 @@ def callback() -> Response | tuple[str, int]:
         tuple[str, int]: Error message with HTTP status code 400.
     """
     if request.args.get("error"):
-        get_app().logger.exception(f"Request Error (/callback): {request.args}")
+        exception(f"Request Error (/callback): {request.args}")
         return redirect(url_for("main.index"))
 
     if not (code := request.args.get("code")):
@@ -53,7 +53,7 @@ def callback() -> Response | tuple[str, int]:
     token_response = exchange_code(code)
     token = token_response.get("access_token")
     if not token:
-        get_app().logger.error(f"Token exchange failed: {token_response}")
+        warning(f"Token exchange failed: {token_response}")
         return "Error: No token received", 400
 
     session["token"] = token
@@ -79,9 +79,9 @@ def callback() -> Response | tuple[str, int]:
     session["user_data"]["img"] = avatar_url
 
     # Add to database if not present
-    progress = get_app().data_cache.progress.load_progress(user_id)
+    progress = get_app().data_cache.load_progress(user_id)
     if progress is None:
-        added = get_app().data_cache.progress.add_user(
+        added = get_app().data_cache.add_user(
             session["user_data"]["id"],
             session["user_data"]["username"]
         )

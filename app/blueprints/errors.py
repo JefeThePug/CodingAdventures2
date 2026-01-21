@@ -5,10 +5,10 @@ errors_bp = Blueprint("errors", __name__)
 
 
 @errors_bp.app_errorhandler(404)
-def teapot(e: NotFound) -> Response:
+def teapot(_: NotFound) -> Response:
     """Handle 404 errors by returning a 418 teapot response with an image.
         Args:
-            e (Exception): The error that occurred.
+            _ (Exception): The error that occurred. (Not Used)
         Returns:
             Response: Custom response with a 418 status code and an image.
         """
@@ -19,6 +19,6 @@ def teapot(e: NotFound) -> Response:
 
 
 @errors_bp.route("/418")
-def trigger_418() -> Response:
+def trigger_418() -> None:
     """Trigger a 418 error for testing purposes."""
     abort(404)
