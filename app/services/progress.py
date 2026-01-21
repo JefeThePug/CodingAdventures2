@@ -7,6 +7,7 @@ from app.appctx import get_app
 
 class ProgressPayload(TypedDict):
     """Structure returned by get_progress() for templates and handlers."""
+
     id: str | None
     img: str
     progress: dict[str, list[bool]]
@@ -53,7 +54,9 @@ def get_progress() -> ProgressPayload:
     """
     if "user_data" in session:
         # Retrieve information from Flask session and Data Cache
-        session["progress"] = get_app().data_cache.progress.load_progress(session["user_data"]["id"])
+        session["progress"] = get_app().data_cache.progress.load_progress(
+            session["user_data"]["id"]
+        )
         return {
             "id": session["user_data"]["id"],
             "img": session["user_data"]["img"],

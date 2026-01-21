@@ -78,5 +78,7 @@ def sponsor() -> str:
         "sponsor.html",
         img=user["img"],
         year=session["year"],
-        t3=t3, t2=t2, t1=t1,
+        t3=t3,
+        t2=t2,
+        t1=t1,
     )

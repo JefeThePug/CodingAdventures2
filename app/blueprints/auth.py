@@ -2,7 +2,15 @@ import os
 from urllib.parse import urlencode
 
 import requests
-from flask import Blueprint, Response, redirect, render_template, session, url_for, request
+from flask import (
+    Blueprint,
+    Response,
+    redirect,
+    render_template,
+    session,
+    url_for,
+    request,
+)
 
 from app.services import get_progress, exchange_code, sync_progress
 from app.appctx import get_app, exception, warning
@@ -82,8 +90,7 @@ def callback() -> Response | tuple[str, int]:
     progress = get_app().data_cache.load_progress(user_id)
     if progress is None:
         added = get_app().data_cache.add_user(
-            session["user_data"]["id"],
-            session["user_data"]["username"]
+            session["user_data"]["id"], session["user_data"]["username"]
         )
         if not added:
             return redirect(url_for("logout"))

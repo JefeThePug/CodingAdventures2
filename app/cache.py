@@ -3,8 +3,18 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.appctx import get_app, warning, exception
 from app.extensions import db
-from .models import (DiscordID, MainEntry, SubEntry, Obfuscation, User,
-                     Progress, Solution, Permission, Release, Sponsor)
+from .models import (
+    DiscordID,
+    MainEntry,
+    SubEntry,
+    Obfuscation,
+    User,
+    Progress,
+    Solution,
+    Permission,
+    Release,
+    Sponsor,
+)
 
 TYPE_MAP = {"pioneer": "t3", "explorer": "t2", "pathfinder": "t1", "wayfarer": "t1"}
 
@@ -30,32 +40,46 @@ class AdminConstantsCache:
                 Obfuscation.html_key,
             ).all()
             for year, val, obf_key, html_key in obfuscations:
-                self.obfuscations.setdefault(year, {}).update({val: obf_key, obf_key: val})
-                self.html_nums.setdefault(year, {}).update({val: html_key, html_key: val})
+                self.obfuscations.setdefault(year, {}).update(
+                    {val: obf_key, obf_key: val}
+                )
+                self.html_nums.setdefault(year, {}).update(
+                    {val: html_key, html_key: val}
+                )
             # Admin-Managed Constants
             # Channels
-            discord_ids = DiscordID.query.with_entities(DiscordID.year, DiscordID.name, DiscordID.discord_id).all()
+            discord_ids = DiscordID.query.with_entities(
+                DiscordID.year, DiscordID.name, DiscordID.discord_id
+            ).all()
             for year, name, i in discord_ids:
                 self.discord_ids.setdefault(year, {}).update({name: i})
             # Admin Permissions
             permissions = Permission.query.with_entities(Permission.user_id).all()
             self.permissions = [p[0] for p in permissions]
             # Release Numbers
-            releases = Release.query.with_entities(Release.year, Release.release_number).all()
+            releases = Release.query.with_entities(
+                Release.year, Release.release_number
+            ).all()
             for year, num in releases:
                 self.releases[year] = num
             # Sponsors
             sponsors = Sponsor.query.with_entities(
-                Sponsor.name, Sponsor.type, Sponsor.website,
-                Sponsor.image, Sponsor.blurb).all()
+                Sponsor.name,
+                Sponsor.type,
+                Sponsor.website,
+                Sponsor.image,
+                Sponsor.blurb,
+            ).all()
             for name, t, ws, img, txt in sponsors:
                 t_map = TYPE_MAP[t]
-                self.sponsors.setdefault(t_map, []).append({
-                    "name": name,
-                    "website": ws,
-                    **({"image": img} if t_map != "t1" else {}),
-                    **({"blurb": txt} if t_map == "t3" else {}),
-                })
+                self.sponsors.setdefault(t_map, []).append(
+                    {
+                        "name": name,
+                        "website": ws,
+                        **({"image": img} if t_map != "t1" else {}),
+                        **({"blurb": txt} if t_map == "t3" else {}),
+                    }
+                )
 
     def update_release(self, year: str, release: int) -> bool:
         """Update Release Week for a given year"""
@@ -71,7 +95,10 @@ class AdminConstantsCache:
                 db.session.commit()
 
                 if modified:
-                    flash(f"Release Week for {year} updated successfully to {release}", "success")
+                    flash(
+                        f"Release Week for {year} updated successfully to {release}",
+                        "success",
+                    )
                 else:
                     flash("No changes made to Release Week", "success")
             except Exception as e:
@@ -81,7 +108,9 @@ class AdminConstantsCache:
                 return False
         return True
 
-    def update_constants(self, year: str, channels: dict[str, str], permitted: list[str]) -> bool:
+    def update_constants(
+        self, year: str, channels: dict[str, str], permitted: list[str]
+    ) -> bool:
         """Update All Admin-Managed Constants"""
         modified = False
         with get_app().app_context():
@@ -96,16 +125,25 @@ class AdminConstantsCache:
 
                 # Admin Permission User IDs
                 permitted = set(permitted + ["609283782897303554"])
-                existing_user_ids = {uid for (uid,) in Permission.query.with_entities(Permission.user_id).all()}
+                existing_user_ids = {
+                    uid
+                    for (uid,) in Permission.query.with_entities(
+                        Permission.user_id
+                    ).all()
+                }
                 to_delete = existing_user_ids - permitted
                 to_add = permitted - existing_user_ids
                 # Remove Users
                 if to_delete:
-                    Permission.query.filter(Permission.user_id.in_(to_delete)).delete(synchronize_session=False)
+                    Permission.query.filter(Permission.user_id.in_(to_delete)).delete(
+                        synchronize_session=False
+                    )
                     modified = True
                 # Add Users
                 if to_add:
-                    db.session.bulk_save_objects([Permission(user_id=u) for u in to_add])
+                    db.session.bulk_save_objects(
+                        [Permission(user_id=u) for u in to_add]
+                    )
                     modified = True
                 self.permissions = list(permitted)
 
@@ -139,7 +177,9 @@ class HtmlCache:
             for main_entry in main_entries:
                 self.html.setdefault(main_entry.year, {})
                 self.html[main_entry.year][main_entry.val] = {}
-                sub_entries = SubEntry.query.filter_by(main_entry_id=main_entry.id).all()
+                sub_entries = SubEntry.query.filter_by(
+                    main_entry_id=main_entry.id
+                ).all()
                 for sub_entry in sub_entries:
                     self.html[main_entry.year][main_entry.val][sub_entry.part] = {
                         "title": sub_entry.title,
@@ -147,7 +187,7 @@ class HtmlCache:
                         "instructions": sub_entry.instructions,
                         "input": sub_entry.input_type,
                         "form": sub_entry.form,
-                        "solution": sub_entry.solution
+                        "solution": sub_entry.solution,
                     }
                 self.html[main_entry.year][main_entry.val]["ee"] = main_entry.ee
 
@@ -158,7 +198,9 @@ class HtmlCache:
                 Solution.year, Solution.val, Solution.part1, Solution.part2
             ).all()
             for year, i, a, b in solutions:
-                self.solutions.setdefault(year, {}).update({i: {"part1": a, "part2": b}})
+                self.solutions.setdefault(year, {}).update(
+                    {i: {"part1": a, "part2": b}}
+                )
 
     def update_html(self, year: str, week: int, a: dict, b: dict, ee: str) -> bool:
         """Update a SubEntry in the database with new data if changed"""
@@ -171,10 +213,19 @@ class HtmlCache:
             return True
 
         data_fields = ["title", "content", "instructions", "input", "form", "solution"]
-        db_fields = ["title", "content", "instructions", "input_type", "form", "solution"]
+        db_fields = [
+            "title",
+            "content",
+            "instructions",
+            "input_type",
+            "form",
+            "solution",
+        ]
         try:
             with get_app().app_context():
-                main_entry = MainEntry.query.filter_by(year=year, val=week).one_or_none()
+                main_entry = MainEntry.query.filter_by(
+                    year=year, val=week
+                ).one_or_none()
                 if not main_entry:
                     raise ValueError("MainEntry not found")
                 for part, data in enumerate((a, b), 1):
@@ -184,8 +235,7 @@ class HtmlCache:
                         continue
 
                     sub_entry = SubEntry.query.filter_by(
-                        main_entry_id=main_entry.id,
-                        sub_entry_id=part
+                        main_entry_id=main_entry.id, sub_entry_id=part
                     ).one_or_none()
                     if not sub_entry:
                         raise ValueError(f"SubEntry part {part} not found")
@@ -216,7 +266,10 @@ class HtmlCache:
     def count_changes(self, year: str, week: int, part: int, data: dict) -> int:
         """Return the number of changed fields for a given SubEntry part."""
         fields = ["title", "content", "instructions", "input", "form", "solution"]
-        return sum(self.normalize(data[field]) != self.html[year][week][part][field] for field in fields)
+        return sum(
+            self.normalize(data[field]) != self.html[year][week][part][field]
+            for field in fields
+        )
 
     def update_solutions(self, year: str, solutions: dict[int, dict[str, str]]) -> bool:
         """Update solutions in database"""
@@ -258,8 +311,11 @@ class DataCache:
         """Query user progress from the database. Returns a dict if found, else an empty dict."""
         with get_app().app_context():
             try:
-                progress = Progress.query.join(User).filter(User.user_id == user_id,
-                                                            Progress.year == year).one_or_none()
+                progress = (
+                    Progress.query.join(User)
+                    .filter(User.user_id == user_id, Progress.year == year)
+                    .one_or_none()
+                )
                 if progress is None:
                     warning(f"User {user_id} not found in database when loading data")
                     return {}
@@ -269,22 +325,32 @@ class DataCache:
                 return {}
 
     @staticmethod
-    def update_progress(year: str, user_id: str, challenge_num: int, index: int) -> bool:
+    def update_progress(
+        year: str, user_id: str, challenge_num: int, index: int
+    ) -> bool:
         """Update individual user progress in the database and refresh the cache."""
         with get_app().app_context():
-            progress = Progress.query.join(User).filter(User.user_id == user_id, Progress.year == year).one_or_none()
+            progress = (
+                Progress.query.join(User)
+                .filter(User.user_id == user_id, Progress.year == year)
+                .one_or_none()
+            )
             if progress is None:
                 warning(f"User {user_id} not found in database when updating data.")
                 return False
             col_name = f"c{challenge_num}"
             challenge = getattr(progress, col_name, None)
             if challenge is None:
-                warning(f"Unexpected error with updating challenge. {progress=} {challenge=}")
+                warning(
+                    f"Unexpected error with updating challenge. {progress=} {challenge=}"
+                )
                 return False
             if not (0 <= index < len(challenge)):
-                warning(f"Progress update: Index out of bounds {index=}, len={len(challenge)}")
+                warning(
+                    f"Progress update: Index out of bounds {index=}, len={len(challenge)}"
+                )
                 return False
-            challenge = challenge[:index] + [True] + challenge[index + 1:]
+            challenge = challenge[:index] + [True] + challenge[index + 1 :]
             setattr(progress, col_name, challenge)
             db.session.commit()
         return True

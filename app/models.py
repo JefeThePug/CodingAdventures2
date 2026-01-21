@@ -26,7 +26,9 @@ class SubEntry(db.Model):
     __tablename__ = "sub_entries"
 
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-    main_entry_id: Mapped[int] = mapped_column(ForeignKey("main_entries.id", ondelete="CASCADE"))
+    main_entry_id: Mapped[int] = mapped_column(
+        ForeignKey("main_entries.id", ondelete="CASCADE")
+    )
     part: Mapped[int] = mapped_column(db.Integer)
     title: Mapped[str] = mapped_column(db.Text)
     content: Mapped[str] = mapped_column(db.Text)

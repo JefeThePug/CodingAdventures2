@@ -20,26 +20,30 @@ def create_app(env: str) -> AppFlask:
 
     app = AppFlask(__name__)
     app.config.from_object(config_type)
-    app.serializer = URLSafeTimedSerializer(
-        app.secret_key,
-        salt=SERIALIZER_SALT
-    )
+    app.serializer = URLSafeTimedSerializer(app.secret_key, salt=SERIALIZER_SALT)
 
     db.init_app(app)
     app.data_cache = DataCache()
 
     from .templating import register_globals
-    from .blueprints import main_bp, auth_bp, route_bp, challenge_bp, admin_bp, errors_bp
+    from .blueprints import (
+        main_bp,
+        auth_bp,
+        route_bp,
+        challenge_bp,
+        admin_bp,
+        errors_bp,
+    )
 
     with app.app_context():
         register_globals()
     for bp in (
-            main_bp,
-            auth_bp,
-            route_bp,
-            challenge_bp,
-            # admin_bp,
-            errors_bp,
+        main_bp,
+        auth_bp,
+        route_bp,
+        challenge_bp,
+        # admin_bp,
+        errors_bp,
     ):
         app.register_blueprint(bp)
 
