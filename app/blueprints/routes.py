@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, session
 
 from app.services import get_progress
-from app.utils.current_app import get_app
+from app.appctx import get_app
 
 route_bp = Blueprint("routes", __name__)
 

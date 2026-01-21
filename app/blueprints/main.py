@@ -1,7 +1,7 @@
 from flask import Blueprint, Response, redirect, render_template, session, url_for
 
 from app.services import get_progress
-from app.utils.current_app import get_app
+from app.appctx import get_app
 
 main_bp = Blueprint("main", __name__)
 

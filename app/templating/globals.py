@@ -1,4 +1,4 @@
-from app.utils.current_app import get_app
+from app.appctx import get_app
 
 
 def register_globals():

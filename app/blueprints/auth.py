@@ -5,7 +5,7 @@ import requests
 from flask import Blueprint, Response, redirect, render_template, session, url_for, request
 
 from app.services import get_progress, exchange_code, sync_progress
-from app.utils.current_app import get_app
+from app.appctx import get_app
 
 auth_bp = Blueprint("auth", __name__)
 

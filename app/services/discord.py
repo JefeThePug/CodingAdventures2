@@ -1,6 +1,6 @@
 import requests
 
-from app.utils.current_app import get_app
+from app.appctx import get_app
 
 
 def exchange_code(code: str) -> dict:
