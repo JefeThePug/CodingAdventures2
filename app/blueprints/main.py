@@ -1,6 +1,7 @@
-from flask import Blueprint, Response, redirect, render_template, session, url_for, current_app
+from flask import Blueprint, Response, redirect, render_template, session, url_for
 
 from app.services import get_progress
+from app.utils.current_app import get_app
 
 main_bp = Blueprint("main", __name__)
 
@@ -28,5 +29,5 @@ def release(year) -> str:
         img=user["img"],
         year=session["year"],
         rockets=user["rockets"],
-        num=current_app.data_cache.release,
+        num=get_app().data_cache.admin.release,
     )

@@ -1,8 +1,9 @@
-from flask import current_app, flash
+from flask import flash
 
 from app.extensions import db
 from .models import (DiscordID, MainEntry, SubEntry, Obfuscation, User,
                      Progress, Solution, Permission, Release, Sponsor)
+from .utils.current_app import get_app
 
 TYPE_MAP = {"pioneer": "t3", "explorer": "t2", "pathfinder": "t1", "wayfarer": "t1"}
 
@@ -19,7 +20,7 @@ class AdminConstantsCache:
 
     def load_constants(self) -> None:
         """Load all pseudo-constant data from the database into memory."""
-        with current_app.app_context():
+        with get_app().app_context():
             # Total Constants
             obfuscations = Obfuscation.query.with_entities(
                 Obfuscation.year,
@@ -58,7 +59,7 @@ class AdminConstantsCache:
     def update_release(self, year: str, release: int) -> bool:
         """Update Release Week for a given year"""
         modified = False
-        with current_app.app_context():
+        with get_app().app_context():
             try:
                 release_record = Release.query.filter_by(year=year).first()
                 if release_record.release_number != release:
@@ -75,14 +76,14 @@ class AdminConstantsCache:
             except Exception as e:
                 db.session.rollback()
                 flash(f"Update failed: {str(e)}", "error")
-                current_app.logger.exception(f"Update release failed: {str(e)}")
+                get_app().logger.exception(f"Update release failed: {str(e)}")
                 return False
         return True
 
     def update_constants(self, year: str, channels: dict[str, str], permitted: list[str]) -> bool:
         """Update All Admin-Managed Constants"""
         modified = False
-        with current_app.app_context():
+        with get_app().app_context():
             try:
                 # Channel IDs
                 entries = DiscordID.query.filter_by(year=year).all()
@@ -117,7 +118,7 @@ class AdminConstantsCache:
             except Exception as e:
                 db.session.rollback()
                 flash(f"Update failed: {str(e)}", "error")
-                self.app.logger.exception(f"Update admin settings failed: {str(e)}")
+                get_app().logger.exception(f"Update admin settings failed: {str(e)}")
                 return False
 
         return True
@@ -132,7 +133,7 @@ class HtmlCache:
 
     def load_html(self) -> None:
         """Load html content from the database into memory."""
-        with current_app.app_context():
+        with get_app().app_context():
             main_entries = MainEntry.query.all()
             for main_entry in main_entries:
                 self.html.setdefault(main_entry.year, {})
@@ -151,7 +152,7 @@ class HtmlCache:
 
     def load_solutions(self) -> None:
         """Load solutions from the database into memory."""
-        with current_app.app_context():
+        with get_app().app_context():
             solutions = Solution.query.with_entities(
                 Solution.year, Solution.val, Solution.part1, Solution.part2
             ).all()
@@ -171,7 +172,7 @@ class HtmlCache:
         data_fields = ["title", "content", "instructions", "input", "form", "solution"]
         db_fields = ["title", "content", "instructions", "input_type", "form", "solution"]
         try:
-            with current_app.app_context():
+            with get_app().app_context():
                 main_entry = MainEntry.query.filter_by(year=year, val=week).one_or_none()
                 if not main_entry:
                     raise ValueError("MainEntry not found")
@@ -201,7 +202,7 @@ class HtmlCache:
             self.load_html()
         except Exception as e:
             flash(f"Update failed: {str(e)}", "error")
-            current_app.logger.exception(f"Update HTML failed: {str(e)}")
+            get_app().logger.exception(f"Update HTML failed: {str(e)}")
             db.session.rollback()
             return False
         return True
@@ -219,7 +220,7 @@ class HtmlCache:
     def update_solutions(self, year: str, solutions: dict[int, dict[str, str]]) -> bool:
         """Update solutions in database"""
         modified = False
-        with current_app.app_context():
+        with get_app().app_context():
             try:
                 for i, parts in solutions.items():
                     solution = Solution.query.filter_by(year=year, val=i).one_or_none()
@@ -239,7 +240,7 @@ class HtmlCache:
                     flash("No changes made", "success")
 
             except Exception as e:
-                current_app.logger.exception(f"Error updating solutions: {e}")
+                get_app().logger.exception(f"Error updating solutions: {e}")
                 db.session.rollback()
                 return False
 

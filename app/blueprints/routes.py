@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, current_app, session
+from flask import Blueprint, render_template, session
 
 from app.services import get_progress
+from app.utils.current_app import get_app
 
 route_bp = Blueprint("routes", __name__)
 
@@ -28,7 +29,7 @@ def champions() -> str:
     user = get_progress()
 
     names, links = [], []
-    for champion in current_app.data_cache.get_all_champions():
+    for champion in get_app().data_cache.progress.get_all_champions():
         names.append(champion["name"])
         links.append(champion["github"])
 
@@ -64,7 +65,8 @@ def sponsor() -> str:
     user = get_progress()
 
     t3, t2, t1 = [], [], []
-    for s in current_app.data_cache.get_all_sponsors():
+    # FIX!!!!
+    for s in get_app().data_cache.get_all_sponsors():
         if s["type"] == "pioneer":
             t3.append()
         elif s["type"] == "explorer":

@@ -1,5 +1,6 @@
 import requests
-from flask import current_app
+
+from app.utils.current_app import get_app
 
 
 def exchange_code(code: str) -> dict:
@@ -16,9 +17,9 @@ def exchange_code(code: str) -> dict:
     token_data = {
         "grant_type": "authorization_code",
         "code": code,
-        "redirect_uri": current_app.config["DISCORD_REDIRECT_URI"],
-        "client_id": current_app.config["DISCORD_CLIENT_ID"],
-        "client_secret": current_app.config["DISCORD_CLIENT_SECRET"],
+        "redirect_uri": get_app().config["DISCORD_REDIRECT_URI"],
+        "client_id": get_app().config["DISCORD_CLIENT_ID"],
+        "client_secret": get_app().config["DISCORD_CLIENT_SECRET"],
     }
 
     response = requests.post(

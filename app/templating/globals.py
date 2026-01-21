@@ -1,4 +1,4 @@
-from flask import current_app
+from app.utils.current_app import get_app
 
 
 def register_globals():
@@ -7,7 +7,7 @@ def register_globals():
     used directly inside Jinja templates.
     """
 
-    @current_app.template_global()
+    @get_app().template_global()
     def obfuscate(value: str | int) -> str | int:
         """Obfuscate a value using the obfuscation mapping.
         Args:
@@ -15,9 +15,9 @@ def register_globals():
         Returns:
             str | int: The obfuscated value.
         """
-        return current_app.data_cache.html_nums[value]
+        return get_app().data_cache.admin.html_nums[value]
 
-    @current_app.template_global()
+    @get_app().template_global()
     def obscure_post(value: str | int) -> str:
         """Obscure a challenge number for display in templates.
         Args:
@@ -27,4 +27,4 @@ def register_globals():
         """
         if isinstance(value, str):
             value = int(value)
-        return current_app.data_cache.obfuscations[int(value)]
+        return get_app().data_cache.admin.obfuscations[int(value)]
