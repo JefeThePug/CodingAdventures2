@@ -1,9 +1,10 @@
 from flask import flash
+from sqlalchemy.exc import SQLAlchemyError
 
+from app.appctx import get_app, warning, exception
 from app.extensions import db
 from .models import (DiscordID, MainEntry, SubEntry, Obfuscation, User,
                      Progress, Solution, Permission, Release, Sponsor)
-from .utils.current_app import get_app
 
 TYPE_MAP = {"pioneer": "t3", "explorer": "t2", "pathfinder": "t1", "wayfarer": "t1"}
 
@@ -76,7 +77,7 @@ class AdminConstantsCache:
             except Exception as e:
                 db.session.rollback()
                 flash(f"Update failed: {str(e)}", "error")
-                get_app().logger.exception(f"Update release failed: {str(e)}")
+                exception("Update release failed", e)
                 return False
         return True
 
@@ -118,7 +119,7 @@ class AdminConstantsCache:
             except Exception as e:
                 db.session.rollback()
                 flash(f"Update failed: {str(e)}", "error")
-                get_app().logger.exception(f"Update admin settings failed: {str(e)}")
+                exception("Update admin settings failed", e)
                 return False
 
         return True
@@ -200,9 +201,9 @@ class HtmlCache:
 
             flash(f"Database for Week {week} Successfully Updated!", "success")
             self.load_html()
-        except Exception as e:
+        except SQLAlchemyError as e:
             flash(f"Update failed: {str(e)}", "error")
-            get_app().logger.exception(f"Update HTML failed: {str(e)}")
+            exception("Update HTML failed", e)
             db.session.rollback()
             return False
         return True
@@ -239,31 +240,60 @@ class HtmlCache:
                 else:
                     flash("No changes made", "success")
 
-            except Exception as e:
-                get_app().logger.exception(f"Error updating solutions: {e}")
+            except SQLAlchemyError as e:
+                exception("Error updating solutions", e)
                 db.session.rollback()
                 return False
 
         return True
 
 
-class UserProgressCache:
-    def __init__(self):
-        self.progress_cache = {}
-
-    def load_progress(self, user_id: str) -> dict: ...
-
-    def update_progress(self, user_id: str, challenge_num: int, index: int) -> bool: ...
-
-    def add_user(self, user_id: str, name: str) -> bool: ...
-
-    def get_all_champions(self) -> list[dict]: ...
-
-    def update_champions(self, champions: list[dict]) -> bool: ...
-
-
 class DataCache:
     def __init__(self):
         self.admin = AdminConstantsCache()
         self.html = HtmlCache()
-        self.progress = UserProgressCache()
+
+    @staticmethod
+    def load_progress(year: str, user_id: str) -> dict:
+        """Query user progress from the database. Returns a dict if found, else an empty dict."""
+        with get_app().app_context():
+            try:
+                progress = Progress.query.join(User).filter(User.user_id == user_id,
+                                                            Progress.year == year).one_or_none()
+                if progress is None:
+                    warning(f"User {user_id} not found in database when loading data")
+                    return {}
+                return {f"c{i}": getattr(progress, f"c{i}") for i in range(1, 11)}
+            except SQLAlchemyError as e:
+                exception(f"Failed to load progress for user {user_id}", e)
+                return {}
+
+    @staticmethod
+    def update_progress(year: str, user_id: str, challenge_num: int, index: int) -> bool:
+        """Update individual user progress in the database and refresh the cache."""
+        with get_app().app_context():
+            progress = Progress.query.join(User).filter(User.user_id == user_id, Progress.year == year).one_or_none()
+            if progress is None:
+                get_app().logger.warning(f"User {user_id} not found in database when updating data.")
+                return False
+            col_name = f"c{challenge_num}"
+            challenge = getattr(progress, col_name, None)
+            if challenge is None:
+                warning(f"Unexpected error with updating challenge. {progress=} {challenge=}")
+                return False
+            if not (0 <= index < len(challenge)):
+                warning(f"Progress update: Index out of bounds {index=}, len={len(challenge)}")
+                return False
+            challenge = challenge[:index] + [True] + challenge[index + 1:]
+            setattr(progress, col_name, challenge)
+            db.session.commit()
+        return True
+
+    def add_user(self, user_id: str, name: str) -> bool:
+        ...
+
+    def get_all_champions(self) -> list[dict]:
+        ...
+
+    def update_champions(self, champions: list[dict]) -> bool:
+        ...
