@@ -2,6 +2,7 @@ import os
 
 
 class Config:
+    CURRENT_YEAR = 2026
     SECRET_KEY = os.getenv("SECRET_KEY")
     SQLALCHEMY_DATABASE_URI = (
         f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}"

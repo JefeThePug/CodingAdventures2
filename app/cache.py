@@ -1,7 +1,7 @@
 from flask import flash
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.appctx import get_app, warning, exception
+from app.appctx import get_app, warning, exception, log_info
 from app.extensions import db
 from .models import (
     DiscordID,
@@ -161,6 +161,28 @@ class AdminConstantsCache:
                 return False
 
         return True
+
+    @staticmethod
+    def get_all_sponsors() -> tuple[list[dict], list[dict], list[dict]]:
+        """Get progress for all users that completed 10 challenges for a given year."""
+        try:
+            with get_app().app_context():
+                all_sponsors = Sponsor.query.filter(Sponsor.disabled.is_(False)).all()
+
+                t1, t2, t3 = [], [], []
+                for sponsor in all_sponsors:
+                    base = {"name": sponsor.name, "website": sponsor.website}
+                    if TYPE_MAP[sponsor.type] == "t1":
+                        t1.append(base)
+                    elif TYPE_MAP[sponsor.type] == "t2":
+                        t2.append({**base, "image": sponsor.image})
+                    elif TYPE_MAP[sponsor.type] == "t3":
+                        t3.append({**base, "image": sponsor.image, "blurb": sponsor.blurb})
+
+                return t1, t2, t3
+        except SQLAlchemyError as e:
+            exception("Error fetching champions", e)
+            return [], [], []
 
 
 class HtmlCache:
@@ -355,11 +377,77 @@ class DataCache:
             db.session.commit()
         return True
 
-    def add_user(self, user_id: str, name: str) -> bool:
-        ...
+    @staticmethod
+    def add_user(user_id: str, name: str) -> bool:
+        """Insert a new progress record into the database."""
+        app = get_app()
+        try:
+            with app.app_context():
+                new_user = User(
+                    user_id=user_id,
+                    name=name,
+                    github="",
+                )
+                db.session.add(new_user)
+                db.session.flush()
+                for year in range(2025, app.config.CURRENT_YEAR + 1):
+                    new_progress = Progress(
+                        user_id=new_user.id,
+                        year=f"{year}",
+                        **{f"c{i}": [False, False] for i in range(1, 11)}
+                    )
+                    db.session.add(new_progress)
+                db.session.commit()
+                log_info(f"User {name}:{user_id} (id={new_user.id}) added to database.")
+            return True
+        except SQLAlchemyError as e:
+            exception("Error adding user", e)
+            db.session.rollback()
+            return False
 
-    def get_all_champions(self) -> list[dict]:
-        ...
+    @staticmethod
+    def get_all_champions(year: str) -> tuple[list[dict[str, str]], list[str]]:
+        """Get progress for all users that completed 10 challenges for a given year."""
+        app = get_app()
+        try:
+            with app.app_context():
+                all_users = Progress.query.join(User).filter(Progress.year==year).all()
 
-    def update_champions(self, champions: list[dict]) -> bool:
-        ...
+                champions = []
+                glance = []
+                for p in all_users:
+                    states = p.challenge_states()
+                    glance.append("".join("☆★"[bit] for s in states for bit in s))
+                    if all(all(s) for s in states):
+                        champions.append({"name": p.user.name, "github": p.user.github})
+
+                return champions, glance
+        except SQLAlchemyError as e:
+            exception("Error fetching champions", e)
+            return [], []
+
+    @staticmethod
+    def update_champions(champions: list[dict]) -> bool:
+        """Update GitHub account of champions in database"""
+        modified = False
+        with get_app().app_context():
+            try:
+                for champion in champions:
+                    matching_user = User.query.filter(User.user_id == champion["user_id"]).one_or_none()
+                    if matching_user.github != champion["github"]:
+                        matching_user.github = champion["github"]
+                        modified = True
+
+                db.session.commit()
+
+                if modified:
+                    flash("GitHub Accounts updated successfully", "success")
+                else:
+                    flash("No changes made", "success")
+
+            except SQLAlchemyError as e:
+                exception("Error updating champions", e)
+                db.session.rollback()
+                return False
+
+        return True

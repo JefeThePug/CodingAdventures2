@@ -80,6 +80,10 @@ class Progress(db.Model):
     # Define the relationship
     user: Mapped[User] = relationship("User", backref="progress")
 
+    def challenge_states(self) -> list[list[bool]]:
+        """Return c1–c10 completion flags for a Progress record."""
+        return [getattr(self, f"c{i}") for i in range(1, 11)]
+
 
 class Solution(db.Model):
     __tablename__ = "solutions"
