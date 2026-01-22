@@ -29,7 +29,8 @@ def champions() -> str:
     user = get_progress()
 
     names, links = [], []
-    for champion in get_app().data_cache.progress.get_all_champions():
+    for champion, _ in get_app().data_cache.get_all_champions():
+        print(_)
         names.append(champion["name"])
         links.append(champion["github"])
 
@@ -64,15 +65,7 @@ def sponsor() -> str:
     """
     user = get_progress()
 
-    t3, t2, t1 = [], [], []
-    # FIX!!!!
-    for s in get_app().data_cache.get_all_sponsors():
-        if s["type"] == "pioneer":
-            t3.append()
-        elif s["type"] == "explorer":
-            t2.append()
-        else:
-            t1.append()
+    t3, t2, t1 = get_app().data_cache.admin.get_all_sponsors()
 
     return render_template(
         "sponsor.html",
