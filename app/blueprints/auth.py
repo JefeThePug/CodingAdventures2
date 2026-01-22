@@ -87,14 +87,14 @@ def callback() -> Response | tuple[str, int]:
     session["user_data"]["img"] = avatar_url
 
     # Add to database if not present
-    progress = get_app().data_cache.load_progress(user_id)
+    progress = get_app().data_cache.load_progress(session["year"], user_id)
     if progress is None:
         added = get_app().data_cache.add_user(
             session["user_data"]["id"], session["user_data"]["username"]
         )
         if not added:
             return redirect(url_for("logout"))
-    sync_progress(user_id)
+    sync_progress(session["year"], user_id)
 
     return redirect(url_for("main.index"))
 

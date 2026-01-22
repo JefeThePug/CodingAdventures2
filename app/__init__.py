@@ -1,3 +1,5 @@
+import os
+
 from itsdangerous import URLSafeTimedSerializer
 
 from .cache import DataCache
@@ -12,7 +14,9 @@ CONFIG_MAP = {
 }
 
 
-def create_app(env: str) -> AppFlask:
+def create_app() -> AppFlask:
+    env = os.getenv("FLASK_ENV", "development")
+
     try:
         config_type = CONFIG_MAP[env]
     except KeyError:
@@ -36,6 +40,7 @@ def create_app(env: str) -> AppFlask:
     )
 
     with app.app_context():
+        app.data_cache.load()
         register_globals()
     for bp in (
         main_bp,

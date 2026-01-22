@@ -12,22 +12,26 @@ def index() -> Response:
     Returns:
         Response: Rendered redirect to current year.
     """
-    session.setdefault("year", "2025")
+    print(f"-------------------------------IN ROOT-------------------------------\n{get_app().config['CURRENT_YEAR']=}")
+    session["year"] = f"{get_app().config['CURRENT_YEAR']}"
     return redirect(url_for("main.release", year=session["year"]))
 
 
 @main_bp.route("/<int:year>")
-def release(year) -> str:
+def release(year: int) -> str:
     """Render the index page for a specific year with user progress and release number.
     Returns:
         str: Rendered index.html template.
     """
+    print("-------------------------------IN RELEASE-------------------------------")
     session["year"] = f"{year}"
+    print(f"{session['year']=}  {type(session['year'])=}  {type(year)=}")
     user = get_progress()
+    print(f"{get_app().data_cache.admin.releases=}")
     return render_template(
         "index.html",
         img=user["img"],
         year=session["year"],
         rockets=user["rockets"],
-        num=get_app().data_cache.admin.release,
+        num=get_app().data_cache.admin.releases[session["year"]],
     )

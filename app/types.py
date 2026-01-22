@@ -1,9 +1,11 @@
+from typing import TYPE_CHECKING
 from flask import Flask
 from itsdangerous import URLSafeTimedSerializer
 
-from .cache import DataCache
+if TYPE_CHECKING:
+    from app.cache import DataCache
 
 
 class AppFlask(Flask):
-    data_cache: DataCache
+    data_cache: "DataCache"
     serializer: URLSafeTimedSerializer

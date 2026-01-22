@@ -14,15 +14,16 @@ class ProgressPayload(TypedDict):
     rockets: list[list[bool]]
 
 
-def sync_progress(user_id: str) -> None:
+def sync_progress(year:str, user_id: str) -> None:
     """Synchronize the user's progress from the database into the session.
     Loads the user's progress via the DataCache and stores it in the Flask
     session so request handlers and templates can access it without
     additional database queries.
     Args:
+        year (str): Current year.
         user_id (str): The Discord user ID.
     """
-    session["progress"] = get_app().data_cache.progress.load_progress(user_id)
+    session["progress"] = get_app().data_cache.load_progress(year, user_id)
 
 
 def set_progress(challenge_num: int, progress: int) -> str | None:
@@ -37,11 +38,12 @@ def set_progress(challenge_num: int, progress: int) -> str | None:
         # Change database and update Data Cache
 
         get_app().data_cache.update_progress(
+            session["year"],
             session["user_data"]["id"],
             challenge_num,
             progress,
         )
-        sync_progress(session["user_data"]["id"])
+        sync_progress(session["year"], session["user_data"]["id"])
     else:
         # Alter Browser Cookies
         return get_app().serializer.dumps(f"{challenge_num}{'AB'[progress]}")
@@ -54,9 +56,7 @@ def get_progress() -> ProgressPayload:
     """
     if "user_data" in session:
         # Retrieve information from Flask session and Data Cache
-        session["progress"] = get_app().data_cache.progress.load_progress(
-            session["user_data"]["id"]
-        )
+        sync_progress(session["year"], session["user_data"]["id"])
         return {
             "id": session["user_data"]["id"],
             "img": session["user_data"]["img"],

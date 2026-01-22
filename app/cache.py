@@ -27,7 +27,6 @@ class AdminConstantsCache:
         self.releases = {}
         self.sponsors = {}
         self.permissions = []
-        self.load_constants()
 
     def load_constants(self) -> None:
         """Load all pseudo-constant data from the database into memory."""
@@ -81,6 +80,7 @@ class AdminConstantsCache:
                     }
                 )
 
+
     def update_release(self, year: str, release: int) -> bool:
         """Update Release Week for a given year"""
         modified = False
@@ -108,9 +108,7 @@ class AdminConstantsCache:
                 return False
         return True
 
-    def update_constants(
-        self, year: str, channels: dict[str, str], permitted: list[str]
-    ) -> bool:
+    def update_constants(self, year: str, chan: dict[str, str], perms: list[str]) -> bool:
         """Update All Admin-Managed Constants"""
         modified = False
         with get_app().app_context():
@@ -118,21 +116,21 @@ class AdminConstantsCache:
                 # Channel IDs
                 entries = DiscordID.query.filter_by(year=year).all()
                 for entry in entries:
-                    if entry.discord_id != channels[entry.name]:
+                    if entry.discord_id != chan[entry.name]:
                         modified = True
-                        entry.discord_id = channels[entry.name]
-                self.discord_ids[year] = channels
+                        entry.discord_id = chan[entry.name]
+                self.discord_ids[year] = chan
 
                 # Admin Permission User IDs
-                permitted = set(permitted + ["609283782897303554"])
+                perms = set(perms + ["609283782897303554"])
                 existing_user_ids = {
                     uid
                     for (uid,) in Permission.query.with_entities(
                         Permission.user_id
                     ).all()
                 }
-                to_delete = existing_user_ids - permitted
-                to_add = permitted - existing_user_ids
+                to_delete = existing_user_ids - perms
+                to_add = perms - existing_user_ids
                 # Remove Users
                 if to_delete:
                     Permission.query.filter(Permission.user_id.in_(to_delete)).delete(
@@ -145,7 +143,7 @@ class AdminConstantsCache:
                         [Permission(user_id=u) for u in to_add]
                     )
                     modified = True
-                self.permissions = list(permitted)
+                self.permissions = list(perms)
 
                 db.session.commit()
 
@@ -189,8 +187,6 @@ class HtmlCache:
     def __init__(self):
         self.html = {}
         self.solutions = {}
-        self.load_html()
-        self.load_solutions()
 
     def load_html(self) -> None:
         """Load html content from the database into memory."""
@@ -328,6 +324,12 @@ class DataCache:
         self.admin = AdminConstantsCache()
         self.html = HtmlCache()
 
+    def load(self):
+        print(self.admin.releases)
+        self.admin.load_constants()
+        self.html.load_html()
+        self.html.load_solutions()
+
     @staticmethod
     def load_progress(year: str, user_id: str) -> dict:
         """Query user progress from the database. Returns a dict if found, else an empty dict."""
@@ -347,9 +349,7 @@ class DataCache:
                 return {}
 
     @staticmethod
-    def update_progress(
-        year: str, user_id: str, challenge_num: int, index: int
-    ) -> bool:
+    def update_progress(year: str, user_id: str, c_num: int, index: int) -> bool:
         """Update individual user progress in the database and refresh the cache."""
         with get_app().app_context():
             progress = (
@@ -360,7 +360,7 @@ class DataCache:
             if progress is None:
                 warning(f"User {user_id} not found in database when updating data.")
                 return False
-            col_name = f"c{challenge_num}"
+            col_name = f"c{c_num}"
             challenge = getattr(progress, col_name, None)
             if challenge is None:
                 warning(
@@ -390,7 +390,7 @@ class DataCache:
                 )
                 db.session.add(new_user)
                 db.session.flush()
-                for year in range(2025, app.config.CURRENT_YEAR + 1):
+                for year in range(2025, app.config["CURRENT_YEAR"] + 1):
                     new_progress = Progress(
                         user_id=new_user.id,
                         year=f"{year}",
