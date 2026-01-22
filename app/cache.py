@@ -406,7 +406,7 @@ class DataCache:
             return False
 
     @staticmethod
-    def get_all_champions(year: str) -> tuple[list[dict[str, str]], list[str]]:
+    def get_all_champions(year: str) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
         """Get progress for all users that completed 10 challenges for a given year."""
         app = get_app()
         try:
@@ -417,7 +417,7 @@ class DataCache:
                 glance = []
                 for p in all_users:
                     states = p.challenge_states()
-                    glance.append("".join("☆★"[bit] for s in states for bit in s))
+                    glance.append({"name": p.user.name, "progress":"".join("☆★"[bit] for s in states for bit in s)})
                     if all(all(s) for s in states):
                         champions.append({"name": p.user.name, "github": p.user.github})
 
