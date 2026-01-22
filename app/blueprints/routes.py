@@ -34,12 +34,24 @@ def champions() -> str:
         names.append(champion["name"])
         links.append(champion["github"])
 
+    formatted_data = []
+    for d in all_data:
+        p = iter(d["progress"])
+        progress = ["".join(pair) for pair in zip(p, p)]
+        formatted_data.append({
+            "progress": progress,
+            "scores": [x.count("★") for x in progress],
+            "name": d['name'],
+        })
+    formatted_data.sort(key=lambda x: sum(x["scores"]), reverse=True)
+
     return render_template(
         "champions.html",
         img=user["img"],
         year=session["year"],
         champions=names,
         githubs=links,
+        all_data=formatted_data,
     )
 
 
