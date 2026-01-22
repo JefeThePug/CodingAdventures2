@@ -421,6 +421,7 @@ class DataCache:
                     if all(all(s) for s in states):
                         champions.append({"name": p.user.name, "github": p.user.github})
 
+                print(f"{champions=}\n{glance=}")
                 return champions, glance
         except SQLAlchemyError as e:
             exception("Error fetching champions", e)

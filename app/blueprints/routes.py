@@ -6,7 +6,7 @@ from app.appctx import get_app
 route_bp = Blueprint("routes", __name__)
 
 
-@route_bp.route("/help")
+@route_bp.route("/how_to")
 def how_to() -> str:
     """Render the help page.
     Returns:
@@ -28,9 +28,9 @@ def champions() -> str:
     """
     user = get_progress()
 
+    champion_list, all_data = get_app().data_cache.get_all_champions(session["year"])
     names, links = [], []
-    for champion, _ in get_app().data_cache.get_all_champions():
-        print(_)
+    for champion in champion_list:
         names.append(champion["name"])
         links.append(champion["github"])
 
