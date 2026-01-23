@@ -36,7 +36,7 @@ def login() -> Response:
         Response: Redirect to Discord authorization URL.
     """
     params = {
-        "client_id": os.getenv("CLIENT_ID"),
+        "client_id": os.getenv("DISCORD_CLIENT_ID"),
         "redirect_uri": os.getenv("DISCORD_REDIRECT_URI"),
         "response_type": "code",
         "scope": "identify guilds.members.read guilds.join",

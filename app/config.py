@@ -13,6 +13,7 @@ class Config:
     DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID")
     DISCORD_CLIENT_SECRET = os.getenv("DISCORD_CLIENT_SECRET")
     DISCORD_REDIRECT_URI = os.getenv("DISCORD_REDIRECT_URI")
+    DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
 
 class DevConfig(Config):
