@@ -20,46 +20,64 @@
 </head>
 <body>
 <a class="skip-link" href="#main-content">Skip to Main content</a>
-{% if request.endpoint != 'release' %}<a href="/" class="float">&lt;</a>{% endif %}
 
 <nav class="navbar">
     <div class="nav">
+        {% if request.endpoint != 'main.release' %}
+        <a href="{{ url_for('main.index') }}">
+            <span class="material-symbols-outlined">
+                home
+            </span>
+            <span class="nav-text">Home</span>
+        </a>
+        {% endif %}
+        {% if request.endpoint == 'main.release' %}
         <div class="false-link year-menu">
             <span class="material-symbols-outlined">
                 calendar_clock
             </span>
             <span class="nav-text">{{ year }}</span>
             <div class="dropdown">
-                <a href="{{ url_for('main.release', year=2026) }}"><p>2026</p></a>
-                <a href="{{ url_for('main.release', year=2025) }}"><p>2025</p></a>
+                <a href="{{ url_for('main.release', year=2026) }}"><p><span>2026</span></p></a>
+                <a href="{{ url_for('main.release', year=2025) }}"><p><span>2025</span></p></a>
             </div>
         </div>
+        {% endif %}
+        {% if request.endpoint != 'routes.how_to' %}
         <a href="{{ url_for('routes.how_to') }}">
             <span class="material-symbols-outlined">
                 help
             </span>
             <span class="nav-text">How-To</span>
         </a>
+        {% endif %}
+        {% if request.endpoint != 'routes.champions' %}
         <a href="{{ url_for('routes.champions') }}">
             <span class="material-symbols-outlined">
                 trophy
             </span>
             <span class="nav-text">Champions</span>
         </a>
+        {% endif %}
+        {% if request.endpoint != 'routes.gratitude' %}
         <a href="{{ url_for('routes.gratitude') }}">
             <span class="material-symbols-outlined">
                 favorite
             </span>
             <span class="nav-text">Gratitude</span>
         </a>
+        {% endif %}
+        {% if request.endpoint != 'routes.sponsor' %}
         <a href="{{ url_for('routes.sponsor') }}">
             <span class="material-symbols-outlined">
             star_shine
             </span>
             <span class="nav-text">Sponsors</span>
         </a>
-        <a href="{{ url_for('auth.logout') }}">
-            <div class="user-menu hidden">
+        {% endif %}
+        <a href="{{ url_for('auth.pre_login') }}">
+            <div class="user-menu">
+            {% if session.get("user_data") %}
                 {% if img.startswith('http') %}
                 {% set img_src = img %}
                 {% else %}
@@ -68,14 +86,12 @@
                 <img alt="Logout" src="{{ img_src }}">
                 <span class="material-symbols-outlined user-action">emoji_people</span>
                 <span class="user-action">Logout</span>
-            </div>
-        </a>
-        <a href="{{ url_for('auth.pre_login') }}">
-            <div class="user-menu">
+            {% else %}
                 <span class="material-symbols-outlined user-label">emoji_people</span>
                 <span class="user-label">Guest</span>
                 <span class="material-symbols-outlined user-action">emoji_people</span>
                 <span class="user-action">Login</span>
+            {% endif %}
             </div>
         </a>
     </div>
