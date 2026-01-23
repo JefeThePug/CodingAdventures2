@@ -325,7 +325,6 @@ class DataCache:
         self.html = HtmlCache()
 
     def load(self):
-        print(self.admin.releases)
         self.admin.load_constants()
         self.html.load_html()
         self.html.load_solutions()

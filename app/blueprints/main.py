@@ -12,7 +12,6 @@ def index() -> Response:
     Returns:
         Response: Rendered redirect to current year.
     """
-    print(session.get("year", "year not in session"))
     if not "year" in session:
         session["year"] = f"{get_app().config['CURRENT_YEAR']}"
     return redirect(url_for("main.release", year=session["year"]))
