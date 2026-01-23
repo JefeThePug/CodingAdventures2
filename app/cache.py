@@ -417,11 +417,14 @@ class DataCache:
                 glance = []
                 for p in all_users:
                     states = p.challenge_states()
-                    glance.append({"name": p.user.name, "progress":"".join("☆★"[bit] for s in states for bit in s)})
+                    glance.append({
+                        "name": p.user.name,
+                        "id": p.user.user_id,
+                        "progress":"".join("☆★"[bit] for s in states for bit in s),
+                    })
                     if all(all(s) for s in states):
                         champions.append({"name": p.user.name, "github": p.user.github})
 
-                print(f"{champions=}\n{glance=}")
                 return champions, glance
         except SQLAlchemyError as e:
             exception("Error fetching champions", e)

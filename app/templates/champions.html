@@ -35,8 +35,9 @@
     <h2>All Progress</h2>
     <table>
       <tr>
-        <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th>
-        <th>7</th><th>8</th><th>9</th><th>10</th><th>  </th>
+        <td>1</td><td>2</td><td>3</td><td>4</td><td>5</td>
+        <td>6</td><td>7</td><td>8</td><td>9</td><td>10</td>
+        <td style="border-right:none; text-align:left;"> </td>
       </tr>
     {% for item in all_data %}
     <tr>
@@ -47,7 +48,11 @@
         {%- endfor -%}
         </td>
       {% endfor %}
-      <td><span class="b">{{ item.name }}</span></td>
+      <td style="border-right:none; text-align:left;">
+        <span class="b {{ 'false-link' if item.id == session.get('user_data', {}).get('id') else '' }}">
+          {{ item.name }}
+        </span>
+      </td>
     </tr>
     {% endfor %}
     </table>

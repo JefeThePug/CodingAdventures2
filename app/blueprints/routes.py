@@ -36,12 +36,15 @@ def champions() -> str:
 
     formatted_data = []
     for d in all_data:
+        if "★" not in d["progress"]:
+            continue
         p = iter(d["progress"])
         progress = ["".join(pair) for pair in zip(p, p)]
         formatted_data.append({
             "progress": progress,
             "scores": [x.count("★") for x in progress],
-            "name": d['name'],
+            "name": d["name"],
+            "id": d["id"]
         })
     formatted_data.sort(key=lambda x: sum(x["scores"]), reverse=True)
 
