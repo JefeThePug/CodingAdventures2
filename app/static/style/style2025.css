@@ -49,8 +49,14 @@ a.float {
     border-radius: 30px;
 }
 
-nav a:hover {
+nav a:hover,  nav .false-link:hover{
     filter: saturate(10) brightness(5) !important;
+}
+nav a:hover img {
+    filter: saturate(0.1) brightness(0.2) !important;
+}
+.dropdown {
+    filter: saturate(0.1) brightness(0.4) !important;
 }
 
 
