@@ -14,7 +14,7 @@ class ProgressPayload(TypedDict):
     rockets: list[list[bool]]
 
 
-def sync_progress(year:str, user_id: str) -> None:
+def sync_progress(year: str, user_id: str) -> None:
     """Synchronize the user's progress from the database into the session.
     Loads the user's progress via the DataCache and stores it in the Flask
     session so request handlers and templates can access it without

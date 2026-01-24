@@ -80,7 +80,6 @@ class AdminConstantsCache:
                     }
                 )
 
-
     def update_release(self, year: str, release: int) -> bool:
         """Update Release Week for a given year"""
         modified = False
@@ -108,7 +107,9 @@ class AdminConstantsCache:
                 return False
         return True
 
-    def update_constants(self, year: str, chan: dict[str, str], perms: list[str]) -> bool:
+    def update_constants(
+        self, year: str, chan: dict[str, str], perms: list[str]
+    ) -> bool:
         """Update All Admin-Managed Constants"""
         modified = False
         with get_app().app_context():
@@ -175,7 +176,9 @@ class AdminConstantsCache:
                     elif TYPE_MAP[sponsor.type] == "t2":
                         t2.append({**base, "image": sponsor.image})
                     elif TYPE_MAP[sponsor.type] == "t3":
-                        t3.append({**base, "image": sponsor.image, "blurb": sponsor.blurb})
+                        t3.append(
+                            {**base, "image": sponsor.image, "blurb": sponsor.blurb}
+                        )
 
                 return t1, t2, t3
         except SQLAlchemyError as e:
@@ -393,7 +396,7 @@ class DataCache:
                     new_progress = Progress(
                         user_id=new_user.id,
                         year=f"{year}",
-                        **{f"c{i}": [False, False] for i in range(1, 11)}
+                        **{f"c{i}": [False, False] for i in range(1, 11)},
                     )
                     db.session.add(new_progress)
                 db.session.commit()
@@ -405,22 +408,28 @@ class DataCache:
             return False
 
     @staticmethod
-    def get_all_champions(year: str) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    def get_all_champions(
+        year: str,
+    ) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
         """Get progress for all users that completed 10 challenges for a given year."""
         app = get_app()
         try:
             with app.app_context():
-                all_users = Progress.query.join(User).filter(Progress.year==year).all()
+                all_users = (
+                    Progress.query.join(User).filter(Progress.year == year).all()
+                )
 
                 champions = []
                 glance = []
                 for p in all_users:
                     states = p.challenge_states()
-                    glance.append({
-                        "name": p.user.name,
-                        "id": p.user.user_id,
-                        "progress":"".join("☆★"[bit] for s in states for bit in s),
-                    })
+                    glance.append(
+                        {
+                            "name": p.user.name,
+                            "id": p.user.user_id,
+                            "progress": "".join("☆★"[bit] for s in states for bit in s),
+                        }
+                    )
                     if all(all(s) for s in states):
                         champions.append({"name": p.user.name, "github": p.user.github})
 
@@ -436,7 +445,9 @@ class DataCache:
         with get_app().app_context():
             try:
                 for champion in champions:
-                    matching_user = User.query.filter(User.user_id == champion["user_id"]).one_or_none()
+                    matching_user = User.query.filter(
+                        User.user_id == champion["user_id"]
+                    ).one_or_none()
                     if matching_user.github != champion["github"]:
                         matching_user.github = champion["github"]
                         modified = True

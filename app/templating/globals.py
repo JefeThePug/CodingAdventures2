@@ -37,8 +37,13 @@ def register_globals():
 
     @app.context_processor
     def inject_css_files() -> dict[str, list[str]]:
-        year = app.config['CURRENT_YEAR']
+        year = app.config["CURRENT_YEAR"]
         return {
             "borders": [f"{y}{p}" for y in range(2025, year + 1) for p in "AB"],
-            "css_files": ["sponsor", "navbar", "style", f"style{session.get('year', year)}"],
+            "css_files": [
+                "sponsor",
+                "navbar",
+                "style",
+                f"style{session.get('year', year)}",
+            ],
         }
