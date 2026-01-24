@@ -29,11 +29,11 @@ header {
     }
 }
 .section {
-    border-image: url("/static/images/2025/style_bg/scifi.png") 32 repeat;
+    border-image: url("/static/images/border_bg/2025A.png") 32 repeat;
     border-radius: 10px 0 10px 0;
     &::before, &::after {
         animation: wipeRevealUp 7s linear infinite;
-        border-image: url("/static/images/2025/style_bg/scifi2.png") 32 repeat;
+        border-image: url("/static/images/border_bg/2025B.png") 32 repeat;
         clip-path: inset(100% 0 0 0);
         filter: blur(1px);
         inset: -32px;

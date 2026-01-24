@@ -4,17 +4,16 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Practical Python Code Adventure</title>
-    <link href="{{ url_for('static', filename='style/sponsor.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='style/navbar.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='style/style.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='style/style' ~ year ~ '.css') }}" rel="stylesheet">
+    {%- for style in css_files %}
+    <link href="{{ url_for('static', filename='style/' ~ style ~ '.css') }}" rel="stylesheet" type='text/css'>
+    {%- endfor %}
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0"
           rel="stylesheet">
-    <link rel="stylesheet" type='text/css' href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"/>
-    <link as="image" href="{{ url_for('static', filename='images/2025/style_bg/scifi.png') }}" rel="preload">
-    <link as="image" href="{{ url_for('static', filename='images/2025/style_bg/scifi2.png') }}" rel="preload">
-    <link as="image" href="{{ url_for('static', filename='images/2026/style_bg/paper.png') }}" rel="preload">
-    <link as="image" href="{{ url_for('static', filename='images/2026/style_bg/paper2.png') }}" rel="preload">
+    <link href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" rel="stylesheet" type='text/css'>
+    {%- for b in borders %}
+    <link as="image" href="{{ url_for('static', filename='images/border_bg/' ~ b ~ '.png') }}" rel="preload"
+          type="image/png">
+    {%- endfor %}
     <link href="/static/favicon.svg" rel="icon" type="image/svg+xml"/>
     <link href="/static/favicon.ico" rel="icon"/>
 </head>
@@ -77,7 +76,7 @@
         {% endif %}
         <a href="{{ url_for('auth.pre_login') }}">
             <div class="user-menu">
-            {% if session.get("user_data") %}
+                {% if session.get("user_data") %}
                 {% if img.startswith('http') %}
                 {% set img_src = img %}
                 {% else %}
@@ -86,12 +85,12 @@
                 <img alt="Logout" src="{{ img_src }}">
                 <span class="material-symbols-outlined user-action">emoji_people</span>
                 <span class="user-action">Logout</span>
-            {% else %}
+                {% else %}
                 <span class="material-symbols-outlined user-label">emoji_people</span>
                 <span class="user-label">Guest</span>
                 <span class="material-symbols-outlined user-action">emoji_people</span>
                 <span class="user-action">Login</span>
-            {% endif %}
+                {% endif %}
             </div>
         </a>
     </div>
