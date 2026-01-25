@@ -33,7 +33,7 @@ def register_globals():
         """
         if isinstance(value, str):
             value = int(value)
-        return app.data_cache.admin.obfuscations[int(value)]
+        return app.data_cache.admin.obfuscations[session["year"]][int(value)]
 
     @app.context_processor
     def inject_css_files() -> dict[str, list[str]]:
