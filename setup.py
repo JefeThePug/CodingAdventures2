@@ -88,11 +88,10 @@ def fill_permanent_data(inspector):
     with app.app_context():
         table_names = inspector.get_table_names()
 
-
         if "sub_entries" in table_names:
             if not db.session.query(SubEntry).first():
                 to_load = "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnL2I4N2VjOWRhMmIyNDEwZGJhMmNmNjBkZDY3ZmY5ZGU5L3Jhdy9hZHZlbnR1cmVfaHRtbC55YW1s"
-                data = requests.get(base64.b64decode(to_load).decode('utf-8'))
+                data = requests.get(base64.b64decode(to_load).decode("utf-8"))
                 sub_entries = [SubEntry(**d) for d in yaml.safe_load(data.text)]
                 db.session.add_all(sub_entries)
                 print("Inserted html.")
