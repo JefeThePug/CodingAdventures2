@@ -31,6 +31,11 @@ ul.tiers {
     margin-left: 0;
 }
 
+.explorer-name {
+    font-weight: bold;
+    margin: 10px 0 0 0;
+}
+
 .tier {
     height: 50px !important;
 }
@@ -112,7 +117,6 @@ rgba(255, 255, 255, 0.55));
 .pathfinder, .wayfarer, .explorer {
     text-align: center;
     border-radius: 30px;
-    padding: 0.2rem;
     color: black;
 }
 
@@ -131,6 +135,7 @@ rgba(255, 255, 255, 0.55));
 
 .explorer {
     width: 300px;
+    padding: 1rem;
     background: var(--soft-light), var(--soft-light), var(--silver-gradient);
 }
 
@@ -140,14 +145,12 @@ rgba(255, 255, 255, 0.55));
 }
 
 .img-2, .img-3 {
-    max-width: 100px;
     height: auto;
     width: auto;
-    max-height: 80px;
 }
 
 .img-2 {
-    max-width: 100px;
+    max-width: 200px;
     max-height: 80px;
 }
 
