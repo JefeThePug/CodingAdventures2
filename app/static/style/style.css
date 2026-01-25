@@ -326,19 +326,20 @@ td.cross {
 
 /* Main Question */
 .main {
-    color: var(--t-code-main);
+    color: var(--c-final);
     width: calc(100% - 20px);
 }
 
 /* Form Contents */
 input {
     background: var(--b-main);
-    border: 1px solid var(--t-code);
-    color: var(--t-code);
+    border: 1px solid var(--c-main);
+    color: var(--c-main);
+    font-size: large;
     margin: 0;
     padding: 0 2px;
     &::placeholder {
-        color: var(--t-code);
+        color: var(--c-main);
     }
     &:focus {
         border-width: 2px;
@@ -423,10 +424,10 @@ img.fill {
 
 dialog {
     background-color: var(--b-code);
-    border: 1px solid var(--t-code);
+    border: 1px solid var(--c-main);
     border-radius: 10px;
     box-shadow: 0 0 1500px 1500px rgba(0, 0, 0, 0.8);
-    color: var(--t-code);
+    color: var(--c-main);
     height: 100px;
     left: 20px;
     overflow: hidden;
@@ -448,9 +449,35 @@ dialog.end {
     width: 800px;
 }
 
+.shimmer {
+    --offset: 1px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px var(--c-main), inset 0 0 10px var(--c-main);
+    height: 30px;
+    margin-top: 30px;
+    width: 100%;
+    overflow: hidden;
+    padding: 20px 10px 40px 10px;
+    position: relative;
+}
+
+.shimmer form {
+    border-radius: inherit;
+    inset: 0;
+    margin: 3px;
+    position: absolute;
+    z-index: 10;
+}
+.shimmer input {
+    width: calc(100% - 140px);
+}
+.form-box {
+    margin: 10px;
+}
+
 /* Easter Egg */
 .egg {
-    color: var(--t-code-main);
+    color: var(--c-final);
 }
 .egg-house {
     margin-top: 200px;

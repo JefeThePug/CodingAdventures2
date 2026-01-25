@@ -17,7 +17,7 @@
     --i-off: #dadada;
 
     --c-main: #282e13;
-    --c-final: #9a931b;
+    --c-final: #676112;
 
     --stone-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
     --stone-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 4'%3E%3Cdefs%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1 0.3' numOctaves='20' result='f'/%3E%3CfeColorMatrix in='f' type='matrix' values='0 0 0 0 0, 0 0 0 0 0, 0 0 0 0 0, 0 0 0 1 0'/%3E%3C/filter%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='gray' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
@@ -35,6 +35,9 @@
         z-index: -1;
     }
 }
+input {
+    background: var(--b-sec-lite);
+}
 
 /* Images */
 .img-container {
@@ -45,7 +48,7 @@
 
 
 /* Stone Elements */
-.code, table, tr, th, td, form, a.float {
+.code, table, tr, th, td, form, a.float, .shimmer {
     background-blend-mode: overlay;
     background-color: var(--b-code);
     background-image: linear-gradient(
@@ -59,6 +62,6 @@
     box-shadow: inset 2px 2px 4px rgba(255, 255, 255, 0.25),
     inset -2px -2px 1px rgba(0, 0, 0, 0.4), 0 2px 3px rgba(0, 0, 0, 0.4);
     color: transparent;
-    text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.3),
-        0px -1px 0px rgba(0, 0, 0, 0.892);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3),
+        0 -1px 0 rgba(0, 0, 0, 0.892);
 }
