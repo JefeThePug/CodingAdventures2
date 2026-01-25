@@ -16,8 +16,8 @@
     );
     --soft-light: linear-gradient(
             var(--degree),
-            rgba(255,255,255,0.35),
-            rgba(255,255,255,0.35)
+            rgba(255, 255, 255, 0.35),
+            rgba(255, 255, 255, 0.35)
     );
 }
 
@@ -37,21 +37,23 @@ ul.tiers {
 
 .tier1-key, .tier1plus-key, .tier2-key, .tier3-key {
     color: black;
-    linear-gradient(
-        135deg,
-        rgba(255,255,255,0.55),
-        rgba(255,255,255,0.55)
-    );
+linear-gradient(135 deg,
+rgba(255, 255, 255, 0.55),
+rgba(255, 255, 255, 0.55));
 }
+
 .tier1-key {
     background: var(--soft-light), var(--basic-gradient);
 }
+
 .tier1plus-key {
     background: var(--soft-light), var(--special-gradient);
 }
+
 .tier2-key {
     background: var(--soft-light), var(--silver-gradient);
 }
+
 .tier3-key {
     background: var(--soft-light), var(--gold-gradient);
 }
@@ -64,15 +66,15 @@ ul.tiers {
     min-height: 50px;
     border-radius: 20px;
     padding: 1.5em 1em;
+
     &::before {
         content: "";
         position: absolute;
         inset: 0;
         padding: 3px;
         border-radius: inherit;
-        -webkit-mask:
-                linear-gradient(#fff 0 0) content-box,
-                linear-gradient(#fff 0 0);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
         mask-composite: exclude;
         pointer-events: none;
@@ -82,9 +84,11 @@ ul.tiers {
 .tier1-box::before {
     background: var(--special-gradient);
 }
+
 .tier2-box::before {
     background: var(--silver-gradient);
 }
+
 .tier3-box::before {
     background: var(--gold-gradient);
 }
@@ -96,28 +100,40 @@ ul.tiers {
     padding: 0;
     margin: 0;
 }
+
 .tier1-lists {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
+
 .tier2-lists {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
-.pathfinder, .wayfarer, .explorer{
+.pathfinder, .wayfarer, .explorer {
     text-align: center;
     border-radius: 30px;
     padding: 0.2rem;
     color: black;
 }
+
+.pathfinder, .wayfarer {
+    width: 150px;
+    height: 50px;
+}
+
 .pathfinder {
     background: var(--soft-light), var(--special-gradient);
 }
-.wayfarer{
-    background:var(--soft-light), var(--basic-gradient);
+
+.wayfarer {
+    background: var(--soft-light), var(--basic-gradient);
 }
-.explorer{
-    background:var(--soft-light), var(--soft-light), var(--silver-gradient);
+
+.explorer {
+    width: 300px;
+    background: var(--soft-light), var(--soft-light), var(--silver-gradient);
 }
+
 .pathfinder a, .explorer p {
     color: black;
     text-decoration: underline;
@@ -129,10 +145,12 @@ ul.tiers {
     width: auto;
     max-height: 80px;
 }
+
 .img-2 {
     max-width: 100px;
     max-height: 80px;
 }
+
 .img-3 {
     max-width: 300px;
     max-height: 120px;
@@ -142,18 +160,21 @@ ul.tiers {
     display: grid;
     grid-template-columns: 1fr;
     gap: 0;
-    background:var(--soft-light), var(--soft-light), var(--gold-gradient);
+    background: var(--soft-light), var(--soft-light), var(--gold-gradient);
 }
+
 .box-a, .box-b, .box-c {
     padding: 8px;
     max-width: 100%;
     color: black;
 }
+
 .box-b, .box-a {
     display: flex;
     align-items: center;
     justify-content: center;
 }
+
 .box-b {
     font-size: x-large;
     font-weight: bold;
@@ -165,6 +186,7 @@ ul.tiers {
         grid-template-columns: 1fr 300px;
         grid-template-rows: auto auto;
     }
+
     .box-a {
         grid-column: 2;
         grid-row: 1 / span 2;
@@ -172,11 +194,13 @@ ul.tiers {
         max-width: 100%;
         padding: 0 20px 0 0;
     }
+
     .box-b {
         grid-column: 1;
         grid-row: 1;
         padding: 20px 0 5px 20px
     }
+
     .box-c {
         grid-column: 1;
         grid-row: 2;

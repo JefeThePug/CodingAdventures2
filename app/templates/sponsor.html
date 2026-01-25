@@ -72,112 +72,64 @@
         <img class="tier" src="{{ url_for('static', filename='images/T3-Pioneer.png') }}" alt="Tier3 Sponsors" />
     </div>
     <div class="tier3-box">
-        <!--        This space is waiting for its first Pioneer!-->
+        {% if t3 %}
         <ul class="tier3-lists">
+            {% for sponsor in t3 %}
             <li class="pioneer">
-                <a href="#">
+                <a href="{{ sponsor.website }}">
                     <div class="tier3-layout">
-                        <div class="box-a"><img class="img-3" src="https://1000logos.net/wp-content/uploads/2021/05/Google-logo.png" alt="Company A"></div>
-                        <div class="box-b">Google</div>
-                        <div class="box-c">Headquartered at the "Googleplex" in Mountain View, California, Google dominates the digital advertising and mobile operating system markets. As of 2026, it remains a pioneer in artificial intelligence, quantum computing, and sustainable technology, striving to make information universally accessible and useful through its diverse portfolio of hardware and software solutions.</div>
+                        <div class="box-a"><img class="img-3" src="{{ sponsor.image }}" alt="{{ sponsor.name }}"></div>
+                        <div class="box-b">{{ sponsor.name }}</div>
+                        <div class="box-c">{{ sponsor.blurb }}</div>
                     </div>
                 </a>
             </li>
-            <li class="pioneer">
-                <a href="#">
-                    <div class="tier3-layout">
-                        <div class="box-a"><img class="img-3" src="https://1000logos.net/wp-content/uploads/2021/05/Google-logo.png" alt="Company A"></div>
-                        <div class="box-b">Google</div>
-                        <div class="box-c">Headquartered at the "Googleplex" in Mountain View, California, Google dominates the digital advertising and mobile operating system markets. As of 2026, it remains a pioneer in artificial intelligence, quantum computing, and sustainable technology, striving to make information universally accessible and useful through its diverse portfolio of hardware and software solutions.</div>
-                    </div>
-                </a>
-            </li>
-            <li class="pioneer">
-                <a href="#">
-                    <div class="tier3-layout">
-                        <div class="box-a"><img class="img-3" src="https://1000logos.net/wp-content/uploads/2021/05/Google-logo.png" alt="Company A"></div>
-                        <div class="box-b">Google</div>
-                        <div class="box-c">Headquartered at the "Googleplex" in Mountain View, California, Google dominates the digital advertising and mobile operating system markets. As of 2026, it remains a pioneer in artificial intelligence, quantum computing, and sustainable technology, striving to make information universally accessible and useful through its diverse portfolio of hardware and software solutions.</div>
-                    </div>
-                </a>
-            </li>
+            {% endfor %}
         </ul>
+        {% else %}
+        <p class="center">This space is waiting for its first <span class="b i">Pioneer</span>!</p>
+        {% endif %}
     </div>
     <div class="img-container">
         <img class="tier" src="{{ url_for('static', filename='images/T2-Explorer.png') }}" alt="Tier2 Sponsors" />
     </div>
     <div class="tier2-box">
-        <!--        This space is waiting for its first Explorer!-->
+        {% if t2 %}
         <ul class="tier2-lists">
+            {% for sponsor in t2 %}
             <li class="explorer">
-                <a href="#">
-                    <img class="img-2" src="https://1000logos.net/wp-content/uploads/2021/05/Google-logo.png" alt="Company A">
-                    <p>Company A</p>
+                <a href="{{ sponsor.website }}">
+                    <img class="img-2" src="{{ sponsor.image }}" alt="{{ sponsor.name }}">
+                    <p>{{ sponsor.name }}</p>
                 </a>
             </li>
-            <li class="explorer">
-                <a href="#">
-                    <img class="img-2" src="https://1000logos.net/wp-content/uploads/2021/05/Google-logo.png" alt="Company B">
-                    <p>Company B</p>
-                </a>
-            </li>
-            <li class="explorer">
-                <a href="#">
-                    <img class="img-2" src="https://1000logos.net/wp-content/uploads/2021/05/Google-logo.png" alt="Company C">
-                    <p>Company C</p>
-                </a>
-            </li>
-            <li class="explorer">
-                <a href="#">
-                    <img class="img-2" src="https://1000logos.net/wp-content/uploads/2021/05/Google-logo.png" alt="Company D">
-                    <p>Company D</p>
-                </a>
-            </li>
-            <li class="explorer">
-                <a href="#">
-                    <img class="img-2" src="https://1000logos.net/wp-content/uploads/2021/05/Google-logo.png" alt="Company E">
-                    <p>Company E</p>
-                </a>
-            </li>
-            <li class="explorer">
-                <a href="#">
-                    <img class="img-2" src="https://1000logos.net/wp-content/uploads/2021/05/Google-logo.png" alt="Company F">
-                    <p>Company F</p>
-                </a>
-            </li>
+            {% endfor %}
         </ul>
+        {% else %}
+        <p class="center">This space is waiting for its first <span class="b i">Explorer</span>!</p>
+        {% endif %}
     </div>
     <div class="img-container">
         <img class="tier" src="{{ url_for('static', filename='images/T1-WayfarerPathfinder.png') }}" alt="Tier1 Sponsors" />
     </div>
     <div class="tier1-box">
-        <!--        This space is waiting for its first Pathfinder!-->
+        {% if t1 %}
         <ul class="tier1-lists">
-            <li class="pathfinder">
-                <a href="#">
-                    Item one <i class="devicon-github-original"></i>
+            {% for sponsor in t1 %}
+            <li class="{{ sponsor.type }}">
+                {% if sponsor.type == 'pathfinder' %}
+                <a href="{{ sponsor.website }}">
+                    <p>{{ sponsor.name }} <i class="devicon-github-original"></i></p>
                 </a>
+                {% else %}
+                <p>{{ sponsor.name }}</p>
+                {% endif %}
             </li>
-            <li class="pathfinder">
-                <a href="#">
-                    Item two <i class="devicon-github-original"></i>
-                </a>
-            </li>
-            <li class="wayfarer">
-                Item three
-            </li>
-            <li class="wayfarer">
-                Item four
-            </li>
-            <li class="pathfinder">
-                <a href="#">
-                    Item five <i class="devicon-github-original"></i>
-                </a>
-            </li>
-            <li class="wayfarer">
-                Item six
-            </li>
+            {% endfor %}
         </ul>
+        {% else %}
+        <p class="center">This space is waiting for its first <span class="b i">Pathfinder</span>!</p>
+        {% endif %}
     </div>
 </section>
 

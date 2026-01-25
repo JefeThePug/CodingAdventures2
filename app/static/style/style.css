@@ -96,6 +96,9 @@ a.float {
 }
 
 /* Text */
+.center {
+    text-align: center;
+}
 h1 {
     margin: 0;
 }
