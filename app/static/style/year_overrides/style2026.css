@@ -26,11 +26,11 @@
 /* Sections */
 .section {
     background-clip: padding-box;
-    border-image: url(../images/border_bg/2026A.png) 32 repeat;
+    border-image: url(../../images/border_bg/2026A.png) 32 repeat;
 
     &::before {
         background: var(--b-sec-lite);
-        border-image: url(../images/border_bg/2026B.png) 32 repeat;
+        border-image: url(../../images/border_bg/2026B.png) 32 repeat;
         filter: blur(15px);
         inset: -3px;
         z-index: -1;

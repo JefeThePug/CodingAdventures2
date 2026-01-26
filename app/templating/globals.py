@@ -1,5 +1,3 @@
-import os
-
 from flask import session
 
 from app.appctx import get_app
@@ -42,9 +40,6 @@ def register_globals():
             "borders": [f"{y}{p}" for y in range(2025, year + 1) for p in "AB"],
             "css_files": [
                 "main",
-                # "sponsor",
-                # "navbar",
-                # "style",
-                f"style{session.get('year', year)}",
+                f"year_overrides/style{session.get('year', year)}",
             ],
         }
