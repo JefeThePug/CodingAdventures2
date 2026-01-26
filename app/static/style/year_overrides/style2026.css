@@ -109,7 +109,7 @@ td.g {
 
 
 /* Stone Elements */
-.code, table, tr, th, td, form, a.float, .shimmer {
+.code, table, tr, th, td, form, .shimmer {
     background-blend-mode: overlay;
     background-color: var(--b-code);
     background-image: linear-gradient(
@@ -125,6 +125,12 @@ td.g {
     color: transparent;
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3),
     0 -1px 0 rgba(0, 0, 0, 0.892);
+}
+
+dialog form {
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
 }
 
 @media (min-width: 768px) {

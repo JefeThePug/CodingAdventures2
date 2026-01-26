@@ -52,10 +52,6 @@ header {
 }
 
 /* Links */
-a.float {
-    border-radius: 30px;
-}
-
 nav a:hover, nav .false-link:hover {
     filter: saturate(10) brightness(5) !important;
 }
