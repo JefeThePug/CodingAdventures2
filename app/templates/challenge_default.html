@@ -28,7 +28,7 @@
             <p class="main lg">[ click to get input ]</p>
         </a>
     </div>
-    <div class="shimmer">
+    <div class="shimmer{% if part_two %} short{% endif %}">
         <form action="#a" method="post">
             <div class="form-box">{% block solution1 %}{% endblock %}</div>
         </form>
@@ -48,7 +48,7 @@
             <p class="main lg">[ click to get input ]</p>
         </a>
     </div>
-    <div class="shimmer">
+    <div class="shimmer{% if done %} short{% endif %}">
         <form action="#b" method="post">
             <div class="form-box">{% block solution2 %}{% endblock %}</div>
         </form>

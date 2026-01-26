@@ -41,9 +41,10 @@ def register_globals():
         return {
             "borders": [f"{y}{p}" for y in range(2025, year + 1) for p in "AB"],
             "css_files": [
-                "sponsor",
-                "navbar",
-                "style",
+                "main",
+                # "sponsor",
+                # "navbar",
+                # "style",
                 f"style{session.get('year', year)}",
             ],
         }

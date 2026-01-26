@@ -44,7 +44,68 @@ input {
     border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
     overflow: hidden;
 }
+.flex-container-50 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+}
+.container-item-50 {
+    box-sizing: border-box;
+    flex: 0 0 100%;
+}
+.no-radius {
+    border-radius: 0;
+}
+.vsmallpic {
+    width: 50px;
+}
+.midlargepic {
+    width: 500px;
+}
+.midspic {
+    width: 220px;
+}
+.widepic {
+    max-height: 80px;
+    max-width: 60vw;
+    height: auto;
+    width: auto;
+}
 
+/* Table and List */
+.pad-list {
+    padding-left: 20px;
+}
+ol.enumerate > li::marker {
+    content: counter(list-item) ": ";
+}
+ol.steps {
+    padding-left: 6rem;
+    > li::marker {
+        content: "Step " counter(list-item) ": ";
+        color: var(--t-focus);
+        font-weight: bold;
+        text-shadow: 0 0 0.1em var(--t-focus-shadow);
+    }
+}
+td.select {
+    color: var(--t-nav) !important;
+}
+td.g {
+    color: initial;
+}
+.map tbody tr{
+    border: 1px solid var(--t-main );
+    :nth-child(1n) {background-color: var(--b-code);}
+}
+.map td {
+    color: var(--t-main);
+    height: 20px;
+    padding: 0;
+    line-height: 10px;
+    width: 15px;
+}
 
 
 /* Stone Elements */
@@ -64,4 +125,10 @@ input {
     color: transparent;
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3),
         0 -1px 0 rgba(0, 0, 0, 0.892);
+}
+
+@media (min-width: 768px) {
+    .container-item-50 {
+        flex: 0 0 calc(50% - 30px);
+    }
 }

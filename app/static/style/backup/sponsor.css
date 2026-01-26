@@ -21,11 +21,7 @@
     );
 }
 
-body {
-    margin: 0;
-}
-
-ul.tiers {
+.tiers {
     list-style: none;
     padding-left: 0;
     margin-left: 0;
@@ -81,6 +77,8 @@ rgba(255, 255, 255, 0.55));
         -webkit-mask: linear-gradient(#fff 0 0) content-box,
         linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
+        mask: linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
         mask-composite: exclude;
         pointer-events: none;
     }
