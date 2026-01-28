@@ -47,7 +47,7 @@ def create_app() -> AppFlask:
         auth_bp,
         route_bp,
         challenge_bp,
-        # admin_bp,
+        admin_bp,
         errors_bp,
     ):
         app.register_blueprint(bp)
