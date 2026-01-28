@@ -51,7 +51,6 @@ class AdminConstantsCache:
                 DiscordID.year, DiscordID.name, DiscordID.discord_id
             ).all()
             for year, name, i in discord_ids:
-                print(f"{year=} {name=} {i=}")
                 self.discord_ids.setdefault(year, {}).update({name: i})
             # Admin Permissions
             permissions = Permission.query.with_entities(Permission.user_id).all()
@@ -384,7 +383,6 @@ class DataCache:
     @staticmethod
     def add_user(user_id: str, name: str) -> bool:
         """Insert a new progress record into the database."""
-        print("\n\nAdd User Accessed\n\n")
         app = get_app()
         try:
             with app.app_context():
