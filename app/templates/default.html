@@ -14,8 +14,8 @@
     <link as="image" href="{{ url_for('static', filename='images/border_bg/' ~ b ~ '.png') }}" rel="preload"
           type="image/png">
     {%- endfor %}
-    <link href="/static/favicon.svg" rel="icon" type="image/svg+xml"/>
-    <link href="/static/favicon.ico" rel="icon"/>
+    <link href="{{ url_for('static', filename='favicon.svg') }}" rel="icon" type="image/svg+xml"/>
+    <link href="{{ url_for('static', filename='favicon.ico') }}" rel="icon"/>
 </head>
 <body>
 <a class="skip-link" href="#main-content">Skip to Main content</a>
