@@ -170,7 +170,7 @@ img {
     height: auto;
 }
 
-img.fill {
+.fill {
     height: 80%;
     max-height: none;
     width: 80%;
