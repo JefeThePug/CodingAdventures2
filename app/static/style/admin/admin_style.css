@@ -1,0 +1,145 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    height: 100%;
+    font-family: system-ui, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+}
+
+p {
+    margin: 0;
+}
+
+.b {
+    font-weight: bolder;
+}
+
+.top {
+    position: sticky;
+    width: 100%;
+    font-size: 4vw;
+    text-align: center;
+    padding: 20px;
+    background-color: var(--light-bg);
+    border-bottom: 2px double var(--text);
+    color: var(--title-text);
+}
+
+.material-symbols-outlined {
+    margin-right: 10px;
+    font-size: larger;
+    vertical-align: text-bottom;
+}
+
+.layout {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 48px;
+    border-right: 2px double var(--text);
+    transition: width 0.25s ease;
+    overflow: hidden;
+}
+
+.sidebar:hover,
+.sidebar:focus-within {
+    width: 200px;
+}
+
+.sidebar .toggle {
+    width: 100%;
+    padding: 8px 12px 12px 12px;
+    background: none;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 22px;
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.sidebar .toggle::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 9px;
+    width: 25px;
+    height: 25px;
+    background: var(--select);
+    border-radius: 50%;
+    transform: translateY(-50%);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: -1;
+}
+
+.sidebar:hover .toggle::before,
+.sidebar:focus-within .toggle::before {
+    opacity: 0;
+}
+
+.sidebar nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    white-space: nowrap;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.sidebar nav a:hover {
+    background: var(--select);
+}
+
+/* text */
+.sidebar .label {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+}
+
+/* show labels when expanded */
+.sidebar:hover .label,
+.sidebar:focus-within .label {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+.subtext {
+    display: block;
+    opacity: 0;
+    color: var(--light-text);
+    word-wrap: normal;
+    padding: 0 10px;
+    font-variant-caps: all-small-caps;
+}
+
+nav a:hover + .subtext {
+    opacity: 1;
+}
+
+
+/* RHS content */
+.content {
+    flex: 1;
+    background: var(--bg);
+}
+
+.content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    padding: 12px 20px;
+}

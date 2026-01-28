@@ -1,0 +1,9 @@
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0;
+}
+
+p {
+    margin: 0;
+}
