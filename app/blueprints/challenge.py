@@ -26,19 +26,19 @@ def fix_static(txt:str) -> str:
     return txt.replace("__STATIC__", url_for("static", filename=""))
 
 
-@challenge_bp.route("/challenge/<year>/<num>", methods=["GET", "POST"])
-def challenge(year: str, num: str) -> str | Response:
+@challenge_bp.route("/challenge/<year>/<obs_num>", methods=["GET", "POST"])
+def challenge(year: str, obs_num: str) -> str | Response:
     """Render the challenge page for a specific challenge week number.
     Args:
         year (str): The desired year.
-        num (str): The challenge number.
+        obs_num (str): The obfuscated challenge number.
     Returns:
         str: Rendered challenge.html template or error message.
         Response: redirect to the challenge page on correct guess.
     """
     session["year"] = year
     app = get_app()
-    num = app.data_cache.admin.html_nums[year][num]
+    num = app.data_cache.admin.html_nums[year][obs_num]
     error = None
 
     if request.method == "POST":
@@ -50,7 +50,7 @@ def challenge(year: str, num: str) -> str | Response:
                 and guess.replace("_", " ").upper().strip() == solutions[f"part{n + 1}"]
             ):
                 cookie = set_progress(num, n)
-                resp = make_response(redirect(url_for("get_challenge", num=num)))
+                resp = make_response(redirect(url_for("challenge.challenge", year=year, obs_num=obs_num)))
                 if cookie:
                     resp.set_cookie(cookie, f"{num}{'AB'[n]}")
                 return resp
@@ -100,30 +100,31 @@ def access() -> str | tuple[str, int]:
     guild_id = app.data_cache.admin.discord_ids["0"]["guild"]
     user_id = session["user_data"]["id"]
     channel_id = app.data_cache.admin.discord_ids[year][f"{num}"]
+    print(f"{app.data_cache.admin.discord_ids[year]=} {num=} {app.data_cache.admin.discord_ids[year][f'{num}']=}")
     verified_role = app.data_cache.admin.discord_ids["0"]["verified"]
 
     headers = {"Authorization": f"Bot {bot_token}", "Content-Type": "application/json"}
     url = f"https://discord.com/api/v9/guilds/{guild_id}/members/{user_id}"
     response = requests.get(url, headers=headers)
-    if response.status_code == 404:  # User is not a member of the guild
+
+    # User is not a member of the guild, add them
+    if response.status_code == 404:
         payload = {"access_token": session["token"]}
-        url = f"https://discord.com/api/v9/guilds/{guild_id}/members/{user_id}"
         try:
             response = requests.put(url, headers=headers, json=payload)
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}")
             return f"Error: Failed to assign role: {response.text}", 400
+        url += f"/roles/{verified_role}"
+        try:
+            response = requests.put(url, headers=headers)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            return f"Error: {e}", 400
         else:
-            url += f"/roles/{verified_role}"
-            try:
-                response = requests.put(url, headers=headers)
-                response.raise_for_status()
-            except requests.exceptions.RequestException as e:
-                return f"Error: {e}", 400
-            else:
-                if response.status_code != 204:
-                    return f"Error: Failed to assign role: {response.text}", 400
+            if response.status_code != 204:
+                return f"Error: Failed to assign role: {response.text}", 400
 
     content = (
         f"<@{user_id}> solved week {num}! If you'd like, "

@@ -177,11 +177,6 @@ td {
     color: var(--c-final);
 }
 
-.egg-house {
-    margin-top: 200px;
-}
-
-
 /* Responsive tweaks */
 @media (max-width: 900px) {
     h1 {

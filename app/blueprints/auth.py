@@ -51,6 +51,7 @@ def callback() -> Response | tuple[str, int]:
         Response: Redirect to the index page or error message.
         tuple[str, int]: Error message with HTTP status code 400.
     """
+    print("\n\nin callback\n\n")
     if request.args.get("error"):
         exception(f"Request Error (/callback): {request.args}")
         return redirect(url_for("main.index"))
@@ -88,12 +89,13 @@ def callback() -> Response | tuple[str, int]:
 
     # Add to database if not present
     progress = get_app().data_cache.load_progress(session["year"], user_id)
-    if progress is None:
+    print(f"\n\n{progress}\n\n")
+    if not progress:
         added = get_app().data_cache.add_user(
             session["user_data"]["id"], session["user_data"]["username"]
         )
         if not added:
-            return redirect(url_for("logout"))
+            return redirect(url_for("auth.logout"))
     sync_progress(session["year"], user_id)
 
     return redirect(url_for("main.index"))

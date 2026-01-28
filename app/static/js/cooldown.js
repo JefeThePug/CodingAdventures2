@@ -2,7 +2,7 @@ const COOLDOWNS = [30, 60, 180, 300]; // seconds
 const RESET_THRESHOLD_MS = 60 * 60 * 1000; // 60 minutes
 
 document.addEventListener("DOMContentLoaded", () => {
-    const boxes = document.querySelectorAll(".form-box");
+    const boxes = document.querySelectorAll(".form-box:not(#access)");
 
     let box = null;
     let form = null;
