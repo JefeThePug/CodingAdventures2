@@ -1,3 +1,4 @@
+import requests
 from flask import (
     Blueprint,
     render_template,
@@ -13,6 +14,16 @@ from app.appctx import get_app
 from app.services import get_progress, set_progress
 
 challenge_bp = Blueprint("challenge", __name__)
+
+def fix_static(txt:str) -> str:
+    """Replace the "__STATIC__" placeholder in the html
+    with the path to the static directory.
+    Args:
+        txt (str): Raw html text
+    Returns:
+        str: html text with the correct path for images and files
+    """
+    return txt.replace("__STATIC__", url_for("static", filename=""))
 
 
 @challenge_bp.route("/challenge/<year>/<num>", methods=["GET", "POST"])
@@ -39,14 +50,7 @@ def challenge(year: str, num: str) -> str | Response:
                 and guess.replace("_", " ").upper().strip() == solutions[f"part{n + 1}"]
             ):
                 cookie = set_progress(num, n)
-                resp = make_response(
-                    redirect(
-                        url_for(
-                            "get_challenge",
-                            num=app.data_cache.admin.html_nums[year][num],
-                        )
-                    )
-                )
+                resp = make_response(redirect(url_for("get_challenge", num=num)))
                 if cookie:
                     resp.set_cookie(cookie, f"{num}{'AB'[n]}")
                 return resp
@@ -55,15 +59,10 @@ def challenge(year: str, num: str) -> str | Response:
 
     user = get_progress()
     progress = user["progress"][f"c{num}"]
+    html = app.data_cache.html.html[year][num]
     try:
-        a = {
-            k: v.replace("__STATIC__", url_for("static", filename=""))
-            for k, v in app.data_cache.html.html[year][num][1].items()
-        }
-        b = {
-            k: v.replace("__STATIC__", url_for("static", filename=""))
-            for k, v in app.data_cache.html.html[year][num][2].items()
-        }
+        a = {k: fix_static(v) for k, v in html[1].items()}
+        b = {k: fix_static(v) for k, v in html[2].items()}
     except KeyError:
         return redirect(url_for("index"))
 
@@ -80,3 +79,78 @@ def challenge(year: str, num: str) -> str | Response:
         "error": error,
     }
     return render_template("challenge.html", **params)
+
+
+@challenge_bp.route("/access", methods=["POST"])
+def access() -> str | tuple[str, int]:
+    """Grant access to a user and assign roles in Discord.
+
+    Returns:
+        str: Rendered link_complete.html template or error message.
+        tuple[str, int]: Error message with HTTP status code.
+    """
+    app = get_app()
+    bot_token = app.config['DISCORD_BOT_TOKEN']
+    year = session["year"]
+    if not bot_token:
+        return "Error: Bot token not found", 500
+
+    num = app.data_cache.admin.obfuscations[year][f"{request.form.get('num')}"]
+
+    guild_id = app.data_cache.admin.discord_ids["0"]["guild"]
+    user_id = session["user_data"]["id"]
+    channel_id = app.data_cache.admin.discord_ids[year][f"{num}"]
+    verified_role = app.data_cache.admin.discord_ids["0"]["verified"]
+
+    headers = {"Authorization": f"Bot {bot_token}", "Content-Type": "application/json"}
+    url = f"https://discord.com/api/v9/guilds/{guild_id}/members/{user_id}"
+    response = requests.get(url, headers=headers)
+    if response.status_code == 404:  # User is not a member of the guild
+        payload = {"access_token": session["token"]}
+        url = f"https://discord.com/api/v9/guilds/{guild_id}/members/{user_id}"
+        try:
+            response = requests.put(url, headers=headers, json=payload)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            print(f"Error: {e}")
+            return f"Error: Failed to assign role: {response.text}", 400
+        else:
+            url += f"/roles/{verified_role}"
+            try:
+                response = requests.put(url, headers=headers)
+                response.raise_for_status()
+            except requests.exceptions.RequestException as e:
+                return f"Error: {e}", 400
+            else:
+                if response.status_code != 204:
+                    return f"Error: Failed to assign role: {response.text}", 400
+
+    content = (
+        f"<@{user_id}> solved week {num}! If you'd like, "
+        "please share how you arrived at the correct answer!"
+    )
+    url = f"https://discord.com/api/v9/channels/{channel_id}/thread-members/{user_id}"
+    response = requests.get(url, headers=headers)
+
+    if response.status_code != 200:
+        url = f"https://discord.com/api/v9/channels/{channel_id}/messages"
+        try:
+            response = requests.post(url, headers=headers, json={"content": content})
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            return f"Error: {e}", 400
+        else:
+            if response.status_code != 200:
+                return f"Error: Failed to send message: {response.text}", 400
+
+    user = get_progress()
+    egg = app.data_cache.html.html[year][num]["ee"]
+
+    return render_template(
+        "link_complete.html",
+        img=user["img"],
+        num=num,
+        guild=guild_id,
+        channel=channel_id,
+        egg=egg,
+    )
