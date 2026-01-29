@@ -22,7 +22,7 @@ p {
 .top {
     position: sticky;
     width: 100%;
-    font-size: 4vw;
+    font-size: min(4vw, 45px);
     text-align: center;
     padding: 20px;
     background-color: var(--light-bg);
@@ -47,11 +47,10 @@ p {
     border-right: 2px double var(--text);
     transition: width 0.25s ease;
     overflow: hidden;
-}
 
-.sidebar:hover,
-.sidebar:focus-within {
-    width: 200px;
+    &:hover {
+        width: 200px;
+    }
 }
 
 .sidebar .toggle {
@@ -82,8 +81,7 @@ p {
     z-index: -1;
 }
 
-.sidebar:hover .toggle::before,
-.sidebar:focus-within .toggle::before {
+.sidebar:hover .toggle::before {
     opacity: 0;
 }
 
@@ -91,7 +89,7 @@ p {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 12px;
+    padding: 12px 12px 5px 12px;
     white-space: nowrap;
     color: var(--text);
     text-decoration: none;
@@ -101,7 +99,6 @@ p {
     background: var(--select);
 }
 
-/* text */
 .sidebar .label {
     opacity: 0;
     transform: translateX(-10px);
@@ -109,15 +106,14 @@ p {
     pointer-events: none;
 }
 
-/* show labels when expanded */
-.sidebar:hover .label,
-.sidebar:focus-within .label {
+.sidebar:hover .label, .sidebar nav a:hover + .subtext {
     opacity: 1;
     transform: translateX(0);
     pointer-events: auto;
 }
 
 .subtext {
+    margin: 0 0 15px;
     display: block;
     opacity: 0;
     color: var(--light-text);
@@ -126,12 +122,6 @@ p {
     font-variant-caps: all-small-caps;
 }
 
-nav a:hover + .subtext {
-    opacity: 1;
-}
-
-
-/* RHS content */
 .content {
     flex: 1;
     background: var(--bg);

@@ -23,48 +23,69 @@
         <button class="toggle" id="toggle">☰</button>
 
         <nav class="label">
-            <a href="#" target="content">
-                <p class="b">Release Cap</p>
+            <a href="{{ url_for('admin.release') }}" target="content">
+                <p class="b">
+                    <span class="material-symbols-outlined">rocket_launch</span>
+                    Release Cap
+                </p>
             </a>
             <p class="subtext">
                 Update release number for each year
             </p>
-            <a href="#" target="content">
-                <p>Edit Discord IDs</p>
+            <a href="{{ url_for('admin.discord') }}" target="content">
+                <p>
+                    <span class="material-symbols-outlined">quick_reference</span>
+                    Edit Discord IDs
+                </p>
             </a>
             <p class="subtext">
                 Change Server, Role, and Channel IDs
             </p>
             <a href="#" target="content">
-                <p>Edit HTML</p>
+                <p>
+                    <span class="material-symbols-outlined">newsmode</span>
+                    Edit HTML
+                </p>
             </a>
             <p class="subtext">
                 Edit challenge HTML for each year
             </p>
             <a href="#" target="content">
-                <p>Edit Solutions</p>
+                <p>
+                    <span class="material-symbols-outlined">emoji_objects</span>
+                    Edit Solutions
+                </p>
             </a>
             <p class="subtext">
                 Edit solutions for each year
             </p>
             <a href="#" target="content">
-                <p>Edit User Progress</p>
+                <p>
+                    <span class="material-symbols-outlined">bar_chart</span>
+                    Edit User Progress
+                </p>
             </a>
             <p class="subtext">
                 Edit user progress and GitHub link
             </p>
             <a href="#" target="content">
-                <p>Edit Sponsors</p>
+                <p>
+                    <span class="material-symbols-outlined">volunteer_activism</span>
+                    Edit Sponsors
+                </p>
             </a>
             <p class="subtext">
                 Edit list of sponsors and their links
             </p>
             <a href="#" target="content">
-                <p>Update Admins</p>
-            </a>
-                <p class="subtext">
-                    Update User IDs with Admin permissions
+                <p>
+                    <span class="material-symbols-outlined">admin_panel_settings</span>
+                    Update Admins
                 </p>
+            </a>
+            <p class="subtext">
+                Update User IDs with Admin permissions
+            </p>
         </nav>
     </aside>
 

@@ -1,0 +1,29 @@
+{% extends "admin/iframe.html" %}
+
+{% block content %}
+<section>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for _, message in messages %}
+    <p class="alert">{{ message }}</p>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <form action="/release" method="POST">
+        <h2>Change Release</h2>
+        {% for y in years %}
+        <div class="form-group">
+            <label for="{{ y }}">
+                <span class="b">{{ y }}</span>: Up to Week
+            </label>
+            <input id="{{ y }}" name="{{ y }}" value="{{ release[y] }}" type="number"/>
+        </div>
+        <hr>
+        {% endfor %}
+        <div class="actions">
+            <input type="button" value="CANCEL" onclick="window.location.href='{{ url_for('admin.release') }}'">
+            <input type="submit" value="SAVE">
+        </div>
+    </form>
+</section>
+{% endblock %}
