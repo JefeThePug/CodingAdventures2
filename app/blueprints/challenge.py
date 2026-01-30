@@ -15,7 +15,8 @@ from app.services import get_progress, set_progress
 
 challenge_bp = Blueprint("challenge", __name__)
 
-def fix_static(txt:str) -> str:
+
+def fix_static(txt: str) -> str:
     """Replace the "__STATIC__" placeholder in the html
     with the path to the static directory.
     Args:
@@ -50,7 +51,9 @@ def challenge(year: str, obs_num: str) -> str | Response:
                 and guess.replace("_", " ").upper().strip() == solutions[f"part{n + 1}"]
             ):
                 cookie = set_progress(num, n)
-                resp = make_response(redirect(url_for("challenge.challenge", year=year, obs_num=obs_num)))
+                resp = make_response(
+                    redirect(url_for("challenge.challenge", year=year, obs_num=obs_num))
+                )
                 if cookie:
                     resp.set_cookie(cookie, f"{num}{'AB'[n]}")
                 return resp
@@ -90,7 +93,7 @@ def access() -> str | tuple[str, int]:
         tuple[str, int]: Error message with HTTP status code.
     """
     app = get_app()
-    bot_token = app.config['DISCORD_BOT_TOKEN']
+    bot_token = app.config["DISCORD_BOT_TOKEN"]
     year = session["year"]
     if not bot_token:
         return "Error: Bot token not found", 500
@@ -100,7 +103,9 @@ def access() -> str | tuple[str, int]:
     guild_id = app.data_cache.admin.discord_ids["0"]["guild"]
     user_id = session["user_data"]["id"]
     channel_id = app.data_cache.admin.discord_ids[year][f"{num}"]
-    print(f"{app.data_cache.admin.discord_ids[year]=} {num=} {app.data_cache.admin.discord_ids[year][f'{num}']=}")
+    print(
+        f"{app.data_cache.admin.discord_ids[year]=} {num=} {app.data_cache.admin.discord_ids[year][f'{num}']=}"
+    )
     verified_role = app.data_cache.admin.discord_ids["0"]["verified"]
 
     headers = {"Authorization": f"Bot {bot_token}", "Content-Type": "application/json"}

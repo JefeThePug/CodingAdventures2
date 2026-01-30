@@ -4,25 +4,27 @@ from app.appctx import get_app
 
 admin_bp = Blueprint("admin", __name__)
 
+
 @admin_bp.route("/admin", methods=["GET", "POST"])
 def admin():
     return render_template("admin/default.html")
 
+
 @admin_bp.route("/admin/home")
 def admin_home():
     return render_template("admin/home.html")
+
 
 @admin_bp.route("/admin/discord", methods=["GET", "POST"])
 def discord():
     app = get_app()
     years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
     selected_year = request.args.get(
-        "year",
-        request.form.get("year", f"{app.config['CURRENT_YEAR']}")
+        "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
     )
     channels = {
         "2025": {i: "TEST-2025" for i in range(1, 11)},
-        "2026": {i: "TEST-2026" for i in range(1, 11)}
+        "2026": {i: "TEST-2026" for i in range(1, 11)},
     }
     # flash("Invalid test", "error")
 
@@ -34,6 +36,7 @@ def discord():
         role="ROLE",
         channels=channels,
     )
+
 
 @admin_bp.route("/admin/release", methods=["GET", "POST"])
 def release():
@@ -47,13 +50,13 @@ def release():
         release=releases,
     )
 
+
 @admin_bp.route("/admin/solutions", methods=["GET", "POST"])
 def solutions():
     app = get_app()
     years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
     selected_year = request.args.get(
-        "year",
-        request.form.get("year", f"{app.config['CURRENT_YEAR']}")
+        "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
     )
     print(request.args.get("year", "no args"), request.form.get("year", "no form"))
 
@@ -69,39 +72,45 @@ def solutions():
         solutions=solution_list,
     )
 
+
 @admin_bp.route("/admin/html", methods=["GET", "POST"])
 def html():
     app = get_app()
     years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
     print(request.args.get("year", "no args"), request.form.get("year", "no form"))
     selected_year = request.args.get(
-        "year",
-        request.form.get("year", f"{app.config['CURRENT_YEAR']}")
+        "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
     )
     selected_week = int(request.args.get("week", request.form.get("week", 1)))
 
     data = {
         "2025": {
-            i: { part: {
-                "title": f"2025.{i}.{part} title",
-                "content": f"2025.{i}.{part} content",
-                "instructions": f"2025.{i}.{part} instructions",
-                "input": f"2025.{i}.{part} input",
-                "form": f"2025.{i}.{part} form",
-                "solution": f"2025.{i}.{part} solution",
-            } for part in range(1, 3)
-            } for i in range(1, 11)
+            i: {
+                part: {
+                    "title": f"2025.{i}.{part} title",
+                    "content": f"2025.{i}.{part} content",
+                    "instructions": f"2025.{i}.{part} instructions",
+                    "input": f"2025.{i}.{part} input",
+                    "form": f"2025.{i}.{part} form",
+                    "solution": f"2025.{i}.{part} solution",
+                }
+                for part in range(1, 3)
+            }
+            for i in range(1, 11)
         },
         "2026": {
-            i: { part: {
-                "title": f"2026.{i}.{part} title",
-                "content": f"2026.{i}.{part} content",
-                "instructions": f"2026.{i}.{part} instructions",
-                "input": f"2026.{i}.{part} input",
-                "form": f"2026.{i}.{part} form",
-                "solution": f"2026.{i}.{part} solution",
-            } for part in range(1, 3)
-            } for i in range(1, 11)
+            i: {
+                part: {
+                    "title": f"2026.{i}.{part} title",
+                    "content": f"2026.{i}.{part} content",
+                    "instructions": f"2026.{i}.{part} instructions",
+                    "input": f"2026.{i}.{part} input",
+                    "form": f"2026.{i}.{part} form",
+                    "solution": f"2026.{i}.{part} solution",
+                }
+                for part in range(1, 3)
+            }
+            for i in range(1, 11)
         },
     }
 
@@ -109,9 +118,10 @@ def html():
         "admin/html.html",
         years=years,
         selected_year=selected_year,
-        selected_week = selected_week,
+        selected_week=selected_week,
         data=data,
     )
+
 
 @admin_bp.route("/admin/perms", methods=["GET", "POST"])
 def perms():

@@ -171,7 +171,11 @@ class AdminConstantsCache:
 
                 t1, t2, t3 = [], [], []
                 for sponsor in all_sponsors:
-                    base = {"type": sponsor.type, "name": sponsor.name, "website": sponsor.website}
+                    base = {
+                        "type": sponsor.type,
+                        "name": sponsor.name,
+                        "website": sponsor.website,
+                    }
                     if TYPE_MAP[sponsor.type] == "t1":
                         t1.append(base)
                     elif TYPE_MAP[sponsor.type] == "t2":
