@@ -11,16 +11,8 @@ section {
     height: 100%;
 }
 
-p {
-    margin: 0;
-}
-
 hr {
     margin: 15px 0;
-}
-
-.b {
-    font-weight: bolder;
 }
 
 /* Utility classes */

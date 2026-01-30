@@ -7,3 +7,11 @@
     --dark-bg: #161f25;
     --select: #ff3355;
 }
+
+p {
+    margin: 0;
+}
+
+.b {
+    font-weight: bolder;
+}
