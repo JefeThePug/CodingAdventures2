@@ -15,3 +15,11 @@ p {
 .b {
     font-weight: bolder;
 }
+
+.ssm {
+    font-size: x-small;
+}
+
+.sm {
+    font-size: small;
+}

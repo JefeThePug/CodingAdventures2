@@ -15,6 +15,11 @@ hr {
     margin: 15px 0;
 }
 
+.material-symbols-outlined {
+    transform: translateY(-5px);
+    color: var(--select);
+}
+
 /* Utility classes */
 .indent {
     margin-left: 40px !important;
@@ -121,16 +126,11 @@ form input[type="submit"] {
     }
 }
 
-/* Sponsor grid */
-.sponsor-grid-form {
-    --cols: 2;
+/* Admin grid forms */
+/* Shared grid */
+.grid-form {
     .input-grid {
         display: grid;
-        grid-template-columns:
-            0.75fr
-            0.5fr
-            repeat(var(--cols), 1.5fr)
-            0.5fr;
         gap: 2px;
         justify-items: start;
         align-items: start;
@@ -143,20 +143,20 @@ form input[type="submit"] {
         input,
         textarea {
             width: 100%;
-            max-width: 100%;
             box-sizing: border-box;
+            padding: 2px 2px 2px 5px;
         }
 
         input[type="checkbox"] {
             align-self: center;
-            height: 24px;
-            margin: 0 0 0 5px;
+            height: 18px;
+            margin-left: 5px;
         }
     }
 
     .grid-header {
         padding: 0 0 2px 8px;
-        border-bottom: 1px solid var(--light-text);
+        border-bottom: 2px solid var(--light-text);
         font-weight: bold;
         justify-self: start;
         width: 100%;
@@ -168,4 +168,43 @@ form input[type="submit"] {
         resize: vertical;
         margin-bottom: 6px;
     }
+}
+
+/* Sponsor grid variables */
+.sponsor .input-grid{
+    --cols: 2;
+    grid-template-columns:
+        0.75fr
+        0.5fr
+        repeat(var(--cols), 1.5fr)
+        0.5fr;
+}
+
+/* User grid variables */
+.user .input-grid{
+    grid-template-columns:
+        0.1fr
+        0.05fr
+        0.25fr
+        0.7fr
+        0.8fr
+        repeat(10, 0.1fr 0.1fr 0.05fr);
+
+    .grid-header {
+        justify-self: stretch;
+    }
+    .grid-header.right {
+        text-align: right;
+    }
+    .check-wrap {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--select);
+        width: 18px;
+        height: 18px;
+        padding: 0;
+        margin: 0;
+    }
+
 }

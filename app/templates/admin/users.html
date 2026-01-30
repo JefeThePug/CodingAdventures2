@@ -1,0 +1,69 @@
+{% extends "admin/iframe.html" %}
+
+{% block content %}
+<section>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for _, message in messages %}
+    <p class="b alert">{{ message }}</p>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <form class="user grid-form" action="admin/users" method="POST">
+        <h2>Year</h2>
+        <div class="form-group">
+            <label for="year">Challenge Year:</label>
+            <select id="year" name="year" onchange="updateLocation()">
+                {% for y in years %}
+                <option value="{{ y }}" {{
+                'selected' if y == selected_year }}>{{ y }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <p class="indent alert"> ‼️Changing the year will discard any unsaved ID changes.</p>
+
+        <h2>Users</h2>
+        <div class="form-group">
+            <div class="input-grid ssm">
+                <div class="material-symbols-outlined">delete_forever</div>
+                <div class="v-gap">&nbsp;</div>
+                <div class="grid-header">ID</div>
+                <div class="grid-header">NAME</div>
+                <div class="grid-header">GITHUB</div>
+                {% for i in range(1, 11) %}
+                <div class="grid-header right"> {{ i }}</div>
+                <div class="grid-header">&nbsp;</div>
+                <div class="v-gap">&nbsp;</div>
+                {% endfor %}
+
+                {% for user in users %}
+                <input type="checkbox">
+                <div class="v-gap">&nbsp;</div>
+                <input type="text" value="{{ user['id'] }}">
+                <input type="text" value="{{ user['name'] }}">
+                <input type="text" value="{{ user['github'] }}">
+                {% for key, val in user[selected_year].items() %}
+                <input type="checkbox" {{ 'checked' if val[0] }}>
+                <input type="checkbox" {{ 'checked' if val[1] }}>
+                <div class="v-gap">&nbsp;</div>
+                {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+        <hr>
+
+        <div class="actions indent">
+            <input type="button" value="CANCEL" onclick="updateLocation()">
+            <input type="submit" value="SAVE">
+        </div>
+    </form>
+</section>
+
+<script>
+    function updateLocation() {
+        const year = document.getElementById('year').value;
+        window.location.href = "{{ url_for('admin.user') }}?year=" + year;
+    }
+</script>
+{% endblock %}

@@ -113,7 +113,21 @@ def user():
     selected_year = request.args.get(
         "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
     )
-    users = {}
+    users = [
+        {
+            "id": i,
+            "name": f"NAME{i}",
+            "github": f"GITHUB{i}",
+            **{
+                year: {
+                    f"c{week}": (True, False) if (i+int(year))%2 else (False, True)
+                for week in range(1, 11)}
+            for year in ("2025", "2026")}
+        }
+    for i in range(7)]
+
+    for k in users[0].keys():
+        print(k)
 
     return render_template(
         "admin/users.html",
