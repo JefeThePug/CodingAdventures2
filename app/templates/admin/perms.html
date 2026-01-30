@@ -1,0 +1,28 @@
+{% extends "admin/iframe.html" %}
+
+{% block content %}
+<section>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  {% for _, message in messages %}
+  <p class="b alert">{{ message }}</p>
+  {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <form action="admin/perms" method="POST">
+    <h2>Permissions</h2>
+    <div class="form-group">
+      <label for="perms">Users with Admin Permissions:</label><br>
+      <textarea class="full" id="perms" name="perms"
+                rows="{{ perms|length + 2 }}" cols="90">{{ perms|join("\n") }}</textarea>
+    </div>
+    <hr>
+
+    <div class="actions indent">
+      <input type="button" value="CANCEL" onclick="window.location.href='{{ url_for('admin.perms') }}'">
+      <input type="submit" value="SAVE">
+    </div>
+  </form>
+</section>
+{% endblock %}

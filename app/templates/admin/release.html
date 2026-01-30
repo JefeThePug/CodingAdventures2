@@ -5,10 +5,11 @@
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     {% for _, message in messages %}
-    <p class="alert">{{ message }}</p>
+    <p class="b alert">{{ message }}</p>
     {% endfor %}
     {% endif %}
     {% endwith %}
+
     <form action="/release" method="POST">
         <h2>Change Release</h2>
         {% for y in years %}
@@ -18,8 +19,8 @@
             </label>
             <input id="{{ y }}" name="{{ y }}" value="{{ release[y] }}" type="number"/>
         </div>
-        <hr>
         {% endfor %}
+        <hr>
         <div class="actions">
             <input type="button" value="CANCEL" onclick="window.location.href='{{ url_for('admin.release') }}'">
             <input type="submit" value="SAVE">

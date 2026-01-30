@@ -41,7 +41,7 @@
             <p class="subtext">
                 Change Server, Role, and Channel IDs
             </p>
-            <a href="#" target="content">
+            <a href="{{ url_for('admin.html') }}" target="content">
                 <p>
                     <span class="material-symbols-outlined">newsmode</span>
                     Edit HTML
@@ -50,7 +50,7 @@
             <p class="subtext">
                 Edit challenge HTML for each year
             </p>
-            <a href="#" target="content">
+            <a href="{{ url_for('admin.solutions') }}" target="content">
                 <p>
                     <span class="material-symbols-outlined">emoji_objects</span>
                     Edit Solutions
@@ -77,7 +77,7 @@
             <p class="subtext">
                 Edit list of sponsors and their links
             </p>
-            <a href="#" target="content">
+            <a href="{{ url_for('admin.perms') }}" target="content">
                 <p>
                     <span class="material-symbols-outlined">admin_panel_settings</span>
                     Update Admins

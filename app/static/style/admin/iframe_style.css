@@ -4,6 +4,7 @@ body {
     margin: 0;
     max-height: 90%;
     overflow: auto;
+    padding: 12px 20px;
 }
 
 section {
@@ -22,17 +23,49 @@ hr {
     font-weight: bolder;
 }
 
+.indent {
+    margin-left: 40px !important;
+    padding: 0 !important;
+    max-width: 650px !important;
+}
+
 .alert {
     color: var(--select);
     margin: 0 5px;
     background-color: var(--dark-bg);
     font-size: larger;
+    max-width: 520px;
+    width: fit-content;
 }
 
 .form-group {
     display: flex;
     align-items: center;
     margin-bottom: 12px;
+}
+
+.form-group:has(.full) {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 40px;
+}
+
+.form-group:has(.full) input {
+    width: 95ch;
+    max-width: none;
+}
+
+.form-group:has(.full) textarea {
+    width: 80ch;
+}
+
+.form-group:has(.full) label {
+    display: block;
+    margin-right: 0;
+    margin-bottom: 6px;
+    text-align: left;
+    height: auto;
+    flex: none;
 }
 
 form label {
@@ -44,12 +77,12 @@ form label {
 
 form input[type="text"], form input[type="number"] {
     flex: 1;
-    max-width: 520px;
     padding: 6px 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     resize: none;
     font-family: inherit;
+    max-width: 80ch;
 }
 
 form select {
