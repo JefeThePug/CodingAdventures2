@@ -40,6 +40,14 @@ p {
     vertical-align: text-bottom;
 }
 
+a:hover .material-symbols-outlined {
+    font-variation-settings:
+            'FILL' 1,
+            'wght' 600,
+            'GRAD' 0,
+            'opsz' 24;
+}
+
 .layout {
     flex: 1;
     display: flex;
