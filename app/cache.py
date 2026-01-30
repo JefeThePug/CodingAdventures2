@@ -163,11 +163,14 @@ class AdminConstantsCache:
         return True
 
     @staticmethod
-    def get_all_sponsors() -> tuple[list[dict], list[dict], list[dict]]:
+    def get_all_sponsors(include_disabled:bool = False) -> tuple[list[dict], list[dict], list[dict]]:
         """Get progress for all users that completed 10 challenges for a given year."""
         try:
             with get_app().app_context():
-                all_sponsors = Sponsor.query.filter(Sponsor.disabled.is_(False)).all()
+                query = Sponsor.query
+                if not include_disabled:
+                    query = query.filter(Sponsor.disabled.is_(False))
+                all_sponsors = query.all()
 
                 t1, t2, t3 = [], [], []
                 for sponsor in all_sponsors:
@@ -176,6 +179,8 @@ class AdminConstantsCache:
                         "name": sponsor.name,
                         "website": sponsor.website,
                     }
+                    if include_disabled:
+                        base["disabled"] = sponsor.disabled
                     if TYPE_MAP[sponsor.type] == "t1":
                         t1.append(base)
                     elif TYPE_MAP[sponsor.type] == "t2":
