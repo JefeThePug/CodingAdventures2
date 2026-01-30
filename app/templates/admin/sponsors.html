@@ -1,0 +1,52 @@
+{% extends "admin/iframe.html" %}
+
+{% block content %}
+<section>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for _, message in messages %}
+    <p class="b alert">{{ message }}</p>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <form class="sponsor-grid-form" action="admin/sponsors" method="POST">
+        {% for t in (t1, t2, t3) %}
+        {% set tier = loop.index0 %}
+        <h2>Tier {{ loop.index }}</h2>
+
+        <div class="form-group">
+            {% set cols = contents[loop.index0]|length - (3 if tier == 2 else 2) %}
+            <div class="input-grid" style="--cols: {{ cols }};">
+
+                {% for c in contents[loop.index0] %}
+                {% if c != 'blurb' %}
+                <div class="grid-header">{{ c|upper }}</div>
+                {% endif %}
+                {% endfor %}
+                <div class="grid-header">DISABLED</div>
+
+                {% for row in t %}
+                    {% set index = loop.index0 %}
+                    {% for c in contents[tier] %}
+                        {% if c != 'blurb' %}
+                        <input type="text" name="{{ c }}{{ index }}" value="{{ row[c] if row[c] else '' }}">
+                        {% endif %}
+                    {% endfor %}
+                    <input type="checkbox" name="disabled{{ index }}" {{ 'checked' if row['disabled'] }}>
+                    {% if tier == 2 %}
+                    <textarea class="grid-full" name="blurb{{ index }}" rows="5">{{ row['blurb'] }}</textarea>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        <hr>
+        {% endfor %}
+
+        <div class="actions indent">
+            <input type="button" value="CANCEL" onclick="window.location.href='{{ url_for('admin.sponsor') }}'">
+            <input type="submit" value="SAVE">
+        </div>
+    </form>
+</section>
+{% endblock %}

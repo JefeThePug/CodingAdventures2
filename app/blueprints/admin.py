@@ -15,6 +15,19 @@ def admin_home():
     return render_template("admin/home.html")
 
 
+@admin_bp.route("/admin/release", methods=["GET", "POST"])
+def release():
+    app = get_app()
+    years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
+    releases = {year: 10 for year in years}
+
+    return render_template(
+        "admin/release.html",
+        years=years,
+        release=releases,
+    )
+
+
 @admin_bp.route("/admin/discord", methods=["GET", "POST"])
 def discord():
     app = get_app()
@@ -38,16 +51,38 @@ def discord():
     )
 
 
-@admin_bp.route("/admin/release", methods=["GET", "POST"])
-def release():
+@admin_bp.route("/admin/html", methods=["GET", "POST"])
+def html():
     app = get_app()
     years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
-    releases = {year: 10 for year in years}
+    selected_year = request.args.get(
+        "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
+    )
+    selected_week = int(request.args.get("week", request.form.get("week", 1)))
+    data = {
+        year: {
+            week: {
+                part: {
+                    "title": f"{year}.{week}.{part} title",
+                    "content": f"{year}.{week}.{part} content",
+                    "instructions": f"{year}.{week}.{part} instructions",
+                    "input": f"{year}.{week}.{part} input",
+                    "form": f"{year}.{week}.{part} form",
+                    "solution": f"{year}.{week}.{part} solution",
+                }
+                for part in range(1, 3)
+            }
+            for week in range(1, 11)
+        }
+        for year in ("2025", "2026")
+    }
 
     return render_template(
-        "admin/release.html",
+        "admin/html.html",
         years=years,
-        release=releases,
+        selected_year=selected_year,
+        selected_week=selected_week,
+        data=data,
     )
 
 
@@ -58,8 +93,6 @@ def solutions():
     selected_year = request.args.get(
         "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
     )
-    print(request.args.get("year", "no args"), request.form.get("year", "no form"))
-
     solution_list = {
         "2025": {i: [f"25 test-{i}0", f"25 test-{i}1"] for i in range(1, 11)},
         "2026": {i: [f"26 test-{i}0", f"26 test-{i}1"] for i in range(1, 11)},
@@ -73,54 +106,41 @@ def solutions():
     )
 
 
-@admin_bp.route("/admin/html", methods=["GET", "POST"])
-def html():
+@admin_bp.route("/admin/users", methods=["GET", "POST"])
+def user():
     app = get_app()
     years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
-    print(request.args.get("year", "no args"), request.form.get("year", "no form"))
     selected_year = request.args.get(
         "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
     )
-    selected_week = int(request.args.get("week", request.form.get("week", 1)))
-
-    data = {
-        "2025": {
-            i: {
-                part: {
-                    "title": f"2025.{i}.{part} title",
-                    "content": f"2025.{i}.{part} content",
-                    "instructions": f"2025.{i}.{part} instructions",
-                    "input": f"2025.{i}.{part} input",
-                    "form": f"2025.{i}.{part} form",
-                    "solution": f"2025.{i}.{part} solution",
-                }
-                for part in range(1, 3)
-            }
-            for i in range(1, 11)
-        },
-        "2026": {
-            i: {
-                part: {
-                    "title": f"2026.{i}.{part} title",
-                    "content": f"2026.{i}.{part} content",
-                    "instructions": f"2026.{i}.{part} instructions",
-                    "input": f"2026.{i}.{part} input",
-                    "form": f"2026.{i}.{part} form",
-                    "solution": f"2026.{i}.{part} solution",
-                }
-                for part in range(1, 3)
-            }
-            for i in range(1, 11)
-        },
-    }
+    users = {}
 
     return render_template(
-        "admin/html.html",
+        "admin/users.html",
         years=years,
         selected_year=selected_year,
-        selected_week=selected_week,
-        data=data,
+        users=users,
     )
+
+
+@admin_bp.route("/admin/sponsors", methods=["GET", "POST"])
+def sponsor():
+    app = get_app()
+    contents = [
+        ["name", "type", "website"],
+        ["name", "type", "website", "image"],
+        ["name", "type", "website", "image", "blurb"]
+    ]
+    t1, t2, t3 = app.data_cache.admin.get_all_sponsors(True)
+
+    return render_template(
+        "admin/sponsors.html",
+        contents=contents,
+        t3=t3,
+        t2=t2,
+        t1=t1,
+    )
+
 
 
 @admin_bp.route("/admin/perms", methods=["GET", "POST"])

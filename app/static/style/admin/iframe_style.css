@@ -23,6 +23,7 @@ hr {
     font-weight: bolder;
 }
 
+/* Utility classes */
 .indent {
     margin-left: 40px !important;
     padding: 0 !important;
@@ -38,6 +39,7 @@ hr {
     width: fit-content;
 }
 
+/* Form layout (generic) */
 .form-group {
     display: flex;
     align-items: center;
@@ -48,49 +50,50 @@ hr {
     flex-direction: column;
     align-items: flex-start;
     margin-left: 40px;
+
+    input {
+        width: 95ch;
+        max-width: none;
+    }
+
+    textarea {
+        width: 80ch;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 6px;
+        text-align: left;
+        height: auto;
+        flex: none;
+    }
 }
 
-.form-group:has(.full) input {
-    width: 95ch;
-    max-width: none;
+form {
+    label {
+        flex: 0 0 140px;
+        text-align: right;
+        margin-right: 15px;
+        font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+        flex: 1;
+        padding: 6px 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-family: inherit;
+        max-width: 80ch;
+    }
+
+    select {
+        min-width: 100px;
+        padding: 6px;
+    }
 }
 
-.form-group:has(.full) textarea {
-    width: 80ch;
-}
-
-.form-group:has(.full) label {
-    display: block;
-    margin-right: 0;
-    margin-bottom: 6px;
-    text-align: left;
-    height: auto;
-    flex: none;
-}
-
-form label {
-    flex: 0 0 140px;
-    text-align: right;
-    margin-right: 15px;
-    font-weight: 500;
-}
-
-form input[type="text"], form input[type="number"] {
-    flex: 1;
-    padding: 6px 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    resize: none;
-    font-family: inherit;
-    max-width: 80ch;
-}
-
-form select {
-    width: auto;
-    min-width: 100px;
-    padding: 6px;
-}
-
+/* Form actions */
 .actions {
     margin-top: 20px;
     padding-left: 155px;
@@ -123,5 +126,54 @@ form input[type="submit"] {
 
     &:hover {
         background-color: var(--select);
+    }
+}
+
+/* Sponsor grid */
+.sponsor-grid-form {
+    --cols: 2;
+    .input-grid {
+        display: grid;
+        grid-template-columns:
+            0.75fr
+            0.5fr
+            repeat(var(--cols), 1.5fr)
+            0.5fr;
+        gap: 2px;
+        justify-items: start;
+        align-items: start;
+        text-align: left;
+
+        > * {
+            min-width: 0;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        input[type="checkbox"] {
+            align-self: center;
+            height: 24px;
+            margin: 0 0 0 5px;
+        }
+    }
+
+    .grid-header {
+        padding: 0 0 2px 8px;
+        border-bottom: 1px solid var(--light-text);
+        font-weight: bold;
+        justify-self: start;
+        width: 100%;
+    }
+
+    .grid-full {
+        grid-column: 1 / -1;
+        width: 100%;
+        resize: vertical;
+        margin-bottom: 6px;
     }
 }
