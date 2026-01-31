@@ -26,8 +26,6 @@
         <h2>Users</h2>
         <div class="form-group">
             <div class="input-grid ssm">
-                <div class="material-symbols-outlined">delete_forever</div>
-                <div class="v-gap">&nbsp;</div>
                 <div class="grid-header">ID</div>
                 <div class="grid-header">NAME</div>
                 <div class="grid-header">GITHUB</div>
@@ -38,14 +36,23 @@
                 {% endfor %}
 
                 {% for user in users %}
-                <input type="checkbox">
-                <div class="v-gap">&nbsp;</div>
                 <input type="text" value="{{ user['id'] }}">
                 <input type="text" value="{{ user['name'] }}">
-                <input type="text" value="{{ user['github'] }}">
-                {% for key, val in user[selected_year].items() %}
-                <input type="checkbox" {{ 'checked' if val[0] }}>
-                <input type="checkbox" {{ 'checked' if val[1] }}>
+                <input type="text" value="{{ user['github'] or '' }}">
+                {% for c in user['progress'] %}
+                <input type="checkbox" {{ 'checked' if c[0] }}>
+                <input type="checkbox" {{ 'checked' if c[1] }}>
+                <div class="v-gap">&nbsp;</div>
+                {% endfor %}
+                {% endfor %}
+
+                {% for i in range(users|length, users|length + 3) %}
+                <input type="text" value="">
+                <input type="text" value="">
+                <input type="text" value="">
+                {% for c in range(10) %}
+                <input type="checkbox">
+                <input type="checkbox">
                 <div class="v-gap">&nbsp;</div>
                 {% endfor %}
                 {% endfor %}

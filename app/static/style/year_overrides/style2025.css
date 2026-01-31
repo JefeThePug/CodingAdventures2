@@ -5,7 +5,7 @@
     --b-sec: #2d1b42;
     --b-code: #3c323a;
     --b-focus1: #6e5664;
-    --b-focus2: #52414c;
+    --b-focus2: #160d20;
     --b-focus3: #2d1b42;
 
     --t-main: #6cffb5;
@@ -102,11 +102,11 @@ tr:last-child {
     border-bottom-style: solid;
 }
 
-tbody :nth-child(odd) {
+tbody td:nth-child(odd) {
     background-color: var(--b-focus3);
 }
 
-tbody :nth-child(even) {
+tbody td:nth-child(even) {
     background-color: var(--b-focus2);
 }
 

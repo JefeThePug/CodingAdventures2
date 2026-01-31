@@ -28,7 +28,8 @@ def champions() -> str:
     """
     user = get_progress()
 
-    champion_list, all_data = get_app().data_cache.get_all_champions(session["year"])
+    champion_list = get_app().data_cache.get_all_champions(session["year"])
+    all_data = get_app().data_cache.get_glance(session["year"])
     names, links = [], []
     for champion in champion_list:
         names.append(champion["name"])
@@ -36,9 +37,10 @@ def champions() -> str:
 
     formatted_data = []
     for d in all_data:
-        if "★" not in d["progress"]:
+        progress = "".join("".join("☆★"[part] for part in week) for week in d["progress"])
+        if "★" not in progress:
             continue
-        p = iter(d["progress"])
+        p = iter(progress)
         progress = ["".join(pair) for pair in zip(p, p)]
         formatted_data.append(
             {

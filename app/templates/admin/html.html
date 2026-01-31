@@ -41,8 +41,8 @@
         <div class="form-group">
             {% set label = "{{ selected_year }}_{{ selected_week }}_{{ p }}_{{ field }}" %}
             <label for="{{ label }}">{{ field | capitalize }}:</label>
-            <textarea id="{{ label }}" name="{{ label }}" rows="{{ size }}" class="full"
-                      cols="90">{{ data[selected_year][selected_week][part][field] }}</textarea>
+            <textarea id="{{ label }}" name="{{ label }}"
+                      rows="{{ size }}" class="full">{{ data[part][field] }}</textarea>
         </div>
         {% endfor %}
         {% endfor %}

@@ -41,7 +41,7 @@
         <div class="form-group">
             <label for="c{{ n }}">Week {{ n }}:</label>
             {% set c = channels[selected_year] %}
-            {% set fill = c[n] if n - 1 < c|length else '' %}
+            {% set fill = c[n|string] if n - 1 < c|length else '' %}
             <input id="c{{ n }}" name="c{{ n }}" value="{{ fill }}" type="text"/>
         </div>
         {% endfor %}

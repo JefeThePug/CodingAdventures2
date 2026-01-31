@@ -19,7 +19,7 @@ def admin_home():
 def release():
     app = get_app()
     years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
-    releases = {year: 10 for year in years}
+    releases = {y: app.data_cache.admin.releases[y] for y in years}
 
     return render_template(
         "admin/release.html",
@@ -35,18 +35,16 @@ def discord():
     selected_year = request.args.get(
         "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
     )
-    channels = {
-        "2025": {i: "TEST-2025" for i in range(1, 11)},
-        "2026": {i: "TEST-2026" for i in range(1, 11)},
-    }
+    main = app.data_cache.admin.discord_ids["0"]
+    channels = {y: app.data_cache.admin.discord_ids[y] for y in years}
     # flash("Invalid test", "error")
 
     return render_template(
         "admin/discord.html",
         years=years,
         selected_year=selected_year,
-        guild="GUILD",
-        role="ROLE",
+        guild=main["guild"],
+        role=main["verified"],
         channels=channels,
     )
 
@@ -59,23 +57,8 @@ def html():
         "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
     )
     selected_week = int(request.args.get("week", request.form.get("week", 1)))
-    data = {
-        year: {
-            week: {
-                part: {
-                    "title": f"{year}.{week}.{part} title",
-                    "content": f"{year}.{week}.{part} content",
-                    "instructions": f"{year}.{week}.{part} instructions",
-                    "input": f"{year}.{week}.{part} input",
-                    "form": f"{year}.{week}.{part} form",
-                    "solution": f"{year}.{week}.{part} solution",
-                }
-                for part in range(1, 3)
-            }
-            for week in range(1, 11)
-        }
-        for year in ("2025", "2026")
-    }
+    focus = app.data_cache.html.html[selected_year][selected_week]
+    data = {part: focus[part] for part in range(1, 3)}
 
     return render_template(
         "admin/html.html",
@@ -93,10 +76,7 @@ def solutions():
     selected_year = request.args.get(
         "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
     )
-    solution_list = {
-        "2025": {i: [f"25 test-{i}0", f"25 test-{i}1"] for i in range(1, 11)},
-        "2026": {i: [f"26 test-{i}0", f"26 test-{i}1"] for i in range(1, 11)},
-    }
+    solution_list = {y: app.data_cache.html.solutions[y] for y in years}
 
     return render_template(
         "admin/solutions.html",
@@ -113,21 +93,7 @@ def user():
     selected_year = request.args.get(
         "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
     )
-    users = [
-        {
-            "id": i,
-            "name": f"NAME{i}",
-            "github": f"GITHUB{i}",
-            **{
-                year: {
-                    f"c{week}": (True, False) if (i+int(year))%2 else (False, True)
-                for week in range(1, 11)}
-            for year in ("2025", "2026")}
-        }
-    for i in range(7)]
-
-    for k in users[0].keys():
-        print(k)
+    users = app.data_cache.get_glance(selected_year)
 
     return render_template(
         "admin/users.html",
@@ -160,9 +126,8 @@ def sponsor():
 @admin_bp.route("/admin/perms", methods=["GET", "POST"])
 def perms():
     app = get_app()
-    perm_list = [f"TESTING{i}" for i in range(__import__("random").randint(3, 6))]
 
     return render_template(
         "admin/perms.html",
-        perms=perm_list,
+        perms=app.data_cache.admin.permissions,
     )

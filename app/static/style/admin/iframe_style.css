@@ -54,7 +54,11 @@ hr {
     }
 
     textarea {
-        width: 80ch;
+        width: 100ch;
+        resize: vertical;
+        &.short {
+            width: 80ch;
+        }
     }
 
     label {
@@ -183,12 +187,10 @@ form input[type="submit"] {
 /* User grid variables */
 .user .input-grid{
     grid-template-columns:
-        0.1fr
-        0.05fr
-        0.25fr
-        0.7fr
-        0.8fr
-        repeat(10, 0.1fr 0.1fr 0.05fr);
+        0.95fr
+        0.65fr
+        0.6fr
+        repeat(10, 0.1fr 0.1fr 0.02fr);
 
     .grid-header {
         justify-self: stretch;

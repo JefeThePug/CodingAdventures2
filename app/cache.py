@@ -418,10 +418,8 @@ class DataCache:
             return False
 
     @staticmethod
-    def get_all_champions(
-        year: str,
-    ) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
-        """Get progress for all users that completed 10 challenges for a given year."""
+    def get_all_champions(year: str) -> list[dict[str, str]]:
+        """Get list of all users that completed 10 challenges for a given year."""
         app = get_app()
         try:
             with app.app_context():
@@ -430,23 +428,40 @@ class DataCache:
                 )
 
                 champions = []
-                glance = []
                 for p in all_users:
-                    states = p.challenge_states()
-                    glance.append(
-                        {
-                            "name": p.user.name,
-                            "id": p.user.user_id,
-                            "progress": "".join("☆★"[bit] for s in states for bit in s),
-                        }
-                    )
-                    if all(all(s) for s in states):
+                    if all(all(s) for s in p.challenge_states()):
                         champions.append({"name": p.user.name, "github": p.user.github})
 
-                return champions, glance
+                return champions
         except SQLAlchemyError as e:
             exception("Error fetching champions", e)
-            return [], []
+            return []
+
+
+    @staticmethod
+    def get_glance(year: str) -> list[dict[str, str]]:
+        """Get progress of all users for a given year."""
+        app = get_app()
+        try:
+            with app.app_context():
+                all_users = (
+                    Progress.query.join(User).filter(Progress.year == year).all()
+                )
+
+                glance = []
+                for p in all_users:
+                    glance.append(
+                        {
+                            "id": p.user.user_id,
+                            "name": p.user.name,
+                            "github": p.user.github,
+                            "progress": p.challenge_states(),
+                        }
+                    )
+            return glance
+        except SQLAlchemyError as e:
+            exception("Error fetching user progress", e)
+            return []
 
     @staticmethod
     def update_champions(champions: list[dict]) -> bool:
