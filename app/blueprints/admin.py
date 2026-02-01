@@ -29,7 +29,6 @@ def release():
                 flash(f"{year}: release must be a number 0–10", "error")
                 return redirect(url_for("admin.release"))
             values.append(min(10, max(0, int(raw))))
-
         app.data_cache.admin.update_releases(years, values)
         return redirect(url_for("admin.release"))
 
@@ -49,14 +48,21 @@ def discord():
     )
     main = app.data_cache.admin.discord_ids["0"]
     channels = {y: app.data_cache.admin.discord_ids[y] for y in years}
-    # flash("Invalid test", "error")
+
+    if request.method == "POST":
+        values = {
+            selected_year: {f"{i}": request.form.get(f"c{i}", "").strip() for i in range(1, 11)},
+            "0": {key: request.form.get(key, "").strip() for key in ("guild", "role")},
+        }
+        app.data_cache.admin.update_discord(values)
+        return redirect(url_for("admin.discord", year=selected_year))
 
     return render_template(
         "admin/discord.html",
         years=years,
         selected_year=selected_year,
         guild=main["guild"],
-        role=main["verified"],
+        role=main["role"],
         channels=channels,
     )
 
@@ -138,8 +144,14 @@ def sponsor():
 @admin_bp.route("/admin/perms", methods=["GET", "POST"])
 def perms():
     app = get_app()
+    permissions = app.data_cache.admin.permissions
+    
+    if request.method == "POST":
+        values = [p.strip() for p in request.form.get("perms", "").splitlines()]
+        app.data_cache.admin.update_perms(values)
+        return redirect(url_for("admin.perms"))
 
     return render_template(
         "admin/perms.html",
-        perms=app.data_cache.admin.permissions,
+        perms=permissions,
     )

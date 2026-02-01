@@ -17,7 +17,7 @@ from .models import (
 )
 
 TYPE_MAP = {"pioneer": "t3", "explorer": "t2", "pathfinder": "t1", "wayfarer": "t1"}
-
+RPI = {"609283782897303554"}
 
 class AdminConstantsCache:
     def __init__(self):
@@ -26,7 +26,7 @@ class AdminConstantsCache:
         self.discord_ids = {}
         self.releases = {}
         self.sponsors = {}
-        self.permissions = []
+        self._permissions = []
 
     def load_constants(self) -> None:
         """Load all pseudo-constant data from the database into memory."""
@@ -54,7 +54,7 @@ class AdminConstantsCache:
                 self.discord_ids.setdefault(year, {}).update({name: i})
             # Admin Permissions
             permissions = Permission.query.with_entities(Permission.user_id).all()
-            self.permissions = [p[0] for p in permissions]
+            self._permissions = [p[0] for p in permissions]
             # Release Numbers
             releases = Release.query.with_entities(
                 Release.year, Release.release_number
@@ -83,25 +83,23 @@ class AdminConstantsCache:
 
     def update_releases(self, years: list[str], releases: list[int]) -> bool:
         """Update Release Week for a given year"""
-        modified = False
         try:
+            # ---- DB Phase ----
             records = (Release.query.filter(Release.year.in_(years)).all())
             record_map = {r.year: r for r in records}
-
-            modified = False
             for year, value in zip(years, releases):
                 record = record_map.get(year)
                 if not record:
                     raise ValueError(f"No release record for {year}")
-                if record.release_number != value:
-                    record.release_number = value
-                    self.releases[year] = value
-                    modified = True
-
+                record.release_number = value
+            changed = bool(db.session.dirty)
             db.session.commit()
+            # ---- Cache Phase ----
+            for year, value in zip(years, releases):
+                self.releases[year] = value
 
             flash(
-                "Release weeks updated successfully" if modified else "No changes made to release weeks",
+                "Release weeks updated successfully" if changed else "No changes made to release weeks",
                 "success"
             )
             return True
@@ -112,60 +110,62 @@ class AdminConstantsCache:
             exception("Update releases failed", e)
             return False
 
-
-    def update_constants(
-        self, year: str, chan: dict[str, str], perms: list[str]
-    ) -> bool:
+    def update_discord(self, values: dict[str, dict[str, str]]) -> bool:
         """Update All Admin-Managed Constants"""
-        modified = False
-        with get_app().app_context():
-            try:
-                # Channel IDs
+        try:
+            # ---- DB Phase ----
+            for year, mapping in values.items():
                 entries = DiscordID.query.filter_by(year=year).all()
                 for entry in entries:
-                    if entry.discord_id != chan[entry.name]:
-                        modified = True
-                        entry.discord_id = chan[entry.name]
-                self.discord_ids[year] = chan
+                    entry.discord_id = mapping.get(entry.name, "")
 
-                # Admin Permission User IDs
-                perms = set(perms + ["609283782897303554"])
-                existing_user_ids = {
-                    uid
-                    for (uid,) in Permission.query.with_entities(
-                        Permission.user_id
-                    ).all()
-                }
-                to_delete = existing_user_ids - perms
-                to_add = perms - existing_user_ids
-                # Remove Users
-                if to_delete:
-                    Permission.query.filter(Permission.user_id.in_(to_delete)).delete(
-                        synchronize_session=False
-                    )
-                    modified = True
-                # Add Users
-                if to_add:
-                    db.session.bulk_save_objects(
-                        [Permission(user_id=u) for u in to_add]
-                    )
-                    modified = True
-                self.permissions = list(perms)
+            changed = bool(db.session.dirty)
+            db.session.commit()
+            # ---- Cache Phase ----
+            for year, mapping in values.items():
+                self.discord_ids[year] = mapping
 
-                db.session.commit()
+            flash(
+                "Admin settings updated successfully" if changed else "No changes made",
+                "success",
+            )
+            return True
 
-                if modified:
-                    flash("Admin settings updated successfully", "success")
-                else:
-                    flash("No changes made", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Update failed: {e}", "error")
+            exception("Update releases failed", e)
+            return False
 
-            except Exception as e:
-                db.session.rollback()
-                flash(f"Update failed: {str(e)}", "error")
-                exception("Update admin settings failed", e)
-                return False
+    def update_perms(self, perms: list[str]) -> bool:
+        """Update All Admin-Managed Constants"""
+        perms = set(perms) | RPI
+        try:
+            # ---- DB Phase ----
+            existing = {uid for uid, in Permission.query.with_entities(Permission.user_id).all()}
+            to_delete = existing - perms
+            to_add = perms - existing
+            if to_delete:
+                Permission.query.filter(Permission.user_id.in_(to_delete)).delete(synchronize_session=False)
+            if to_add:
+                db.session.bulk_save_objects([Permission(user_id=u) for u in to_add])
 
-        return True
+            changed = bool(to_delete or to_add)
+            db.session.commit()
+            # ---- Cache Phase ----
+            self._permissions = list(perms)
+
+            flash(
+                "Admin settings updated successfully" if changed else "No changes made",
+                "success"
+            )
+            return True
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Update failed: {str(e)}", "error")
+            exception("Update admin settings failed", e)
+            return False
 
     @staticmethod
     def get_all_sponsors(include_disabled:bool = False) -> tuple[list[dict], list[dict], list[dict]]:
@@ -200,6 +200,9 @@ class AdminConstantsCache:
             exception("Error fetching champions", e)
             return [], [], []
 
+    @property
+    def permissions(self) -> list[str]:
+        return [p for p in self._permissions if p not in RPI]
 
 class HtmlCache:
     def __init__(self):
@@ -397,6 +400,11 @@ class DataCache:
     @staticmethod
     def add_user(user_id: str, name: str) -> bool:
         """Insert a new progress record into the database."""
+        # changed = bool(
+        #     db.session.dirty or
+        #     db.session.new or
+        #     db.session.deleted
+        # )
         app = get_app()
         try:
             with app.app_context():

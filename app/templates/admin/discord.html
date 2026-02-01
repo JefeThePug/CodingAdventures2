@@ -10,11 +10,11 @@
     {% endif %}
     {% endwith %}
 
-    <form action="admin/discord" method="POST">
+    <form action="/admin/discord" method="POST">
         <h2>Guild ID</h2>
         <div class="form-group">
             <label for="guild">ID:</label>
-            <input id="guild" name="guild" value="{{ guild }}" type="text"/>
+            <input id="guild" name="guild" value="{{ guild }}" type="text" required/>
         </div>
         <hr>
 
@@ -42,7 +42,7 @@
             <label for="c{{ n }}">Week {{ n }}:</label>
             {% set c = channels[selected_year] %}
             {% set fill = c[n|string] if n - 1 < c|length else '' %}
-            <input id="c{{ n }}" name="c{{ n }}" value="{{ fill }}" type="text"/>
+            <input id="c{{ n }}" name="c{{ n }}" value="{{ fill }}" type="text" required/>
         </div>
         {% endfor %}
         <hr>
