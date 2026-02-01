@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, session, flash
+from flask import Blueprint, render_template, request, session, flash, url_for, redirect
 
 from app.appctx import get_app
 
@@ -20,6 +20,18 @@ def release():
     app = get_app()
     years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
     releases = {y: app.data_cache.admin.releases[y] for y in years}
+
+    if request.method == "POST":
+        values = []
+        for year in years:
+            raw = request.form.get(year, "").strip()
+            if not raw.isdigit():
+                flash(f"{year}: release must be a number 0–10", "error")
+                return redirect(url_for("admin.release"))
+            values.append(min(10, max(0, int(raw))))
+
+        app.data_cache.admin.update_releases(years, values)
+        return redirect(url_for("admin.release"))
 
     return render_template(
         "admin/release.html",

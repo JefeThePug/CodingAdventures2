@@ -81,32 +81,37 @@ class AdminConstantsCache:
                     }
                 )
 
-    def update_release(self, year: str, release: int) -> bool:
+    def update_releases(self, years: list[str], releases: list[int]) -> bool:
         """Update Release Week for a given year"""
         modified = False
-        with get_app().app_context():
-            try:
-                release_record = Release.query.filter_by(year=year).first()
-                if release_record.release_number != release:
-                    release_record.release_number = release
+        try:
+            records = (Release.query.filter(Release.year.in_(years)).all())
+            record_map = {r.year: r for r in records}
+
+            modified = False
+            for year, value in zip(years, releases):
+                record = record_map.get(year)
+                if not record:
+                    raise ValueError(f"No release record for {year}")
+                if record.release_number != value:
+                    record.release_number = value
+                    self.releases[year] = value
                     modified = True
-                    self.releases[year] = release
 
-                db.session.commit()
+            db.session.commit()
 
-                if modified:
-                    flash(
-                        f"Release Week for {year} updated successfully to {release}",
-                        "success",
-                    )
-                else:
-                    flash("No changes made to Release Week", "success")
-            except Exception as e:
-                db.session.rollback()
-                flash(f"Update failed: {str(e)}", "error")
-                exception("Update release failed", e)
-                return False
-        return True
+            flash(
+                "Release weeks updated successfully" if modified else "No changes made to release weeks",
+                "success"
+            )
+            return True
+
+        except (SQLAlchemyError, ValueError) as e:
+            db.session.rollback()
+            flash(f"Update failed: {e}", "error")
+            exception("Update releases failed", e)
+            return False
+
 
     def update_constants(
         self, year: str, chan: dict[str, str], perms: list[str]
