@@ -1,21 +1,20 @@
 import base64
 import os
+from pathlib import Path
 
 import requests
 import yaml
 from dotenv import load_dotenv
 from flask import Flask
-from psycopg2 import connect, sql
-from sqlalchemy import inspect
+from sqlalchemy import create_engine, event, text
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.models import (
     SubEntry,
     db,
 )
 
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
-path = os.path.join(parent_dir, ".env")
-print(path)
+path = Path(__file__).resolve().parent / ".env"
 load_dotenv(path)
 
 # Initialize Flask application
@@ -32,54 +31,61 @@ DATABASE_URL = (
     f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}"
     f"@{POSTGRES_SERVER}:{POSTGRES_PORT}/{DATABASE_NAME}"
 )
+ADMIN_URL = (
+    f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}"
+    f"@{POSTGRES_SERVER}:{POSTGRES_PORT}/postgres"
+)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_COMMIT_ON_TEARDOWN"] = False
-
 db.init_app(app)
+
+@event.listens_for(db.metadata, 'after_create')
+def receive_after_create(target, connection, tables, **kwargs):
+    for table in tables:
+        print(f"Table created: {table.name}")
 
 
 def main():
-    check_database_exists(DATABASE_URL)
-    with app.app_context():
-        create_missing_tables(inspect(db.engine))
-        fill_permanent_data(inspect(db.engine))
+    check_database_exists()
+    create_missing_tables()
+    fill_permanent_data()
     print(
         "Database setup complete. Go to the Admin dashboard (/admin) to customize for your server."
     )
 
 
-def check_database_exists(database_url):
+def check_database_exists():
     """Create database in PostgreSQL if it doesn't exist"""
-    connection = connect(
-        user=POSTGRES_USER,
-        password=POSTGRES_PASSWORD,
-        host=POSTGRES_SERVER,
-        port=POSTGRES_PORT,
-        dbname="postgres",
-    )
-    connection.autocommit = True
-    cursor = connection.cursor()
+    engine = create_engine(ADMIN_URL).execution_options(isolation_level="AUTOCOMMIT")
 
-    cursor.execute("SELECT 1 FROM pg_database WHERE datname=%s", (DATABASE_NAME,))
-    if cursor.fetchone() is None:
-        cursor.execute(
-            sql.SQL("CREATE DATABASE {}").format(sql.Identifier(DATABASE_NAME))
+    with engine.connect() as conn:
+        result = conn.execute(
+            text("SELECT 1 FROM pg_database WHERE datname = :dbname"),
+            {"dbname": DATABASE_NAME}
         )
-        print(f"Database {DATABASE_NAME} created.")
-    cursor.close()
-    connection.close()
+        if not result.fetchone():
+            # In SQLAlchemy, identifiers for CREATE DATABASE must be raw strings
+            conn.execute(text(f'CREATE DATABASE "{DATABASE_NAME}"'))
+            print(f"Database {DATABASE_NAME} created.")
 
 
 def create_missing_tables(inspector):
     """Check and create all tables only if they don't already exist"""
     with app.app_context():
-        table_names = inspector.get_table_names()
-        for model in [SubEntry]:
-            if model.__tablename__ not in table_names:
-                model.__table__.create(db.engine)
-                print(f"Table ({model.__tablename__}) created.")
+        inspector = db.inspect(db.engine)
+        pre_count = len(inspector.get_table_names())
+
+        db.create_all()
+
+        inspector = db.inspect(db.engine)
+        post_count = len(inspector.get_table_names())
+
+        if post_count > pre_count:
+            print(f"Success: {post_count - pre_count} new table(s) created.")
+        else:
+            print("No new tables needed; all schemas already exist.")
 
 
 def fill_permanent_data(inspector):
@@ -90,10 +96,15 @@ def fill_permanent_data(inspector):
         if "sub_entries" in table_names:
             if not db.session.query(SubEntry).first():
                 to_load = "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnL2I4N2VjOWRhMmIyNDEwZGJhMmNmNjBkZDY3ZmY5ZGU5L3Jhdy9hZHZlbnR1cmVfaHRtbC55YW1s"
-                data = requests.get(base64.b64decode(to_load).decode("utf-8"))
-                sub_entries = [SubEntry(**d) for d in yaml.safe_load(data.text)]
-                db.session.add_all(sub_entries)
-                print("Inserted html.")
+                try:
+                    response = requests.get(base64.b64decode(to_load).decode("utf-8"), timeout=10)
+                    response.raise_for_status()
+                    data = yaml.safe_load(response.text)
+                    sub_entries = [SubEntry(**d) for d in data]
+                    db.session.add_all(sub_entries)
+                    print("Inserted HTML.")
+                except SQLAlchemyError as e:
+                    print(f"Failed to seed HTML data: {e}")
 
         db.session.commit()
 
