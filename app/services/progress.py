@@ -1,6 +1,6 @@
 from typing import TypedDict
 
-from flask import session, request
+from flask import request, session
 
 from app.appctx import get_app
 

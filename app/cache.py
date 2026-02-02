@@ -1,19 +1,20 @@
 from flask import flash
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.appctx import get_app, warning, exception, log_info
+from app.appctx import exception, get_app, log_info, warning
 from app.extensions import db
+
 from .models import (
     DiscordID,
     MainEntry,
-    SubEntry,
     Obfuscation,
-    User,
-    Progress,
-    Solution,
     Permission,
+    Progress,
     Release,
+    Solution,
     Sponsor,
+    SubEntry,
+    User,
 )
 
 TYPE_MAP = {"pioneer": "t3", "explorer": "t2", "pathfinder": "t1", "wayfarer": "t1"}
@@ -158,7 +159,8 @@ class AdminConstantsCache:
         try:
             # ---- DB Phase ----
             existing = {
-                uid for uid, in Permission.query.with_entities(Permission.user_id).all()
+                uid
+                for (uid,) in Permission.query.with_entities(Permission.user_id).all()
             }
             to_delete = existing - perms
             to_add = perms - existing

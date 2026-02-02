@@ -1,7 +1,7 @@
 from flask import Blueprint, Response, redirect, render_template, session, url_for
 
-from app.services import get_progress
 from app.appctx import get_app
+from app.services import get_progress
 
 main_bp = Blueprint("main", __name__)
 
@@ -12,7 +12,7 @@ def index() -> Response:
     Returns:
         Response: Rendered redirect to current year.
     """
-    if not "year" in session:
+    if "year" not in session:
         session["year"] = f"{get_app().config['CURRENT_YEAR']}"
     return redirect(url_for("main.release", year=session["year"]))
 

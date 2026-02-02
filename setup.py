@@ -1,17 +1,16 @@
 import base64
 import os
-import sys
-import yaml
 
 import requests
+import yaml
 from dotenv import load_dotenv
 from flask import Flask
 from psycopg2 import connect, sql
 from sqlalchemy import inspect
 
 from app.models import (
-    db,
     SubEntry,
+    db,
 )
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__)))

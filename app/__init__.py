@@ -3,7 +3,7 @@ import os
 from itsdangerous import URLSafeTimedSerializer
 
 from .cache import DataCache
-from .config import ProdConfig, DevConfig
+from .config import DevConfig, ProdConfig
 from .extensions import db
 from .types import AppFlask
 
@@ -29,15 +29,15 @@ def create_app() -> AppFlask:
     db.init_app(app)
     app.data_cache = DataCache()
 
-    from .templating import register_globals
     from .blueprints import (
-        main_bp,
-        auth_bp,
-        route_bp,
-        challenge_bp,
         admin_bp,
+        auth_bp,
+        challenge_bp,
         errors_bp,
+        main_bp,
+        route_bp,
     )
+    from .templating import register_globals
 
     with app.app_context():
         app.data_cache.load()

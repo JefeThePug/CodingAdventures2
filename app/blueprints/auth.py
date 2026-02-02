@@ -7,13 +7,13 @@ from flask import (
     Response,
     redirect,
     render_template,
+    request,
     session,
     url_for,
-    request,
 )
 
-from app.services import get_progress, exchange_code, sync_progress
-from app.appctx import get_app, exception, warning
+from app.appctx import exception, get_app, warning
+from app.services import exchange_code, get_progress, sync_progress
 
 auth_bp = Blueprint("auth", __name__)
 

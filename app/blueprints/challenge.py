@@ -1,13 +1,13 @@
 import requests
 from flask import (
     Blueprint,
-    render_template,
     Response,
-    request,
     make_response,
     redirect,
-    url_for,
+    render_template,
+    request,
     session,
+    url_for,
 )
 
 from app.appctx import get_app

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, url_for, redirect
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from app.appctx import get_app
 
@@ -161,7 +161,6 @@ def sponsor():
         )
         for n in numbers:
             s = {x: request.form.get(f"{x}_{n}") or None for x in fields}
-            tier = request.form.get(f"type_{n}", "")
             sponsors.append(
                 s
                 | {

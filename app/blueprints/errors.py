@@ -1,4 +1,4 @@
-from flask import Blueprint, Response, make_response, send_from_directory, abort
+from flask import Blueprint, Response, abort, make_response, send_from_directory
 from werkzeug.exceptions import NotFound
 
 errors_bp = Blueprint("errors", __name__)

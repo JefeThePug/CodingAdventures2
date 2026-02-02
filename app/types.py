@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+
 from flask import Flask
 from itsdangerous import URLSafeTimedSerializer
 
