@@ -3,7 +3,6 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.appctx import exception, get_app, log_info, warning
 from app.extensions import db
-
 from .models import (
     DiscordID,
     MainEntry,
@@ -30,6 +29,10 @@ class AdminConstantsCache:
         self._sponsors = []
         self._permissions = []
 
+    @property
+    def permissions(self) -> list[str]:
+        return [p for p in self._permissions if p not in RPI]
+
     def get_sponsors(self, include_disabled: bool = False) -> list[list[dict]]:
         """Get all sponsors or only enabled sponsors from the database"""
         if include_disabled:
@@ -41,10 +44,6 @@ class AdminConstantsCache:
             [s for s in self._sponsors if s["bucket"] == tier and not s["disabled"]]
             for tier in ("t1", "t2", "t3")
         ]
-
-    @property
-    def permissions(self) -> list[str]:
-        return [p for p in self._permissions if p not in RPI]
 
     def load_constants(self) -> None:
         """Load all pseudo-constant data from the database into memory."""
@@ -287,8 +286,7 @@ class HtmlCache:
             if not main:
                 raise ValueError("MainEntry not found")
             existing = {
-                s.sub_entry_id: s
-                for s in SubEntry.query.filter_by(main_entry_id=main.id).all()
+                s.part: s for s in SubEntry.query.filter_by(main_entry_id=main.id).all()
             }
             for part, contents in data.items():
                 row = existing.get(part)
@@ -296,7 +294,7 @@ class HtmlCache:
                     raise ValueError(f"SubEntry part {part} not found")
 
                 for field in fields:
-                    fixed = self.normalize(contents[field])
+                    fixed = self.normalize(contents.get(field, ""))
                     if getattr(row, field) != fixed:
                         setattr(row, field, fixed)
 
@@ -306,7 +304,9 @@ class HtmlCache:
             self.html[year][week] = data
 
             flash(
-                f"Database for Week {week} Successfully Updated!" if changed else "",
+                f"Database for {year} Week {week} Updated!"
+                if changed
+                else "No changes made",
                 "success",
             )
             return True
@@ -373,68 +373,6 @@ class DataCache:
             except SQLAlchemyError as e:
                 exception(f"Failed to load progress for user {user_id}", e)
                 return {}
-
-    @staticmethod
-    def update_progress(year: str, user_id: str, c_num: int, index: int) -> bool:
-        """Update individual user progress in the database and refresh the cache."""
-        with get_app().app_context():
-            progress = (
-                Progress.query.join(User)
-                .filter(User.user_id == user_id, Progress.year == year)
-                .one_or_none()
-            )
-            if progress is None:
-                warning(f"User {user_id} not found in database when updating data.")
-                return False
-            col_name = f"c{c_num}"
-            challenge = getattr(progress, col_name, None)
-            if challenge is None:
-                warning(
-                    f"Unexpected error with updating challenge. {progress=} {challenge=}"
-                )
-                return False
-            if not (0 <= index < len(challenge)):
-                warning(
-                    f"Progress update: Index out of bounds {index=}, len={len(challenge)}"
-                )
-                return False
-            challenge = challenge[:index] + [True] + challenge[index + 1 :]
-            setattr(progress, col_name, challenge)
-            db.session.commit()
-        return True
-
-    @staticmethod
-    def add_user(user_id: str, name: str) -> bool:
-        """Insert a new progress record into the database."""
-        # changed = bool(
-        #     db.session.dirty or
-        #     db.session.new or
-        #     db.session.deleted
-        # )
-        app = get_app()
-        try:
-            with app.app_context():
-                new_user = User(
-                    user_id=user_id,
-                    name=name,
-                    github="",
-                )
-                db.session.add(new_user)
-                db.session.flush()
-                for year in range(2025, app.config["CURRENT_YEAR"] + 1):
-                    new_progress = Progress(
-                        user_id=new_user.id,
-                        year=f"{year}",
-                        **{f"c{i}": [False, False] for i in range(1, 11)},
-                    )
-                    db.session.add(new_progress)
-                db.session.commit()
-                log_info(f"User {name}:{user_id} (id={new_user.id}) added to database.")
-            return True
-        except SQLAlchemyError as e:
-            exception("Error adding user", e)
-            db.session.rollback()
-            return False
 
     @staticmethod
     def get_all_champions(year: str) -> list[dict[str, str]]:
@@ -508,3 +446,60 @@ class DataCache:
                 return False
 
         return True
+
+    @staticmethod
+    def update_progress(year: str, user_id: str, c_num: int, index: int) -> bool:
+        """Update individual user progress in the database and refresh the cache."""
+        with get_app().app_context():
+            progress = (
+                Progress.query.join(User)
+                .filter(User.user_id == user_id, Progress.year == year)
+                .one_or_none()
+            )
+            if progress is None:
+                warning(f"User {user_id} not found in database when updating data.")
+                return False
+            col_name = f"c{c_num}"
+            challenge = getattr(progress, col_name, None)
+            if challenge is None:
+                warning(
+                    f"Unexpected error with updating challenge. {progress=} {challenge=}"
+                )
+                return False
+            if not (0 <= index < len(challenge)):
+                warning(
+                    f"Progress update: Index out of bounds {index=}, len={len(challenge)}"
+                )
+                return False
+            challenge = challenge[:index] + [True] + challenge[index + 1 :]
+            setattr(progress, col_name, challenge)
+            db.session.commit()
+        return True
+
+    @staticmethod
+    def add_user(user_id: str, name: str) -> bool:
+        """Insert a new progress record into the database."""
+        app = get_app()
+        try:
+            with app.app_context():
+                new_user = User(
+                    user_id=user_id,
+                    name=name,
+                    github="",
+                )
+                db.session.add(new_user)
+                db.session.flush()
+                for year in range(2025, app.config["CURRENT_YEAR"] + 1):
+                    new_progress = Progress(
+                        user_id=new_user.id,
+                        year=f"{year}",
+                        **{f"c{i}": [False, False] for i in range(1, 11)},
+                    )
+                    db.session.add(new_progress)
+                db.session.commit()
+                log_info(f"User {name}:{user_id} (id={new_user.id}) added to database.")
+            return True
+        except SQLAlchemyError as e:
+            exception("Error adding user", e)
+            db.session.rollback()
+            return False

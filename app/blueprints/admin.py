@@ -78,12 +78,14 @@ def html():
     )
     selected_week = int(request.args.get("week", request.form.get("week", 1)))
     fields = ["title", "content", "instructions", "input_type", "form", "solution"]
-    focus = app.data_cache.html.html[selected_year][selected_week]
-    data = {part: focus[part] for part in range(1, 3)}
+    data = {
+        part: app.data_cache.html.html[selected_year][selected_week][part]
+        for part in range(1, 3)
+    }
 
     if request.method == "POST":
         contents = {
-            i: {cat: request.args.get(f"{cat}{i}") for cat in fields}
+            i: {cat: request.form.get(f"{cat}{i}") for cat in fields}
             for i in range(1, 3)
         }
         app.data_cache.html.update_html(selected_year, selected_week, fields, contents)
@@ -144,30 +146,24 @@ def user():
 @admin_bp.route("/admin/sponsors", methods=["GET", "POST"])
 def sponsor():
     app = get_app()
-    contents = [
-        ["name", "type", "website"],
-        ["name", "type", "website", "image"],
-        ["name", "type", "website", "image", "blurb"],
-    ]
+    fields = ["name", "type", "website", "image", "blurb", "bucket"]
+    contents = [fields[:3], fields[:4], fields[:5]]
     t1, t2, t3 = app.data_cache.admin.get_sponsors(include_disabled=True)
 
     if request.method == "POST":
-        sponsors = []
-        fields = ["name", "type", "website", "image", "blurb", "bucket"]
         numbers = set(
             int(k)
             for key in request.form.keys()
             if "_" in key and (k := key.rsplit("_", 1)[1]).isdigit()
         )
-        for n in numbers:
-            s = {x: request.form.get(f"{x}_{n}") or None for x in fields}
-            sponsors.append(
-                s
-                | {
-                    "disabled": f"disabled_{n}" in request.form,
-                    "id": int(request.form.get(f"id_{n}", 0)),
-                }
-            )
+        sponsors = [
+            {
+                "disabled": f"disabled_{n}" in request.form,
+                "id": int(request.form.get(f"id_{n}", 0)),
+                **{x: request.form.get(f"{x}_{n}") or None for x in fields},
+            }
+            for n in numbers
+        ]
         app.data_cache.admin.update_sponsors(sponsors)
         return redirect(url_for("admin.sponsor"))
 

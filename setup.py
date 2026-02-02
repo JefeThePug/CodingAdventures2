@@ -41,7 +41,8 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_COMMIT_ON_TEARDOWN"] = False
 db.init_app(app)
 
-@event.listens_for(db.metadata, 'after_create')
+
+@event.listens_for(db.metadata, "after_create")
 def receive_after_create(target, connection, tables, **kwargs):
     for table in tables:
         print(f"Table created: {table.name}")
@@ -63,7 +64,7 @@ def check_database_exists():
     with engine.connect() as conn:
         result = conn.execute(
             text("SELECT 1 FROM pg_database WHERE datname = :dbname"),
-            {"dbname": DATABASE_NAME}
+            {"dbname": DATABASE_NAME},
         )
         if not result.fetchone():
             # In SQLAlchemy, identifiers for CREATE DATABASE must be raw strings
@@ -97,7 +98,9 @@ def fill_permanent_data(inspector):
             if not db.session.query(SubEntry).first():
                 to_load = "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnL2I4N2VjOWRhMmIyNDEwZGJhMmNmNjBkZDY3ZmY5ZGU5L3Jhdy9hZHZlbnR1cmVfaHRtbC55YW1s"
                 try:
-                    response = requests.get(base64.b64decode(to_load).decode("utf-8"), timeout=10)
+                    response = requests.get(
+                        base64.b64decode(to_load).decode("utf-8"), timeout=10
+                    )
                     response.raise_for_status()
                     data = yaml.safe_load(response.text)
                     sub_entries = [SubEntry(**d) for d in data]
