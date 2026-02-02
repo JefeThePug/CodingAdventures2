@@ -7,6 +7,7 @@ from app.appctx import get_app
 
 class ProgressPayload(TypedDict):
     """Structure returned by get_progress() for templates and handlers."""
+
     id: str | None
     img: str
     progress: dict[str, list[bool]]

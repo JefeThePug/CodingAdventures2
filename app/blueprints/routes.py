@@ -37,7 +37,9 @@ def champions() -> str:
 
     formatted_data = []
     for d in all_data:
-        progress = "".join("".join("☆★"[part] for part in week) for week in d["progress"])
+        progress = "".join(
+            "".join("☆★"[part] for part in week) for week in d["progress"]
+        )
         if "★" not in progress:
             continue
         p = iter(progress)

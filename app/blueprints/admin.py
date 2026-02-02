@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, session, flash, url_for, redirect
+from flask import Blueprint, render_template, request, flash, url_for, redirect
 
 from app.appctx import get_app
 
@@ -51,7 +51,9 @@ def discord():
 
     if request.method == "POST":
         values = {
-            selected_year: {f"{i}": request.form.get(f"c{i}", "").strip() for i in range(1, 11)},
+            selected_year: {
+                f"{i}": request.form.get(f"c{i}", "").strip() for i in range(1, 11)
+            },
             "0": {key: request.form.get(key, "").strip() for key in ("guild", "role")},
         }
         app.data_cache.admin.update_discord(values)
@@ -75,14 +77,24 @@ def html():
         "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
     )
     selected_week = int(request.args.get("week", request.form.get("week", 1)))
+    fields = ["title", "content", "instructions", "input_type", "form", "solution"]
     focus = app.data_cache.html.html[selected_year][selected_week]
     data = {part: focus[part] for part in range(1, 3)}
+
+    if request.method == "POST":
+        contents = {
+            i: {cat: request.args.get(f"{cat}{i}") for cat in fields}
+            for i in range(1, 3)
+        }
+        app.data_cache.html.update_html(selected_year, selected_week, fields, contents)
+        return redirect(url_for("admin.html", year=selected_year, week=selected_week))
 
     return render_template(
         "admin/html.html",
         years=years,
         selected_year=selected_year,
         selected_week=selected_week,
+        fields=fields,
         data=data,
     )
 
@@ -94,7 +106,15 @@ def solutions():
     selected_year = request.args.get(
         "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
     )
-    solution_list = {y: app.data_cache.html.solutions[y] for y in years}
+    solution_list = app.data_cache.html.solutions[selected_year]
+
+    if request.method == "POST":
+        contents = {
+            i: {"part1": request.form.get(f"{i}1"), "part2": request.form.get(f"{i}2")}
+            for i in range(1, 11)
+        }
+        app.data_cache.html.update_solutions(selected_year, contents)
+        return redirect(url_for("admin.solutions", year=selected_year))
 
     return render_template(
         "admin/solutions.html",
@@ -127,9 +147,30 @@ def sponsor():
     contents = [
         ["name", "type", "website"],
         ["name", "type", "website", "image"],
-        ["name", "type", "website", "image", "blurb"]
+        ["name", "type", "website", "image", "blurb"],
     ]
-    t1, t2, t3 = app.data_cache.admin.get_all_sponsors(True)
+    t1, t2, t3 = app.data_cache.admin.get_sponsors(include_disabled=True)
+
+    if request.method == "POST":
+        sponsors = []
+        fields = ["name", "type", "website", "image", "blurb", "bucket"]
+        numbers = set(
+            int(k)
+            for key in request.form.keys()
+            if "_" in key and (k := key.rsplit("_", 1)[1]).isdigit()
+        )
+        for n in numbers:
+            s = {x: request.form.get(f"{x}_{n}") or None for x in fields}
+            tier = request.form.get(f"type_{n}", "")
+            sponsors.append(
+                s
+                | {
+                    "disabled": f"disabled_{n}" in request.form,
+                    "id": int(request.form.get(f"id_{n}", 0)),
+                }
+            )
+        app.data_cache.admin.update_sponsors(sponsors)
+        return redirect(url_for("admin.sponsor"))
 
     return render_template(
         "admin/sponsors.html",
@@ -140,12 +181,11 @@ def sponsor():
     )
 
 
-
 @admin_bp.route("/admin/perms", methods=["GET", "POST"])
 def perms():
     app = get_app()
     permissions = app.data_cache.admin.permissions
-    
+
     if request.method == "POST":
         values = [p.strip() for p in request.form.get("perms", "").splitlines()]
         app.data_cache.admin.update_perms(values)

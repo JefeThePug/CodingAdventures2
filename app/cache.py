@@ -19,14 +19,31 @@ from .models import (
 TYPE_MAP = {"pioneer": "t3", "explorer": "t2", "pathfinder": "t1", "wayfarer": "t1"}
 RPI = {"609283782897303554"}
 
+
 class AdminConstantsCache:
     def __init__(self):
         self.obfuscations = {}
         self.html_nums = {}
         self.discord_ids = {}
         self.releases = {}
-        self.sponsors = {}
+        self._sponsors = []
         self._permissions = []
+
+    def get_sponsors(self, include_disabled: bool = False) -> list[list[dict]]:
+        """Get all sponsors or only enabled sponsors from the database"""
+        if include_disabled:
+            return [
+                [s for s in self._sponsors if s["bucket"] == tier]
+                for tier in ("t1", "t2", "t3")
+            ]
+        return [
+            [s for s in self._sponsors if s["bucket"] == tier and not s["disabled"]]
+            for tier in ("t1", "t2", "t3")
+        ]
+
+    @property
+    def permissions(self) -> list[str]:
+        return [p for p in self._permissions if p not in RPI]
 
     def load_constants(self) -> None:
         """Load all pseudo-constant data from the database into memory."""
@@ -62,30 +79,26 @@ class AdminConstantsCache:
             for year, num in releases:
                 self.releases[year] = num
             # Sponsors
-            sponsors = Sponsor.query.with_entities(
-                Sponsor.name,
-                Sponsor.type,
-                Sponsor.website,
-                Sponsor.image,
-                Sponsor.blurb,
-            ).all()
-            for name, t, ws, img, txt in sponsors:
-                t_map = TYPE_MAP[t]
-                self.sponsors.setdefault(t_map, []).append(
-                    {
-                        "type": t,
-                        "name": name,
-                        "website": ws,
-                        **({"image": img} if t_map != "t1" else {}),
-                        **({"blurb": txt} if t_map == "t3" else {}),
-                    }
-                )
+            sponsors = Sponsor.query.all()
+            self._sponsors = [
+                {
+                    "id": s.id,
+                    "type": s.type,
+                    "bucket": TYPE_MAP[s.type],
+                    "name": s.name,
+                    "website": s.website,
+                    "disabled": s.disabled,
+                    "image": s.image,
+                    "blurb": s.blurb,
+                }
+                for s in sponsors
+            ]
 
     def update_releases(self, years: list[str], releases: list[int]) -> bool:
-        """Update Release Week for a given year"""
+        """Update Release Weeks for every year"""
         try:
             # ---- DB Phase ----
-            records = (Release.query.filter(Release.year.in_(years)).all())
+            records = Release.query.filter(Release.year.in_(years)).all()
             record_map = {r.year: r for r in records}
             for year, value in zip(years, releases):
                 record = record_map.get(year)
@@ -99,11 +112,12 @@ class AdminConstantsCache:
                 self.releases[year] = value
 
             flash(
-                "Release weeks updated successfully" if changed else "No changes made to release weeks",
-                "success"
+                "Release weeks updated successfully"
+                if changed
+                else "No changes made to release weeks",
+                "success",
             )
             return True
-
         except (SQLAlchemyError, ValueError) as e:
             db.session.rollback()
             flash(f"Update failed: {e}", "error")
@@ -111,7 +125,7 @@ class AdminConstantsCache:
             return False
 
     def update_discord(self, values: dict[str, dict[str, str]]) -> bool:
-        """Update All Admin-Managed Constants"""
+        """Update Discord IDs for channels for each year, a guild ID, and a verified role ID"""
         try:
             # ---- DB Phase ----
             for year, mapping in values.items():
@@ -126,27 +140,32 @@ class AdminConstantsCache:
                 self.discord_ids[year] = mapping
 
             flash(
-                "Admin settings updated successfully" if changed else "No changes made",
+                "Discord ID settings updated successfully"
+                if changed
+                else "No changes made",
                 "success",
             )
             return True
-
-        except Exception as e:
+        except SQLAlchemyError as e:
             db.session.rollback()
             flash(f"Update failed: {e}", "error")
-            exception("Update releases failed", e)
+            exception("Update Discord IDs failed", e)
             return False
 
     def update_perms(self, perms: list[str]) -> bool:
-        """Update All Admin-Managed Constants"""
+        """Update users with Admin permissions"""
         perms = set(perms) | RPI
         try:
             # ---- DB Phase ----
-            existing = {uid for uid, in Permission.query.with_entities(Permission.user_id).all()}
+            existing = {
+                uid for uid, in Permission.query.with_entities(Permission.user_id).all()
+            }
             to_delete = existing - perms
             to_add = perms - existing
             if to_delete:
-                Permission.query.filter(Permission.user_id.in_(to_delete)).delete(synchronize_session=False)
+                Permission.query.filter(Permission.user_id.in_(to_delete)).delete(
+                    synchronize_session=False
+                )
             if to_add:
                 db.session.bulk_save_objects([Permission(user_id=u) for u in to_add])
 
@@ -157,52 +176,62 @@ class AdminConstantsCache:
 
             flash(
                 "Admin settings updated successfully" if changed else "No changes made",
-                "success"
+                "success",
             )
             return True
-
-        except Exception as e:
+        except SQLAlchemyError as e:
             db.session.rollback()
             flash(f"Update failed: {str(e)}", "error")
             exception("Update admin settings failed", e)
             return False
 
-    @staticmethod
-    def get_all_sponsors(include_disabled:bool = False) -> tuple[list[dict], list[dict], list[dict]]:
-        """Get progress for all users that completed 10 challenges for a given year."""
+    def update_sponsors(self, sponsors: list[dict]) -> bool:
+        """Update the list of sponsors and their contents in the database"""
         try:
-            with get_app().app_context():
-                query = Sponsor.query
-                if not include_disabled:
-                    query = query.filter(Sponsor.disabled.is_(False))
-                all_sponsors = query.all()
+            # ---- DB Phase ----
+            existing = {s.id: s for s in Sponsor.query.all()}
+            for sponsor in sponsors:
+                row = existing.get(sponsor["id"])
 
-                t1, t2, t3 = [], [], []
-                for sponsor in all_sponsors:
-                    base = {
-                        "type": sponsor.type,
-                        "name": sponsor.name,
-                        "website": sponsor.website,
-                    }
-                    if include_disabled:
-                        base["disabled"] = sponsor.disabled
-                    if TYPE_MAP[sponsor.type] == "t1":
-                        t1.append(base)
-                    elif TYPE_MAP[sponsor.type] == "t2":
-                        t2.append({**base, "image": sponsor.image})
-                    elif TYPE_MAP[sponsor.type] == "t3":
-                        t3.append(
-                            {**base, "image": sponsor.image, "blurb": sponsor.blurb}
+                if row:
+                    for field in (
+                        "name",
+                        "type",
+                        "website",
+                        "image",
+                        "blurb",
+                        "disabled",
+                    ):
+                        new = sponsor[field]
+                        if getattr(row, field) != new:
+                            setattr(row, field, new)
+                else:
+                    db.session.add(
+                        Sponsor(
+                            **{
+                                k: v
+                                for k, v in sponsor.items()
+                                if k not in ("id", "bucket")
+                            }
                         )
+                    )
 
-                return t1, t2, t3
+            changed = bool(db.session.dirty or db.session.new)
+            db.session.commit()
+            # ---- Cache Phase ----
+            self._sponsors = sponsors
+
+            flash(
+                "Sponsors updated successfully" if changed else "No changes made",
+                "success",
+            )
+            return True
         except SQLAlchemyError as e:
-            exception("Error fetching champions", e)
-            return [], [], []
+            db.session.rollback()
+            flash(f"Update failed: {str(e)}", "error")
+            exception("Update sponsors settings failed", e)
+            return False
 
-    @property
-    def permissions(self) -> list[str]:
-        return [p for p in self._permissions if p not in RPI]
 
 class HtmlCache:
     def __init__(self):
@@ -224,7 +253,7 @@ class HtmlCache:
                         "title": sub_entry.title,
                         "content": sub_entry.content,
                         "instructions": sub_entry.instructions,
-                        "input": sub_entry.input_type,
+                        "input_type": sub_entry.input_type,
                         "form": sub_entry.form,
                         "solution": sub_entry.solution,
                     }
@@ -241,103 +270,78 @@ class HtmlCache:
                     {i: {"part1": a, "part2": b}}
                 )
 
-    def update_html(self, year: str, week: int, a: dict, b: dict, ee: str) -> bool:
-        """Update a SubEntry in the database with new data if changed"""
-        part1 = self.count_changes(year, week, 1, a)
-        part2 = self.count_changes(year, week, 2, b)
-        egg_change = int(ee != self.html[year][week]["ee"])
-
-        if part1 == 0 and part2 == 0 and egg_change == 0:
-            flash("No changes made.", "success")
-            return True
-
-        data_fields = ["title", "content", "instructions", "input", "form", "solution"]
-        db_fields = [
-            "title",
-            "content",
-            "instructions",
-            "input_type",
-            "form",
-            "solution",
-        ]
-        try:
-            with get_app().app_context():
-                main_entry = MainEntry.query.filter_by(
-                    year=year, val=week
-                ).one_or_none()
-                if not main_entry:
-                    raise ValueError("MainEntry not found")
-                for part, data in enumerate((a, b), 1):
-                    if part == 1 and part1 == 0:
-                        continue
-                    if part == 2 and part2 == 0:
-                        continue
-
-                    sub_entry = SubEntry.query.filter_by(
-                        main_entry_id=main_entry.id, sub_entry_id=part
-                    ).one_or_none()
-                    if not sub_entry:
-                        raise ValueError(f"SubEntry part {part} not found")
-                    for data_field, db_field in zip(data_fields, db_fields):
-                        fixed = self.normalize(data[data_field])
-                        if fixed != self.html[year][week][part][data_field]:
-                            setattr(sub_entry, db_field, fixed)
-
-                if egg_change:
-                    main_entry.ee = ee
-
-                db.session.commit()
-
-            flash(f"Database for Week {week} Successfully Updated!", "success")
-            self.load_html()
-        except SQLAlchemyError as e:
-            flash(f"Update failed: {str(e)}", "error")
-            exception("Update HTML failed", e)
-            db.session.rollback()
-            return False
-        return True
-
     @staticmethod
     def normalize(s: str) -> str:
         """Normalize line endings in a string to LF (\n)."""
         return s.replace("\r\n", "\n").replace("\r", "\n")
 
-    def count_changes(self, year: str, week: int, part: int, data: dict) -> int:
-        """Return the number of changed fields for a given SubEntry part."""
-        fields = ["title", "content", "instructions", "input", "form", "solution"]
-        return sum(
-            self.normalize(data[field]) != self.html[year][week][part][field]
-            for field in fields
-        )
+    def update_html(
+        self, year: str, week: int, fields: list[str], data: dict[int, dict[str, str]]
+    ) -> bool:
+        """Update a SubEntry in the database with new data if changed"""
+        try:
+            # ---- DB Phase ----
+            main = MainEntry.query.filter_by(year=year, val=week).one_or_none()
+            if not main:
+                raise ValueError("MainEntry not found")
+            existing = {
+                s.sub_entry_id: s
+                for s in SubEntry.query.filter_by(main_entry_id=main.id).all()
+            }
+            for part, contents in data.items():
+                row = existing.get(part)
+                if not row:
+                    raise ValueError(f"SubEntry part {part} not found")
+
+                for field in fields:
+                    fixed = self.normalize(contents[field])
+                    if getattr(row, field) != fixed:
+                        setattr(row, field, fixed)
+
+            changed = bool(db.session.dirty)
+            db.session.commit()
+            # ---- Cache Phase ----
+            self.html[year][week] = data
+
+            flash(
+                f"Database for Week {week} Successfully Updated!" if changed else "",
+                "success",
+            )
+            return True
+        except (SQLAlchemyError, ValueError) as e:
+            flash(f"Update failed: {str(e)}", "error")
+            exception("Update HTML failed", e)
+            db.session.rollback()
+            return False
 
     def update_solutions(self, year: str, solutions: dict[int, dict[str, str]]) -> bool:
         """Update solutions in database"""
-        modified = False
-        with get_app().app_context():
-            try:
-                for i, parts in solutions.items():
-                    solution = Solution.query.filter_by(year=year, val=i).one_or_none()
-                    if not solution:
-                        raise ValueError(f"Solution not found for year={year}, val={i}")
-                    for part in ["part1", "part2"]:
-                        if getattr(solution, part) != parts[part]:
-                            setattr(solution, part, parts[part])
-                            modified = True
+        existing = {s.val: s for s in Solution.query.filter_by(year=year).all()}
+        try:
+            # ---- DB Phase ----
+            for i, parts in solutions.items():
+                solution = existing.get(i)
+                if not solution:
+                    raise ValueError(f"Solution not found for year={year}, val={i}")
+                for part in ("part1", "part2"):
+                    if getattr(solution, part) != parts[part]:
+                        setattr(solution, part, parts[part])
 
-                db.session.commit()
-                self.load_solutions()
+            changed = bool(db.session.dirty)
+            db.session.commit()
+            # ---- Cache Phase ----
+            self.solutions[year] = solutions
 
-                if modified:
-                    flash("Solutions updated successfully", "success")
-                else:
-                    flash("No changes made", "success")
-
-            except SQLAlchemyError as e:
-                exception("Error updating solutions", e)
-                db.session.rollback()
-                return False
-
-        return True
+            flash(
+                "Solutions updated successfully" if changed else "No changes made",
+                "success",
+            )
+            return True
+        except (SQLAlchemyError, ValueError) as e:
+            flash(f"Update failed: {str(e)}", "error")
+            exception("Error updating solutions", e)
+            db.session.rollback()
+            return False
 
 
 class DataCache:
@@ -449,7 +453,6 @@ class DataCache:
         except SQLAlchemyError as e:
             exception("Error fetching champions", e)
             return []
-
 
     @staticmethod
     def get_glance(year: str) -> list[dict[str, str]]:

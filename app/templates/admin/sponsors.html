@@ -10,9 +10,10 @@
     {% endif %}
     {% endwith %}
 
-    <form class="sponsor grid-form" action="admin/sponsors" method="POST">
+    <form class="sponsor grid-form" action="/admin/sponsors" method="POST">
         {% for t in (t1, t2, t3) %}
         {% set tier = loop.index0 %}
+        {% set tier_name = "t" ~ loop.index %}
         <h2>Tier {{ loop.index }}</h2>
 
         <div class="form-group">
@@ -28,14 +29,16 @@
 
                 {% for row in t %}
                     {% set index = loop.index0 %}
+                    <input type="hidden" name="id_{{ tier*100 + index }}" value="{{ row['id'] }}">
+                    <input type="hidden" name="bucket_{{ tier*100 + index }}" value="{{ tier_name }}">
                     {% for c in contents[tier] %}
                         {% if c != 'blurb' %}
-                        <input type="text" name="{{ c }}{{ index }}" value="{{ row[c] if row[c] else '' }}">
+                        <input type="text" name="{{ c ~ '_' ~ (tier*100 + index) }}" value="{{ row[c] if row[c] else '' }}">
                         {% endif %}
                     {% endfor %}
-                    <input type="checkbox" name="disabled{{ index }}" {{ 'checked' if row['disabled'] }}>
+                    <input type="checkbox" name="disabled_{{ tier*100 + index }}" {{ 'checked' if row['disabled'] }}>
                     {% if tier == 2 %}
-                    <textarea class="grid-full" name="blurb{{ index }}" rows="5">{{ row['blurb'] }}</textarea>
+                    <textarea class="grid-full" name="blurb_{{ tier*100 + index }}" rows="5">{{ row['blurb'] }}</textarea>
                     {% endif %}
                 {% endfor %}
             </div>
