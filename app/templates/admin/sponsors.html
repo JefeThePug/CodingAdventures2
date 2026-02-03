@@ -41,6 +41,21 @@
                     <textarea class="grid-full" name="blurb_{{ tier*100 + index }}" rows="5">{{ row['blurb'] }}</textarea>
                     {% endif %}
                 {% endfor %}
+
+                {% for i in range(t|length, t|length + (1 if tier == 2 else 3)) %}
+                <input type="hidden" name="id_{{ tier*100 + i }}" value="">
+                <input type="hidden" name="bucket_{{ tier*100 + i }}" value="">
+                {% for c in contents[tier] %}
+                {% if c != 'blurb' %}
+                <input type="text" name="{{ c ~ '_' ~ (tier*100 + i) }}" value="">
+                {% endif %}
+                {% endfor %}
+                <input type="checkbox" name="disabled_{{ tier*100 + i }}">
+                {% if tier == 2 %}
+                <textarea class="grid-full" name="blurb_{{ tier*100 + i }}" rows="5"></textarea>
+                {% endif %}
+                {% endfor %}
+
             </div>
         </div>
         <hr>
