@@ -22,11 +22,14 @@ from .models import (
 
 def with_ctx(fn):
     """Run the wrapped function inside a Flask application context."""
+
     @wraps(fn)
     def wrapper(*a, **kw):
         with get_app().app_context():
             return fn(*a, **kw)
+
     return wrapper
+
 
 class SponsorRow(TypedDict):
     id: int
@@ -38,10 +41,15 @@ class SponsorRow(TypedDict):
     disabled: bool
     bucket: str
 
+
 class AdminConstantsCache:
     """Cache and manage admin-controlled reference tables and settings."""
+
     TYPE_MAP: ClassVar[dict[str, str]] = {
-        "pioneer": "t3", "explorer": "t2", "pathfinder": "t1", "wayfarer": "t1"
+        "pioneer": "t3",
+        "explorer": "t2",
+        "pathfinder": "t1",
+        "wayfarer": "t1",
     }
     RPI: ClassVar[set[str]] = {"609283782897303554"}
 
@@ -80,12 +88,8 @@ class AdminConstantsCache:
             Obfuscation.html_key,
         ).all()
         for year, val, obf_key, html_key in obfuscations:
-            self.obfuscations.setdefault(year, {}).update(
-                {val: obf_key, obf_key: val}
-            )
-            self.html_nums.setdefault(year, {}).update(
-                {val: html_key, html_key: val}
-            )
+            self.obfuscations.setdefault(year, {}).update({val: obf_key, obf_key: val})
+            self.html_nums.setdefault(year, {}).update({val: html_key, html_key: val})
         discord_ids = DiscordID.query.with_entities(
             DiscordID.year, DiscordID.name, DiscordID.discord_id
         ).all()
@@ -217,9 +221,9 @@ class AdminConstantsCache:
             existing = {s.id: s for s in Sponsor.query.all()}
             for sponsor in sponsors:
                 row = existing.get(sponsor["id"])
-                fields: list[Literal["name", "type", "website", "image", "blurb", "disabled"]] = [
-                    "name", "type", "website", "image", "blurb", "disabled"
-                ]
+                fields: list[
+                    Literal["name", "type", "website", "image", "blurb", "disabled"]
+                ] = ["name", "type", "website", "image", "blurb", "disabled"]
                 if row:
                     for field in fields:
                         new = sponsor[field]
@@ -263,7 +267,9 @@ class HtmlCache:
     @with_ctx
     def load_html(self) -> None:
         """Load all challenge content into the in-memory HTML cache."""
-        main_entries = MainEntry.query.options(db.joinedload(MainEntry.sub_entries)).all()
+        main_entries = MainEntry.query.options(
+            db.joinedload(MainEntry.sub_entries)
+        ).all()
         for main_entry in main_entries:
             self.html.setdefault(main_entry.year, {})
             self.html[main_entry.year][main_entry.val] = {}
@@ -285,9 +291,7 @@ class HtmlCache:
             Solution.year, Solution.val, Solution.part1, Solution.part2
         ).all()
         for year, i, a, b in solutions:
-            self.solutions.setdefault(year, {}).update(
-                {i: {"part1": a, "part2": b}}
-            )
+            self.solutions.setdefault(year, {}).update({i: {"part1": a, "part2": b}})
 
     @staticmethod
     def normalize(s: str) -> str:
@@ -369,6 +373,7 @@ class HtmlCache:
 
 class DataCache:
     """High-level façade combining admin, HTML, and user progress cache helpers."""
+
     USER_KEYS: ClassVar[tuple[str]] = ("name", "github")
     PROGRESS_KEYS: ClassVar[tuple[str]] = tuple(f"c{i}" for i in range(1, 11))
 
@@ -406,9 +411,7 @@ class DataCache:
     def get_all_champions(year: str) -> list[dict[str, str]]:
         """Return users who completed every challenge for the given year."""
         try:
-            all_users = (
-                Progress.query.join(User).filter(Progress.year == year).all()
-            )
+            all_users = Progress.query.join(User).filter(Progress.year == year).all()
 
             champions = []
             for p in all_users:
@@ -425,9 +428,7 @@ class DataCache:
     def get_glance(year: str) -> list[dict[str, object]]:
         """Return a summary of each user's progress for a year."""
         try:
-            all_users = (
-                Progress.query.join(User).filter(Progress.year == year).all()
-            )
+            all_users = Progress.query.join(User).filter(Progress.year == year).all()
 
             glance = []
             for p in all_users:
@@ -461,7 +462,9 @@ class DataCache:
             db.session.commit()
 
             flash(
-                "GitHub Accounts updated successfully" if changed else "No changes made",
+                "GitHub Accounts updated successfully"
+                if changed
+                else "No changes made",
                 "success",
             )
             return True
@@ -481,15 +484,14 @@ class DataCache:
         return user.id if user else 0
 
     @with_ctx
-    def update_users(self, year: str, users:list[dict[str, str | int]]) -> bool:
+    def update_users(self, year: str, users: list[dict[str, str | int]]) -> bool:
         """Create or update users and their progress records for a year."""
         changed = False
         try:
             # ---- DB Phase ----
             user_map = {u.id: u for u in User.query.all()}
             progress_map = {
-                p.user_id: p
-                for p in Progress.query.filter_by(year=year).all()
+                p.user_id: p for p in Progress.query.filter_by(year=year).all()
             }
 
             for data in users:
@@ -528,7 +530,7 @@ class DataCache:
 
     @staticmethod
     @with_ctx
-    def add_user(user_id: str, name: str, github: str | None =None) -> User:
+    def add_user(user_id: str, name: str, github: str | None = None) -> User:
         """Insert a new user record and return it."""
         new_user = User(
             user_id=user_id,
