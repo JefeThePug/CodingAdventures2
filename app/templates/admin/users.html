@@ -10,7 +10,7 @@
     {% endif %}
     {% endwith %}
 
-    <form class="user grid-form" action="admin/users" method="POST">
+    <form class="user grid-form" action="/admin/users" method="POST">
         <h2>Year</h2>
         <div class="form-group">
             <label for="year">Challenge Year:</label>
@@ -36,23 +36,26 @@
                 {% endfor %}
 
                 {% for user in users %}
-                <input type="text" value="{{ user['id'] }}">
-                <input type="text" value="{{ user['name'] }}">
-                <input type="text" value="{{ user['github'] or '' }}">
+                {% set n=loop.index0 %}
+                <input id="user_id_{{ n }}" name="user_id_{{ n }}" type="text" value="{{ user['user_id'] }}">
+                <input id="name_{{ n }}" name="name_{{ n }}" type="text" value="{{ user['name'] }}">
+                <input id="github_{{ n }}" name="github_{{ n }}" type="text" value="{{ user['github'] or '' }}">
                 {% for c in user['progress'] %}
-                <input type="checkbox" {{ 'checked' if c[0] }}>
-                <input type="checkbox" {{ 'checked' if c[1] }}>
+                <input id="{{ loop.index }}A_{{ n }}" name="{{ loop.index }}A_{{ n }}"
+                       type="checkbox" {{ 'checked' if c[0] }}>
+                <input id="{{ loop.index }}B_{{ n }}" name="{{ loop.index }}B_{{ n }}"
+                       type="checkbox" {{ 'checked' if c[1] }}>
                 <div class="v-gap">&nbsp;</div>
                 {% endfor %}
                 {% endfor %}
 
                 {% for i in range(users|length, users|length + 3) %}
-                <input type="text" value="">
-                <input type="text" value="">
-                <input type="text" value="">
+                <input id="user_id_{{ i }}" name="user_id_{{ i }}" type="text" value="">
+                <input id="name_{{ i }}" name="name_{{ i }}" type="text" value="">
+                <input id="github_{{ i }}" name="github_{{ i }}" type="text" value="">
                 {% for c in range(10) %}
-                <input type="checkbox">
-                <input type="checkbox">
+                <input id="{{ c+1 }}A_{{ i }}" name="{{ c+1 }}A_{{ i }}" type="checkbox">
+                <input id="{{ c+1 }}B_{{ i }}" name="{{ c+1 }}B_{{ i }}" type="checkbox">
                 <div class="v-gap">&nbsp;</div>
                 {% endfor %}
                 {% endfor %}

@@ -40,7 +40,7 @@ def create_app() -> AppFlask:
     from .templating import register_globals
 
     with app.app_context():
-        app.data_cache.load()
+        app.data_cache.load_all()
         register_globals()
     for bp in (
         main_bp,

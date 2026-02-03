@@ -135,6 +135,33 @@ def user():
     )
     users = app.data_cache.get_glance(selected_year)
 
+    if request.method == "POST":
+        numbers = set(
+            int(k)
+            for key in request.form
+            if "_" in key and (k := key.rsplit("_", 1)[1]).isdigit()
+        )
+        user_data = [
+            {
+                "id": int(app.data_cache.get_user_id(request.form.get(f"user_id_{n}"))),
+                "user_id": request.form.get(f"user_id_{n}"),
+                "name": request.form.get(f"name_{n}") or None,
+                "github": request.form.get(f"github_{n}") or None,
+                **{
+                    f"c{i}": [
+                        f"{i}A_{n}" in request.form,
+                        f"{i}B_{n}" in request.form,
+                    ]
+                    for i in range(1, 11)
+                },
+            }
+            for n in sorted(numbers)
+            if request.form.get(f"user_id_{n}", "").strip()
+        ]
+        app.data_cache.update_users(selected_year, user_data)
+
+        return redirect(url_for("admin.user"))
+
     return render_template(
         "admin/users.html",
         years=years,
@@ -153,7 +180,7 @@ def sponsor():
     if request.method == "POST":
         numbers = set(
             int(k)
-            for key in request.form.keys()
+            for key in request.form
             if "_" in key and (k := key.rsplit("_", 1)[1]).isdigit()
         )
         sponsors = [
