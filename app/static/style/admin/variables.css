@@ -23,3 +23,8 @@ p {
 .sm {
     font-size: small;
 }
+
+.blue {
+    color: var(--title-text);
+    margin-left: 15px;
+}

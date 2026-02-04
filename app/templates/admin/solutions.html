@@ -27,13 +27,14 @@
         {% for n in range(1, 11) %}
         <h2>Week {{ n }}</h2>
         <hr>
+        {% set s=solutions[n] %}
         <div class="form-group">
-            {% set s=solutions[n] %}
             <label for="{{ n }}1">Part 1</label>
-            <input id="{{ n }}1" name="{{ n }}1" class="full" value="{{ s['part1'] }}" type="text"/>
+            <input id="{{ n }}1" name="{{ n }}1" value="{{ s['part1'] }}" type="text"/>
+        </div>
+        <div class="form-group">
             <label for="{{ n }}2">Part 2</label>
-            <input id="{{ n }}2" name="{{ n }}2" class="full" value="{{ s['part2'] }}" type="text"/>
-            <br>
+            <input id="{{ n }}2" name="{{ n }}2" value="{{ s['part2'] }}" type="text"/>
         </div>
         {% endfor %}
         <hr>
