@@ -1,21 +1,25 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from app.appctx import get_app
+from app.auth.decorators import admin_only
 
 admin_bp = Blueprint("admin", __name__)
 
 
 @admin_bp.route("/admin", methods=["GET", "POST"])
+@admin_only
 def admin():
     return render_template("admin/default.html")
 
 
 @admin_bp.route("/admin/home")
+@admin_only
 def admin_home():
     return render_template("admin/home.html")
 
 
 @admin_bp.route("/admin/release", methods=["GET", "POST"])
+@admin_only
 def release():
     app = get_app()
     years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
@@ -40,6 +44,7 @@ def release():
 
 
 @admin_bp.route("/admin/discord", methods=["GET", "POST"])
+@admin_only
 def discord():
     app = get_app()
     years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
@@ -70,6 +75,7 @@ def discord():
 
 
 @admin_bp.route("/admin/html", methods=["GET", "POST"])
+@admin_only
 def html():
     app = get_app()
     years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
@@ -107,6 +113,7 @@ def html():
 
 
 @admin_bp.route("/admin/solutions", methods=["GET", "POST"])
+@admin_only
 def solutions():
     app = get_app()
     years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
@@ -132,6 +139,7 @@ def solutions():
 
 
 @admin_bp.route("/admin/users", methods=["GET", "POST"])
+@admin_only
 def user():
     app = get_app()
     years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
@@ -176,6 +184,7 @@ def user():
 
 
 @admin_bp.route("/admin/sponsors", methods=["GET", "POST"])
+@admin_only
 def sponsor():
     app = get_app()
     fields = ["name", "type", "website", "image", "blurb"]
@@ -218,6 +227,7 @@ def sponsor():
 
 
 @admin_bp.route("/admin/perms", methods=["GET", "POST"])
+@admin_only
 def perms():
     app = get_app()
     permissions = app.data_cache.admin.permissions
