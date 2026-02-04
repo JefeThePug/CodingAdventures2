@@ -43,7 +43,7 @@
                 {% endfor %}
 
                 {% for i in range(t|length, t|length + (1 if tier == 2 else 3)) %}
-                <input type="hidden" name="id_{{ tier*100 + i }}" value="">
+                <input type="hidden" name="id_{{ tier*100 + i }}" value="0">
                 <input type="hidden" name="bucket_{{ tier*100 + i }}" value="">
                 {% for c in contents[tier] %}
                 {% if c != 'blurb' %}

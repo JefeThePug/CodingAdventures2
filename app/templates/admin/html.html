@@ -46,6 +46,11 @@
         {% endfor %}
         {% endfor %}
         <hr>
+        <div class="form-group">
+            <label for="easter-egg">EE:</label>
+            <textarea id="easter-egg" name="easter-egg" rows="1" class="full">{{ egg }}</textarea>
+        </div>
+        <hr>
 
         <div class="indent actions">
             <input type="button" value="CANCEL" onclick="updateLocation()">

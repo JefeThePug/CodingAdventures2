@@ -300,7 +300,7 @@ class HtmlCache:
 
     @with_ctx
     def update_html(
-        self, year: str, week: int, fields: list[str], data: dict[int, dict[str, str]]
+        self, year: str, week: int, fields: list[str], data: dict[int, str|dict[str, str]]
     ) -> bool:
         """Update challenge content for a specific week and refresh the cache if changed."""
         try:
@@ -311,7 +311,11 @@ class HtmlCache:
             existing = {
                 s.part: s for s in SubEntry.query.filter_by(main_entry_id=main.id).all()
             }
+            if main.ee != data[0]:
+                main.ee = data[0]
             for part, contents in data.items():
+                if part == 0:
+                    continue
                 row = existing.get(part)
                 if not row:
                     raise ValueError(f"SubEntry part {part} not found")
@@ -325,7 +329,10 @@ class HtmlCache:
             db.session.commit()
             # ---- Cache Phase ----
             for part, contents in data.items():
+                if part == 0:
+                    continue
                 self.html[year][week][part] = contents
+            self.html[year][week]["ee"] = data[0]
 
             flash(
                 f"Database for {year} Week {week} Updated!"
