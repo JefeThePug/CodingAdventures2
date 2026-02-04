@@ -1,6 +1,6 @@
 import secrets
 
-from flask import session, abort, request
+from flask import abort, request, session
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()

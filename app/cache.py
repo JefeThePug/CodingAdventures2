@@ -1,11 +1,12 @@
 from functools import wraps
-from typing import TypedDict, cast, ClassVar, Literal
+from typing import ClassVar, Literal, TypedDict, cast
 
 from flask import flash
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.appctx import exception, get_app, log_info, warning
 from app.extensions import db
+
 from .models import (
     DiscordID,
     MainEntry,
@@ -61,9 +62,10 @@ class AdminConstantsCache:
         self._sponsors: list[dict[str, object]] = []
         self._permissions: list[str] = []
 
-    @property
-    def permissions(self) -> list[str]:
+    def get_permissions(self, login: bool = False) -> list[str]:
         """Return permission user IDs excluding reserved system accounts."""
+        if login:
+            return self._permissions
         return [p for p in self._permissions if p not in self.RPI]
 
     def get_sponsors(self, include_disabled: bool = False) -> list[list[dict]]:

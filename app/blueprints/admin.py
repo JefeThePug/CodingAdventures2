@@ -230,7 +230,7 @@ def sponsor():
 @admin_only
 def perms():
     app = get_app()
-    permissions = app.data_cache.admin.permissions
+    permissions = app.data_cache.admin.get_permissions()
 
     if request.method == "POST":
         values = [p.strip() for p in request.form.get("perms", "").splitlines()]
