@@ -17,11 +17,11 @@ p {
 }
 
 .ssm {
-    font-size: x-small;
+    font-size: x-small !important;
 }
 
 .sm {
-    font-size: small;
+    font-size: small !important;
 }
 
 .blue {
