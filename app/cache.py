@@ -300,7 +300,11 @@ class HtmlCache:
 
     @with_ctx
     def update_html(
-        self, year: str, week: int, fields: list[str], data: dict[int, str|dict[str, str]]
+        self,
+        year: str,
+        week: int,
+        fields: list[str],
+        data: dict[int, str | dict[str, str]],
     ) -> bool:
         """Update challenge content for a specific week and refresh the cache if changed."""
         try:

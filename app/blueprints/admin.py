@@ -87,8 +87,10 @@ def html():
     if request.method == "POST":
         contents = {
             0: request.form.get("easter-egg") or None,
-            **{i: {cat: request.form.get(f"{cat}{i}") for cat in fields}
-            for i in range(1, 3)}
+            **{
+                i: {cat: request.form.get(f"{cat}{i}") for cat in fields}
+                for i in range(1, 3)
+            },
         }
         app.data_cache.html.update_html(selected_year, selected_week, fields, contents)
         return redirect(url_for("admin.html", year=selected_year, week=selected_week))
@@ -186,12 +188,18 @@ def sponsor():
             for key in request.form
             if "_" in key and (k := key.rsplit("_", 1)[1]).isdigit()
         )
-        bucket = {"wayfarer": "t1", "pathfinder": "t1", "explorer": "t2", "pioneer": "t3"}
+        bucket = {
+            "wayfarer": "t1",
+            "pathfinder": "t1",
+            "explorer": "t2",
+            "pioneer": "t3",
+        }
         sponsors = [
             {
                 "disabled": f"disabled_{n}" in request.form,
                 "id": int(request.form.get(f"id_{n}")),
-                "bucket": request.form.get(f"bucket_{n}") or bucket.get(f"type_{n}", "t1"),
+                "bucket": request.form.get(f"bucket_{n}")
+                or bucket.get(f"type_{n}", "t1"),
                 **{x: request.form.get(f"{x}_{n}") or None for x in fields},
             }
             for n in sorted(numbers)
