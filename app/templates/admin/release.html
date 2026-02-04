@@ -11,6 +11,7 @@
     {% endwith %}
 
     <form action="/admin/release" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <h2>Change Release</h2>
         {% for y in years %}
         <div class="form-group">

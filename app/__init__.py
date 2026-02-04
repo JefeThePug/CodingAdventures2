@@ -4,7 +4,7 @@ from itsdangerous import URLSafeTimedSerializer
 
 from .cache import DataCache
 from .config import DevConfig, ProdConfig
-from .extensions import db
+from .extensions import db, generate_csrf_token, validate_csrf
 from .types import AppFlask
 
 SERIALIZER_SALT = "cookie"
@@ -27,6 +27,8 @@ def create_app() -> AppFlask:
     app.serializer = URLSafeTimedSerializer(app.secret_key, salt=SERIALIZER_SALT)
 
     db.init_app(app)
+    app.before_request(validate_csrf)
+    app.jinja_env.globals["csrf_token"] = generate_csrf_token
     app.data_cache = DataCache()
 
     from .blueprints import (
@@ -42,6 +44,7 @@ def create_app() -> AppFlask:
     with app.app_context():
         app.data_cache.load_all()
         register_globals()
+
     for bp in (
         main_bp,
         auth_bp,

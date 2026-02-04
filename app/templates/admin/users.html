@@ -11,6 +11,7 @@
     {% endwith %}
 
     <form class="user grid-form" action="/admin/users" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <h2>Year</h2>
         <div class="form-group">
             <label for="year">Challenge Year:</label>

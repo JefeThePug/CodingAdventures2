@@ -11,6 +11,7 @@
     {% endwith %}
 
     <form class="sponsor grid-form" action="/admin/sponsors" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         {% for t in (t1, t2, t3) %}
         {% set tier = loop.index0 %}
         {% set tier_name = "t" ~ loop.index %}

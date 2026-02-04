@@ -11,6 +11,7 @@
   {% endwith %}
 
   <form action="/admin/perms" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <h2>Permissions</h2>
     <div class="form-group">
       <label for="perms">User IDs with Admin Permissions:</label><br>

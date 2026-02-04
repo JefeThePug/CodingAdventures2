@@ -11,6 +11,7 @@
     {% endwith %}
 
     <form action="/admin/discord" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <h2>Guild ID</h2>
         <div class="form-group">
             <label for="guild">ID:</label>

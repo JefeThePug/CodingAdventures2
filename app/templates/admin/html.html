@@ -11,6 +11,7 @@
     {% endwith %}
 
     <form action="/admin/html" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <h2>Year and Week</h2>
         <hr>
         <div class="form-group">
