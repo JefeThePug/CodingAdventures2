@@ -59,6 +59,13 @@ class User(db.Model):
     name: Mapped[str] = mapped_column(db.String(50))
     github: Mapped[str] = mapped_column(db.String(50))
 
+    progress: Mapped[list["Progress"]] = relationship(
+        "Progress",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
 
 class Progress(db.Model):
     __tablename__ = "progress"
@@ -78,7 +85,7 @@ class Progress(db.Model):
     c10: Mapped[list[bool]] = mapped_column(db.ARRAY(db.Boolean))
 
     # Define the relationship
-    user: Mapped[User] = relationship("User", backref="progress")
+    user: Mapped[User] = relationship("User", back_populates="progress")
 
     def challenge_states(self) -> list[list[bool]]:
         """Return c1–c10 completion flags for a Progress record."""

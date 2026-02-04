@@ -154,26 +154,34 @@ def user():
             for key in request.form
             if "_" in key and (k := key.rsplit("_", 1)[1]).isdigit()
         )
-        user_data = [
-            {
-                "id": int(app.data_cache.get_user_id(request.form.get(f"user_id_{n}"))),
-                "user_id": request.form.get(f"user_id_{n}"),
-                "name": request.form.get(f"name_{n}") or None,
-                "github": request.form.get(f"github_{n}") or None,
-                **{
-                    f"c{i}": [
-                        f"{i}A_{n}" in request.form,
-                        f"{i}B_{n}" in request.form,
-                    ]
-                    for i in range(1, 11)
-                },
-            }
-            for n in sorted(numbers)
-            if request.form.get(f"user_id_{n}", "").strip()
-        ]
-        app.data_cache.update_users(selected_year, user_data)
+        user_data = []
+        deletes = []
+        for n in sorted(numbers):
+            if request.form.get(f"name_{n}", "").strip():
+                uid = int(app.data_cache.get_user_id(request.form.get(f"user_id_{n}")))
+                user_data.append(
+                    {
+                        "id": uid,
+                        "user_id": request.form.get(f"user_id_{n}"),
+                        "name": request.form.get(f"name_{n}") or None,
+                        "github": request.form.get(f"github_{n}") or None,
+                        **{
+                            f"c{i}": [
+                                f"{i}A_{n}" in request.form,
+                                f"{i}B_{n}" in request.form,
+                            ]
+                            for i in range(1, 11)
+                        },
+                    }
+                )
+            else:
+                if request.form.get(f"user_id_{n}", "").strip():
+                    deletes.append(request.form.get(f"user_id_{n}"))
 
-        return redirect(url_for("admin.user"))
+        app.data_cache.update_users(selected_year, user_data)
+        if deletes:
+            app.data_cache.delete_users(deletes)
+        return redirect(url_for("admin.user", year=selected_year))
 
     return render_template(
         "admin/users.html",

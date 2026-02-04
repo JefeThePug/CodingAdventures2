@@ -541,8 +541,30 @@ class DataCache:
             db.session.rollback()
             return False
 
-    @staticmethod
     @with_ctx
+    def delete_users(self, deletes: list[str]) -> bool:
+        """Delete users and their progress completely."""
+        try:
+            # ---- DB Phase ----
+            users = User.query.filter(User.user_id.in_(deletes)).all()
+            if not users:
+                raise ValueError("No matching users found in the database.")
+            for user in users:
+                db.session.delete(user)
+
+            changed = bool(db.session.deleted)
+            db.session.commit()
+
+            if changed:
+                flash("User(s) deleted successfully", "success")
+            return True
+        except (SQLAlchemyError, ValueError) as e:
+            flash(f"Delete failed: {str(e)}", "error")
+            exception("Delete users failed", e)
+            db.session.rollback()
+            return False
+
+    @staticmethod
     def add_user(user_id: str, name: str, github: str | None = None) -> User:
         """Insert a new user record and return it."""
         new_user = User(
@@ -556,7 +578,6 @@ class DataCache:
         return new_user
 
     @staticmethod
-    @with_ctx
     def add_empty_progress(year: str, uid: int) -> Progress:
         """Create an empty progress row for a user and year."""
         new_progress = Progress(
