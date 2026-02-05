@@ -15,6 +15,18 @@ from app.auth.decorators import admin_only
 admin_bp = Blueprint("admin", __name__)
 
 
+def get_years(app):
+    """Return the list of valid admin years as strings."""
+    return list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
+
+
+def get_selected_year(app):
+    """Resolve the currently selected year from request data."""
+    return request.args.get(
+        "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
+    )
+
+
 def yaml_formatter(dumper, d):
     """
     Represent strings in YAML using block style (|) when multiline.
@@ -48,7 +60,7 @@ def admin_home():
 @admin_only
 def release():
     app = get_app()
-    years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
+    years = get_years(app)
     releases = {y: app.data_cache.admin.releases[y] for y in years}
 
     if request.method == "POST":
@@ -73,10 +85,8 @@ def release():
 @admin_only
 def discord():
     app = get_app()
-    years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
-    selected_year = request.args.get(
-        "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
-    )
+    years = get_years(app)
+    selected_year = get_selected_year(app)
     main = app.data_cache.admin.discord_ids["0"]
     channels = {y: app.data_cache.admin.discord_ids[y] for y in years}
 
@@ -104,10 +114,8 @@ def discord():
 @admin_only
 def html():
     app = get_app()
-    years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
-    selected_year = request.args.get(
-        "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
-    )
+    years = get_years(app)
+    selected_year = get_selected_year(app)
     selected_week = int(request.args.get("week", request.form.get("week", 1)))
     fields = ["title", "content", "instructions", "input_type", "form", "solution"]
     data = {
@@ -179,10 +187,8 @@ def print_yaml():
 @admin_only
 def solutions():
     app = get_app()
-    years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
-    selected_year = request.args.get(
-        "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
-    )
+    years = get_years(app)
+    selected_year = get_selected_year(app)
     solution_list = app.data_cache.html.solutions[selected_year]
 
     if request.method == "POST":
@@ -205,10 +211,8 @@ def solutions():
 @admin_only
 def user():
     app = get_app()
-    years = list(map(str, range(2025, app.config["CURRENT_YEAR"] + 1)))
-    selected_year = request.args.get(
-        "year", request.form.get("year", f"{app.config['CURRENT_YEAR']}")
-    )
+    years = get_years(app)
+    selected_year = get_selected_year(app)
     users = app.data_cache.get_glance(selected_year)
 
     if request.method == "POST":
