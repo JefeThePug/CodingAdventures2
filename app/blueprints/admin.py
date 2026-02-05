@@ -1,9 +1,35 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+import yaml
+from flask import (
+    Blueprint,
+    Response,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 
 from app.appctx import get_app
 from app.auth.decorators import admin_only
 
 admin_bp = Blueprint("admin", __name__)
+
+
+def yaml_formatter(dumper, d):
+    """
+    Represent strings in YAML using block style (|) when multiline.
+
+    This keeps HTML/text fields readable in exported YAML by avoiding
+    escaped newlines and quotes. Single-line strings use the default style.
+    """
+    return dumper.represent_scalar(
+        "tag:yaml.org,2002:str",
+        d,
+        "|" if "\n" in d else None,
+    )
+
+
+yaml.add_representer(str, yaml_formatter)
 
 
 @admin_bp.route("/admin", methods=["GET", "POST"])
@@ -109,6 +135,43 @@ def html():
         fields=fields,
         data=data,
         egg=egg,
+    )
+
+
+@admin_bp.route("/admin/html/print", methods=["POST"])
+@admin_only
+def print_yaml():
+    fields = [
+        "title",
+        "content",
+        "instructions",
+        "input_type",
+        "form",
+        "solution",
+    ]
+
+    data = [
+        {
+            cat: "\n".join(
+                line.rstrip()
+                for line in (request.form.get(f"{cat}{i}") or "").splitlines()
+            )
+            for cat in fields
+        }
+        for i in range(1, 3)
+    ]
+
+    yaml_text = yaml.dump(
+        data,
+        sort_keys=False,
+        default_flow_style=False,
+        allow_unicode=True,
+        width=10_000,
+    )
+
+    return Response(
+        yaml_text,
+        mimetype="text/yaml",
     )
 
 

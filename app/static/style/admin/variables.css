@@ -25,6 +25,7 @@ p {
 }
 
 .blue {
-    color: var(--title-text);
+    color: var(--title-text) !important;
     margin-left: 15px;
+    transform: none !important;
 }
