@@ -49,7 +49,7 @@ def champions() -> str:
                 "progress": progress,
                 "scores": [x.count("★") for x in progress],
                 "name": d["name"],
-                "id": d["id"],
+                "id": d["user_id"],
             }
         )
     formatted_data.sort(key=lambda x: sum(x["scores"]), reverse=True)
