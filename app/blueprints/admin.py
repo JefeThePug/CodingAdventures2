@@ -30,14 +30,10 @@ def get_selected_year(app):
 def yaml_formatter(dumper, d):
     """
     Represent strings in YAML using block style (|) when multiline.
-
-    This keeps HTML/text fields readable in exported YAML by avoiding
-    escaped newlines and quotes. Single-line strings use the default style.
+    Single-line strings use the default style.
     """
     return dumper.represent_scalar(
-        "tag:yaml.org,2002:str",
-        d,
-        "|" if "\n" in d else None,
+        "tag:yaml.org,2002:str", d, "|" if "\n" in d else None
     )
 
 
@@ -149,24 +145,27 @@ def html():
 @admin_bp.route("/admin/html/print", methods=["POST"])
 @admin_only
 def print_yaml():
-    fields = [
-        "title",
-        "content",
-        "instructions",
-        "input_type",
-        "form",
-        "solution",
-    ]
+    fields = ["title", "content", "instructions", "input_type", "form", "solution"]
+    year = int(request.form.get("year")) - 2025
+    week = int(request.form.get("week"))
 
     data = [
-        {
-            cat: "\n".join(
-                line.rstrip()
-                for line in (request.form.get(f"{cat}{i}") or "").splitlines()
-            )
-            for cat in fields
-        }
+        val
         for i in range(1, 3)
+        for val in (
+            {"_#": float(f"{week}.{i}")},
+            {
+                "main_entry_id": year * 10 + week,
+                "part": i,
+                **{
+                    cat: "\n".join(
+                        line.rstrip()
+                        for line in (request.form.get(f"{cat}{i}") or "").splitlines()
+                    )
+                    for cat in fields
+                },
+            },
+        )
     ]
 
     yaml_text = yaml.dump(
@@ -175,12 +174,9 @@ def print_yaml():
         default_flow_style=False,
         allow_unicode=True,
         width=10_000,
-    )
+    ).replace("- _#: ", "\n# ")
 
-    return Response(
-        yaml_text,
-        mimetype="text/yaml",
-    )
+    return Response(yaml_text, mimetype="text/yaml")
 
 
 @admin_bp.route("/admin/solutions", methods=["GET", "POST"])
