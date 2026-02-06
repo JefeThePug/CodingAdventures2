@@ -70,6 +70,7 @@ class AdminConstantsCache:
 
     def get_sponsors(self, include_disabled: bool = False) -> list[list[dict]]:
         """Return sponsors grouped by tier, optionally including disabled ones."""
+        print(self._sponsors)
         if include_disabled:
             return [
                 [s for s in self._sponsors if s["bucket"] == tier]

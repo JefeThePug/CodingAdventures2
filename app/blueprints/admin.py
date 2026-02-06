@@ -278,8 +278,7 @@ def sponsor():
             {
                 "disabled": f"disabled_{n}" in request.form,
                 "id": int(request.form.get(f"id_{n}")),
-                "bucket": request.form.get(f"bucket_{n}")
-                or bucket.get(f"type_{n}", "t1"),
+                "bucket": bucket.get(request.form.get(f"type_{n}"), "t1"),
                 **{x: request.form.get(f"{x}_{n}") or None for x in fields},
             }
             for n in sorted(numbers)

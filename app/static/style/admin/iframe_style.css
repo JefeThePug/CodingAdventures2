@@ -56,6 +56,7 @@ hr {
     textarea {
         width: 100ch;
         resize: vertical;
+
         &.short {
             width: 80ch;
         }
@@ -144,8 +145,7 @@ form input[type="submit"] {
             min-width: 0;
         }
 
-        input,
-        textarea {
+        input, select, textarea {
             width: 100%;
             box-sizing: border-box;
             padding: 2px 2px 2px 5px;
@@ -174,17 +174,17 @@ form input[type="submit"] {
 }
 
 /* Sponsor grid variables */
-.sponsor .input-grid{
+.sponsor .input-grid {
     --cols: 2;
     grid-template-columns:
         0.75fr
-        0.5fr
-        repeat(var(--cols), 1.5fr)
+        0.65fr
+        repeat(var(--cols), 1.4fr)
         0.5fr;
 }
 
 /* User grid variables */
-.user .input-grid{
+.user .input-grid {
     grid-template-columns:
         0.95fr
         0.65fr
@@ -194,9 +194,11 @@ form input[type="submit"] {
     .grid-header {
         justify-self: stretch;
     }
+
     .grid-header.right {
         text-align: right;
     }
+
     .check-wrap {
         display: inline-flex;
         align-items: center;

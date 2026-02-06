@@ -86,7 +86,7 @@ def sponsor() -> str:
     """
     user = get_progress()
 
-    t1, t2, t3 = get_app().data_cache.admin.get_all_sponsors()
+    t1, t2, t3 = get_app().data_cache.admin.get_sponsors()
     return render_template(
         "sponsor.html",
         img=user["img"],
