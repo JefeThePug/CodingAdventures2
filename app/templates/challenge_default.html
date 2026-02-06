@@ -59,8 +59,8 @@
 
 {% if done %}
 <section class="section" id="complete">
-<!--  Fix action!!!  -->
     <form class="form-box" id="access" action="/access" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="num" value="{{ obscure_post(num) }}">
         <button class="access-button">Access Discussion Channel</button>
     </form>

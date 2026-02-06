@@ -106,7 +106,7 @@ def access() -> str | tuple[str, int]:
     print(
         f"{app.data_cache.admin.discord_ids[year]=} {num=} {app.data_cache.admin.discord_ids[year][f'{num}']=}"
     )
-    verified_role = app.data_cache.admin.discord_ids["0"]["verified"]
+    verified_role = app.data_cache.admin.discord_ids["0"]["role"]
 
     headers = {"Authorization": f"Bot {bot_token}", "Content-Type": "application/json"}
     url = f"https://discord.com/api/v9/guilds/{guild_id}/members/{user_id}"
@@ -154,6 +154,7 @@ def access() -> str | tuple[str, int]:
 
     return render_template(
         "link_complete.html",
+        year=year,
         img=user["img"],
         num=num,
         guild=guild_id,
