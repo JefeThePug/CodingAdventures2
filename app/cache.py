@@ -1,7 +1,7 @@
 from functools import wraps
 from typing import ClassVar, Literal, TypedDict, cast
 
-from flask import flash
+from flask import flash, session
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.appctx import exception, get_app, log_info, warning
@@ -496,6 +496,29 @@ class DataCache:
             return 0
         user = User.query.filter_by(user_id=user_id).one_or_none()
         return user.id if user else 0
+
+    @with_ctx
+    def update_progress(self, year: str, user: str, num: int, part: int) -> bool:
+        try:
+            main = User.query.filter_by(user_id=user).one_or_none()
+            if main is None:
+                main = DataCache.add_user(user, session["user_data"]["name"])
+            progress = Progress.query.filter_by(year=year, user_id=main.id).one_or_none()
+            if progress is None:
+                progress = DataCache.add_empty_progress(year, main.id)
+
+            challenge = getattr(progress, f"c{num}", None)
+            if not isinstance(challenge, list):
+                raise ValueError(f"Unexpected error with updating challenge. {part=} {challenge=}")
+            challenge = challenge[:part] + [True] + challenge[part + 1:]
+            setattr(progress, f"c{num}", challenge)
+
+            db.session.commit()
+            return True
+        except (SQLAlchemyError, ValueError) as e:
+            exception("Update progress failed", e)
+            db.session.rollback()
+            return False
 
     @with_ctx
     def update_users(self, year: str, users: list[dict[str, str | int]]) -> bool:
