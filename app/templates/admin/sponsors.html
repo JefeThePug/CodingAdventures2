@@ -29,28 +29,29 @@
                 <div class="grid-header">DISABLED</div>
 
                 {% for row in t %}
-                    {% set index = loop.index0 %}
-                    <input type="hidden" name="id_{{ tier*100 + index }}" value="{{ row['id'] }}">
-                    <input type="hidden" name="bucket_{{ tier*100 + index }}" value="{{ tier_name }}">
-                    {% for c in contents[tier] %}
-                    {% if c != 'blurb' %}
-                    {% if c == 'type' %}
-                    <select name="{{ c ~ '_' ~ (tier*100 + index) }}">
-                        {% for opt in ["", "wayfarer", "pathfinder", "explorer", "pioneer"] %}
-                        <option value="{{ opt }}" {{ "selected" if row[c] == opt else "" }}>
-                        {{ opt }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                    {% else %}
-                    <input type="text" name="{{ c ~ '_' ~ (tier*100 + index) }}" value="{{ row[c] if row[c] else '' }}">
-                    {% endif %}
-                    {% endif %}
+                {% set index = loop.index0 %}
+                <input type="hidden" name="id_{{ tier*100 + index }}" value="{{ row['id'] }}">
+                <input type="hidden" name="bucket_{{ tier*100 + index }}" value="{{ tier_name }}">
+                {% for c in contents[tier] %}
+                {% if c != 'blurb' %}
+                {% if c == 'type' %}
+                <select name="{{ c ~ '_' ~ (tier*100 + index) }}">
+                    {% for opt in ["", "wayfarer", "pathfinder", "explorer", "pioneer"] %}
+                    <option value="{{ opt }}" {{
+                    "selected" if row[c] == opt else "" }}>
+                    {{ opt }}
+                    </option>
                     {% endfor %}
-                    <input type="checkbox" name="disabled_{{ tier*100 + index }}" {{ 'checked' if row['disabled'] }}>
-                    {% if tier == 2 %}
-                    <textarea class="grid-full" name="blurb_{{ tier*100 + index }}" rows="5">{{ row['blurb'] }}</textarea>
-                    {% endif %}
+                </select>
+                {% else %}
+                <input type="text" name="{{ c ~ '_' ~ (tier*100 + index) }}" value="{{ row[c] if row[c] else '' }}">
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+                <input type="checkbox" name="disabled_{{ tier*100 + index }}" {{ 'checked' if row['disabled'] }}>
+                {% if tier == 2 %}
+                <textarea class="grid-full" name="blurb_{{ tier*100 + index }}" rows="5">{{ row['blurb'] }}</textarea>
+                {% endif %}
                 {% endfor %}
 
                 {% for i in range(t|length, t|length + (1 if tier == 2 else 3)) %}
