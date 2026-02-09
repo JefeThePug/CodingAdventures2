@@ -67,7 +67,7 @@ def challenge(year: str, obs_num: str) -> str | Response:
         a = {k: fix_static(v) for k, v in html[1].items()}
         b = {k: fix_static(v) for k, v in html[2].items()}
     except KeyError:
-        return redirect(url_for("index"))
+        return redirect(url_for("main.index"))
 
     params = {
         "img": user["img"],
