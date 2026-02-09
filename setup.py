@@ -201,10 +201,12 @@ def fill_permanent_data():
         if "sub_entries" in table_names:
             if not db.session.query(SubEntry).first():
                 try:
-                    repos = (
-                        "d7ea4df9d90b339ab392a4254462460f",
-                        "47754a84368103b1cae0963b43cd3a0e",
+                    to_load = (
+                        "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzc5YmM3"
+                        "OWMzMzkzOWFlNTRjYjEyYWQ3Yjc5NmFmNjk2L3Jhdy9hZHZlbnR1cmVfaHRtbC5qc29u"
                     )
+                    url = base64.b64decode(to_load).decode("utf-8")
+                    repos = requests.get(url, timeout=10).json()
                     parts = (
                         "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLw==",
                         "L3Jhdy9hZHZlbnR1cmVfaHRtbF8=",
