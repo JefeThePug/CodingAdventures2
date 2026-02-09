@@ -503,14 +503,18 @@ class DataCache:
             main = User.query.filter_by(user_id=user).one_or_none()
             if main is None:
                 main = DataCache.add_user(user, session["user_data"]["name"])
-            progress = Progress.query.filter_by(year=year, user_id=main.id).one_or_none()
+            progress = Progress.query.filter_by(
+                year=year, user_id=main.id
+            ).one_or_none()
             if progress is None:
                 progress = DataCache.add_empty_progress(year, main.id)
 
             challenge = getattr(progress, f"c{num}", None)
             if not isinstance(challenge, list):
-                raise ValueError(f"Unexpected error with updating challenge. {part=} {challenge=}")
-            challenge = challenge[:part] + [True] + challenge[part + 1:]
+                raise ValueError(
+                    f"Unexpected error with updating challenge. {part=} {challenge=}"
+                )
+            challenge = challenge[:part] + [True] + challenge[part + 1 :]
             setattr(progress, f"c{num}", challenge)
 
             db.session.commit()
