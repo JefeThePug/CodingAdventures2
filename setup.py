@@ -117,7 +117,7 @@ def fill_permanent_data():
         table_names = inspector.get_table_names()
 
         # release table population
-        if "release" in table_names:
+        if "releases" in table_names:
             if not db.session.query(Release).first():
                 releases = [
                     Release(year=f"{year}", release=0)
