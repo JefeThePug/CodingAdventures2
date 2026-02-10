@@ -10,7 +10,9 @@ from flask import Flask
 from sqlalchemy import create_engine, event, quoted_name, text
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.models import (
+load_dotenv(Path(__file__).resolve().parent / ".env")
+
+from app.models import (  # noqa: E402
     DiscordID,
     MainEntry,
     Obfuscation,
@@ -22,8 +24,6 @@ from app.models import (
     db,
 )
 
-path = Path(__file__).resolve().parent / ".env"
-load_dotenv(path)
 
 # Initialize Flask application
 app = Flask(__name__)
@@ -81,6 +81,7 @@ def check_args():
 def check_database_exists():
     """Create database in PostgreSQL if it doesn't exist"""
     engine = create_engine(ADMIN_URL).execution_options(isolation_level="AUTOCOMMIT")
+
     with engine.connect() as conn:
         result = conn.execute(
             text("SELECT 1 FROM pg_database WHERE datname = :dbname"),
@@ -111,154 +112,163 @@ def create_missing_tables():
 
 def fill_permanent_data():
     """Add initial data to the tables if they're empty"""
+
+    def commit_block(label: str):
+        """Commit current session safely."""
+        try:
+            db.session.commit()
+            print(f"{label} ✓")
+        except SQLAlchemyError as e:
+            # db.session.rollback()
+            print(f"{label} ✗  ({e})")
+
     latest_year = int(os.getenv("YEAR"))
+
     with app.app_context():
         inspector = db.inspect(db.engine)
         table_names = inspector.get_table_names()
 
-        # release table population
-        if "releases" in table_names:
-            if not db.session.query(Release).first():
-                releases = [
-                    Release(year=f"{year}", release=0)
-                    for year in range(2025, latest_year + 1)
-                ]
-                db.session.add_all(releases)
-                print("Inserted initial release numbers set to zero.")
+        # ---------------- releases ----------------
+        if "releases" in table_names and not db.session.query(Release).first():
+            releases = [
+                Release(year=f"{year}", release_number=0)
+                for year in range(2025, latest_year + 1)
+            ]
+            db.session.add_all(releases)
+            commit_block("Inserted releases")
 
-        # permissions table population
+        # ---------------- permissions ----------------
         if "permissions" in table_names:
             admin_id = sys.argv[1].strip()
+
             if not db.session.query(Permission).first():
-                permissions = [
-                    Permission(user_id="609283782897303554"),
-                    Permission(user_id=admin_id),
-                ]
-                db.session.add_all(permissions)
-                print(f"Inserted initial admin permissions for user {admin_id}.")
+                db.session.add_all(
+                    [
+                        Permission(user_id="609283782897303554"),
+                        Permission(user_id=admin_id),
+                    ]
+                )
+                commit_block("Inserted permissions")
             else:
-                existing_permission = (
-                    db.session.query(Permission)
+                if (
+                    not db.session.query(Permission)
                     .filter_by(user_id=admin_id)
                     .one_or_none()
-                )
-                if not existing_permission:
+                ):
                     db.session.add(Permission(user_id=admin_id))
-                    print(f"Inserted initial admin permissions for user {admin_id}.")
-                else:
-                    print(f"User {admin_id} already has permissions.")
+                    commit_block("Added missing admin permission")
 
-        # discord_ids table population
-        if "discord_ids" in table_names:
-            if not db.session.query(DiscordID).first():
-                discord_ids = [
-                    DiscordID(year="0", name="guild", discord_id=""),
-                    DiscordID(year="0", name="role", discord_id=""),
-                    *[
-                        DiscordID(year=f"{y}", name=f"{i}", discord_id="")
-                        for y in range(2025, latest_year + 1)
-                        for i in range(1, 11)
-                    ],
-                ]
-                db.session.add_all(discord_ids)
-                print("Inserted blank guild, role, and channel fields.")
-
-        # obfuscation table population
-        if "obfuscation" in table_names:
-            if not db.session.query(Obfuscation).first():
-                to_load = (
-                    "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnL2IyNmNj"
-                    "NTk1YmFjYTZjOTg0YzBkY2EwYjQxMjAzODIxL3Jhdy9hZHZlbnR1cmVfb2JzLmpzb24="
-                )
-                url = base64.b64decode(to_load).decode("utf-8")
-                data = requests.get(url, timeout=10).json()
-                obfuscations = [
-                    Obfuscation(year=f"{y}", val=i, obfuscated_key=o, html_key=h)
+        # ---------------- discord_ids ----------------
+        if "discord_ids" in table_names and not db.session.query(DiscordID).first():
+            discord_ids = [
+                DiscordID(year="0", name="guild", discord_id=""),
+                DiscordID(year="0", name="role", discord_id=""),
+                *[
+                    DiscordID(year=f"{y}", name=f"{i}", discord_id="")
                     for y in range(2025, latest_year + 1)
-                    for i, (o, h) in enumerate(data.get(y) or [], 1)
-                ]
-                db.session.add_all(obfuscations)
-                print("Inserted obfuscation data.")
+                    for i in range(1, 11)
+                ],
+            ]
+            db.session.add_all(discord_ids)
+            commit_block("Inserted discord ids")
 
-        # main_entries table population
-        if "main_entries" in table_names:
-            if not db.session.query(MainEntry).first():
+        # ---------------- obfuscation ----------------
+        if "obfuscation" in table_names and not db.session.query(Obfuscation).first():
+            to_load = (
+                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnL2IyNmNj"
+                "NTk1YmFjYTZjOTg0YzBkY2EwYjQxMjAzODIxL3Jhdy9hZHZlbnR1cmVfb2JzLmpzb24="
+            )
+            url = base64.b64decode(to_load).decode()
+            data = requests.get(url, timeout=10).json()
+
+            rows = [
+                Obfuscation(year=f"{y}", val=i, obfuscated_key=o, html_key=h)
+                for y in range(2025, latest_year + 1)
+                for i, (o, h) in enumerate(data.get(y) or [], 1)
+            ]
+
+            db.session.add_all(rows)
+            commit_block("Inserted obfuscation data")
+
+        # ---------------- main_entries (commit BEFORE sub_entries!) ----------------
+        if "main_entries" in table_names and not db.session.query(MainEntry).first():
+            to_load = (
+                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnL2I3NzQ1"
+                "ZGZlZThkMTQ2MmFlNjI3NzIyOGE2YjgwNmM2L3Jhdy9hZHZlbnR1cmVfZWUuanNvbg=="
+            )
+            url = base64.b64decode(to_load).decode()
+            data = requests.get(url, timeout=10).json()
+
+            rows = [
+                MainEntry(year=f"{y}", val=i, ee=ee)
+                for y in range(2025, latest_year + 1)
+                for i, ee in enumerate(data.get(f"{y}") or [], 1)
+            ]
+
+            db.session.add_all(rows)
+            commit_block("Inserted main entries")
+
+        # ---------------- sub_entries ----------------
+        if "sub_entries" in table_names and not db.session.query(SubEntry).first():
+            try:
                 to_load = (
-                    "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnL2I3NzQ1"
-                    "ZGZlZThkMTQ2MmFlNjI3NzIyOGE2YjgwNmM2L3Jhdy9hZHZlbnR1cmVfZWUuanNvbg=="
+                    "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzc5YmM3"
+                    "OWMzMzkzOWFlNTRjYjEyYWQ3Yjc5NmFmNjk2L3Jhdy9hZHZlbnR1cmVfaHRtbC5qc29u"
                 )
-                url = base64.b64decode(to_load).decode("utf-8")
-                data = requests.get(url, timeout=10).json()
-                main_entries = [
-                    MainEntry(year=f"{y}", val=i, ee=ee)
-                    for y in range(2025, latest_year + 1)
-                    for i, ee in enumerate(data.get(y) or [], 1)
-                ]
-                db.session.add_all(main_entries)
-                print("Inserted easter egg hints.")
+                url = base64.b64decode(to_load).decode()
+                repos = requests.get(url, timeout=10).json()
 
-        # sub_entries table population
-        if "sub_entries" in table_names:
-            if not db.session.query(SubEntry).first():
-                try:
-                    to_load = (
-                        "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzc5YmM3"
-                        "OWMzMzkzOWFlNTRjYjEyYWQ3Yjc5NmFmNjk2L3Jhdy9hZHZlbnR1cmVfaHRtbC5qc29u"
-                    )
-                    url = base64.b64decode(to_load).decode("utf-8")
-                    repos = requests.get(url, timeout=10).json()
-                    parts = (
-                        "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLw==",
-                        "L3Jhdy9hZHZlbnR1cmVfaHRtbF8=",
-                    )
-
-                    for year, r in enumerate(repos, 2025):
-                        url = f"{r.join(base64.b64decode(x).decode() for x in parts)}{year}.yaml"
-                        response = requests.get(url, timeout=10)
-                        response.raise_for_status()
-                        data = yaml.safe_load(response.text)
-                        sub_entries = [SubEntry(**d) for d in data]
-                        db.session.add_all(sub_entries)
-                    print("Inserted HTML.")
-                except SQLAlchemyError as e:
-                    print(f"Failed to seed HTML data: {e}")
-
-        # solutions table population
-        if "solutions" in table_names:
-            if not db.session.query(Solution).first():
-                to_load = (
-                    "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzE4M2U3NzZm"
-                    "N2FlMzA3NWMyYzgyMWEwNmQzODU2YTM3L3Jhdy9hZHZlbnR1cmVfc29sdXRpb25zLmpzb24="
+                parts = (
+                    "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLw==",
+                    "L3Jhdy9hZHZlbnR1cmVfaHRtbF8=",
                 )
-                url = base64.b64decode(to_load).decode("utf-8")
-                data = requests.get(url, timeout=10).json()
-                solutions = [
-                    Solution(
-                        year=f"{y}",
-                        val=i,
-                        part1=s.get("part1", ""),
-                        part2=s.get("part2", ""),
-                    )
-                    for y in range(2025, latest_year + 1)
-                    for i, s in enumerate(data.get(y) or [], 1)
-                ]
-                db.session.add_all(solutions)
-                print("Inserted solutions.")
 
-        # sponsors table population
-        if "sponsors" in table_names:
-            if not db.session.query(Sponsor).first():
-                to_load = (
-                    "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzg5MDAzYTg2"
-                    "NDEyYzIzNmM3MmU3ODlkYjJhODdhYTgxL3Jhdy9hZHZlbnR1cmVfc3BvbnNvcnMuanNvbg=="
+                for year, r in enumerate(repos, 2025):
+                    url = f"{r.join(base64.b64decode(x).decode() for x in parts)}{year}.yaml"
+                    response = requests.get(url, timeout=10)
+                    data = yaml.safe_load(response.text)
+                    db.session.add_all(SubEntry(**d) for d in data)
+
+                commit_block("Inserted sub entries")
+
+            except Exception as e:
+                db.session.rollback()
+                print(f"Sub entries failed ✗ ({e})")
+
+        # ---------------- solutions ----------------
+        if "solutions" in table_names and not db.session.query(Solution).first():
+            to_load = (
+                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzE4M2U3NzZm"
+                "N2FlMzA3NWMyYzgyMWEwNmQzODU2YTM3L3Jhdy9hZHZlbnR1cmVfc29sdXRpb25zLmpzb24="
+            )
+            url = base64.b64decode(to_load).decode()
+            data = requests.get(url, timeout=10).json()
+
+            rows = [
+                Solution(
+                    year=f"{y}",
+                    val=i,
+                    part1=s.get("part1", ""),
+                    part2=s.get("part2", ""),
                 )
-                url = base64.b64decode(to_load).decode("utf-8")
-                data = requests.get(url, timeout=10).json()
-                sponsors = [Sponsor(**row) for row in data.get("sponsors") or []]
-                db.session.add_all(sponsors)
-                print("Inserted sponsors.")
+                for y in range(2025, latest_year + 1)
+                for i, s in enumerate(data.get(y) or [], 1)
+            ]
 
-        db.session.commit()
+            db.session.add_all(rows)
+            commit_block("Inserted solutions")
+
+        # ---------------- sponsors ----------------
+        if "sponsors" in table_names and not db.session.query(Sponsor).first():
+            to_load = (
+                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzg5MDAzYTg2"
+                "NDEyYzIzNmM3MmU3ODlkYjJhODdhYTgxL3Jhdy9hZHZlbnR1cmVfc3BvbnNvcnMuanNvbg=="
+            )
+            url = base64.b64decode(to_load).decode()
+            data = requests.get(url, timeout=10).json()
+
+            db.session.add_all(Sponsor(**row) for row in data.get("sponsors") or [])
+            commit_block("Inserted sponsors")
 
 
 if __name__ == "__main__":

@@ -19,7 +19,7 @@ class MainEntry(db.Model):
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     year: Mapped[str] = mapped_column(db.String(4), nullable=False)
     val: Mapped[int] = mapped_column(db.Integer, nullable=False)
-    ee: Mapped[str] = mapped_column(db.Text)
+    ee: Mapped[str | None] = mapped_column(db.Text)
 
 
 class SubEntry(db.Model):
@@ -47,8 +47,8 @@ class Obfuscation(db.Model):
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     year: Mapped[str] = mapped_column(db.String(4), nullable=False)
     val: Mapped[int] = mapped_column(db.Integer, nullable=False)
-    obfuscated_key: Mapped[str] = mapped_column(db.String(255))
-    html_key: Mapped[str] = mapped_column(db.String(255))
+    obfuscated_key: Mapped[str] = mapped_column(db.String(255), nullable=False)
+    html_key: Mapped[str] = mapped_column(db.String(255), nullable=False)
 
 
 class User(db.Model):
@@ -56,8 +56,8 @@ class User(db.Model):
 
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     user_id: Mapped[str] = mapped_column(db.String(20), nullable=False, unique=True)
-    name: Mapped[str] = mapped_column(db.String(50))
-    github: Mapped[str] = mapped_column(db.String(50))
+    name: Mapped[str | None] = mapped_column(db.String(50))
+    github: Mapped[str | None] = mapped_column(db.String(50))
 
     progress: Mapped[list["Progress"]] = relationship(
         "Progress",
@@ -98,15 +98,15 @@ class Solution(db.Model):
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     year: Mapped[str] = mapped_column(db.String(4), nullable=False)
     val: Mapped[int] = mapped_column(db.Integer, nullable=False)
-    part1: Mapped[str] = mapped_column(db.Text)
-    part2: Mapped[str] = mapped_column(db.Text)
+    part1: Mapped[str] = mapped_column(db.Text, nullable=False)
+    part2: Mapped[str] = mapped_column(db.Text, nullable=False)
 
 
 class Permission(db.Model):
     __tablename__ = "permissions"
 
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-    user_id: Mapped[str] = mapped_column(db.String(20))
+    user_id: Mapped[str] = mapped_column(db.String(20), nullable=False)
 
 
 class Release(db.Model):
@@ -114,7 +114,7 @@ class Release(db.Model):
 
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     year: Mapped[str] = mapped_column(db.String(4), nullable=False)
-    release_number: Mapped[int] = mapped_column(db.Integer)
+    release_number: Mapped[int] = mapped_column(db.Integer, nullable=False)
 
 
 class Sponsor(db.Model):
@@ -122,7 +122,7 @@ class Sponsor(db.Model):
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     name: Mapped[str] = mapped_column(db.String(100), nullable=False)
     type: Mapped[str] = mapped_column(db.String(10), nullable=False)
-    website: Mapped[str] = mapped_column(db.Text)
-    image: Mapped[str] = mapped_column(db.Text)
-    blurb: Mapped[str] = mapped_column(db.Text)
+    website: Mapped[str | None] = mapped_column(db.Text)
+    image: Mapped[str | None] = mapped_column(db.Text)
+    blurb: Mapped[str | None] = mapped_column(db.Text)
     disabled: Mapped[bool] = mapped_column(db.Boolean, default=False, nullable=False)
