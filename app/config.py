@@ -2,8 +2,8 @@ import os
 
 
 class Config:
-    CURRENT_YEAR = int(os.getenv("YEAR"))
-    SECRET_KEY = os.getenv("SECRET_KEY")
+    CURRENT_YEAR = int(os.getenv("YEAR") or "2025")
+    SECRET_KEY = os.getenv("SECRET_KEY") or ""
     SQLALCHEMY_DATABASE_URI = (
         f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}"
         f"@{os.getenv('POSTGRES_SERVER')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('DATABASE_NAME')}"

@@ -24,6 +24,7 @@ def create_app() -> AppFlask:
 
     app = AppFlask(__name__)
     app.config.from_object(config_type)
+    assert app.secret_key, "SECRET_KEY must be set"
     app.serializer = URLSafeTimedSerializer(app.secret_key, salt=SERIALIZER_SALT)
 
     db.init_app(app)
