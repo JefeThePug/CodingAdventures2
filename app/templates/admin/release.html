@@ -24,7 +24,9 @@
         {% endfor %}
         <hr>
         <div class="actions">
-            <input type="button" value="CANCEL" onclick="window.location.href='{{ url_for('admin.release') }}'">
+            <a href="{{ url_for('admin.release') }}">
+                <input type="button" value="CANCEL"/>
+            </a>
             <input type="submit" value="SAVE">
         </div>
     </form>

@@ -31,8 +31,9 @@
             <label for="year">Challenge Year:</label>
             <select id="year" name="year" onchange="updateLocation()">
                 {% for y in years %}
-                <option value="{{ y }}" {{
-                'selected' if y == selected_year }}>{{ y }}</option>
+                <option value="{{ y }}" {{ 'selected' if y == selected_year }}>
+                    {{ y }}
+                </option>
                 {% endfor %}
             </select>
             <span class="alert">  ‼️Changing the year will discard any unsaved ID changes.</span>
@@ -42,7 +43,7 @@
         <div class="form-group">
             <label for="c{{ n }}">Week {{ n }}:</label>
             {% set c = channels[selected_year] %}
-            {% set fill = c[n|string] if n - 1 < c|length else '' %}
+            {% set fill = c[n|string] if (n - 1) < c|length else '' %}
             <input id="c{{ n }}" name="c{{ n }}" value="{{ fill }}" type="text" required/>
         </div>
         {% endfor %}

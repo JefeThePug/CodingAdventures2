@@ -17,8 +17,9 @@
             <label for="year">Challenge Year:</label>
             <select id="year" name="year" onchange="updateLocation()">
                 {% for y in years %}
-                <option value="{{ y }}" {{
-                'selected' if y == selected_year }}>{{ y }}</option>
+                <option value="{{ y }}" {{ 'selected' if y == selected_year }}>
+                    {{ y }}
+                </option>
                 {% endfor %}
             </select>
         </div>

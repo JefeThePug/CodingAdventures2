@@ -37,9 +37,8 @@
                 {% if c == 'type' %}
                 <select name="{{ c ~ '_' ~ (tier*100 + index) }}">
                     {% for opt in ["", "wayfarer", "pathfinder", "explorer", "pioneer"] %}
-                    <option value="{{ opt }}" {{
-                    "selected" if row[c] == opt else "" }}>
-                    {{ opt }}
+                    <option value="{{ opt }}" {{ "selected" if row[c] == opt else "" }}>
+                        {{ opt }}
                     </option>
                     {% endfor %}
                 </select>
@@ -74,7 +73,9 @@
         {% endfor %}
 
         <div class="actions indent">
-            <input type="button" value="CANCEL" onclick="window.location.href='{{ url_for('admin.sponsor') }}'">
+            <a href="{{ url_for('admin.sponsor') }}">
+                <input type="button" value="CANCEL"/>
+            </a>
             <input type="submit" value="SAVE">
         </div>
         <p class="indent blue sm" align="center">
