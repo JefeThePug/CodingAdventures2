@@ -381,9 +381,6 @@ class HtmlCache:
 class DataCache:
     """High-level facade combining admin, HTML, and user progress cache helpers."""
 
-    USER_KEYS: ClassVar[tuple[str, ...]] = ("name", "github")
-    PROGRESS_KEYS: ClassVar[tuple[str, ...]] = tuple(f"c{i}" for i in range(1, 11))
-
     def __init__(self):
         self.admin = AdminConstantsCache()
         self.html = HtmlCache()
@@ -539,12 +536,13 @@ class DataCache:
                     changed = True
                     progress = self.add_empty_progress(year, cast(int, user.id))
 
-                for field in self.USER_KEYS:
+                for field in ("name", "github"):
                     if getattr(user, field) != data[field]:
                         changed = True
                         setattr(user, field, data[field])
 
-                for field in self.PROGRESS_KEYS:
+                for i in range(1, 11):
+                    field = f"c{i}"
                     if getattr(progress, field) != data[field]:
                         changed = True
                         setattr(progress, field, data[field])
