@@ -1,4 +1,5 @@
 from typing import NoReturn
+
 from flask import Blueprint, Response, abort, make_response, send_from_directory
 from werkzeug.exceptions import NotFound
 
