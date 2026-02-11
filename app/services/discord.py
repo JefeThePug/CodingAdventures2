@@ -5,7 +5,7 @@ from app.appctx import get_app
 
 def exchange_code(code: str) -> dict:
     """Exchange a Discord OAuth2 authorization code for an access token.
-    Sends the authorization code to Discord’s OAuth2 token endpoint and
+    Sends the authorization code to Discord's OAuth2 token endpoint and
     returns the decoded JSON response containing the access token and
     related metadata.
     Args:

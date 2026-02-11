@@ -1,17 +1,7 @@
-from typing import TypedDict
-
 from flask import request, session
 
 from app.appctx import get_app
-
-
-class ProgressPayload(TypedDict):
-    """Structure returned by get_progress() for templates and handlers."""
-
-    id: str | None
-    img: str
-    progress: dict[str, list[bool]]
-    rockets: list[list[bool]]
+from app.types import ProgressPayload
 
 
 def sync_progress(year: str, user_id: str) -> None:
@@ -36,7 +26,6 @@ def set_progress(challenge_num: int, progress: int) -> str | None:
     """
     if "user_data" in session:
         # Change database and update Data Cache
-
         get_app().data_cache.update_progress(
             session["year"],
             session["user_data"]["id"],
@@ -44,9 +33,19 @@ def set_progress(challenge_num: int, progress: int) -> str | None:
             progress,
         )
         sync_progress(session["year"], session["user_data"]["id"])
+        return None
     else:
         # Alter Browser Cookies
-        return get_app().serializer.dumps(f"{challenge_num}{'AB'[progress]}")
+        dumped = get_app().serializer.dumps(f"{challenge_num}{'AB'[progress]}")
+        match dumped:
+            case bytes() | bytearray():
+                return dumped.decode("utf-8")
+            case memoryview():
+                return dumped.tobytes().decode("utf-8")
+            case str():
+                return dumped
+            case _:
+                return str(dumped)
 
 
 def get_progress() -> ProgressPayload:

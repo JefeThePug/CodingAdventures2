@@ -19,10 +19,10 @@ auth_bp = Blueprint("auth", __name__)
 
 
 @auth_bp.route("/pre-login")
-def pre_login() -> str:
+def pre_login():
     """Render the pre-login page.
     Returns:
-        str: Rendered login template with user image.
+        Rendered login template with user image.
     """
     user = get_progress()
     template = "logout.html" if "user_data" in session else "login.html"
@@ -30,10 +30,10 @@ def pre_login() -> str:
 
 
 @auth_bp.route("/login")
-def login() -> Response:
+def login():
     """Redirect the user to Discord's OAuth2 authorization page.
     Returns:
-        Response: Redirect to Discord authorization URL.
+        Redirect to Discord authorization URL.
     """
     params = {
         "client_id": os.getenv("DISCORD_CLIENT_ID"),
@@ -45,11 +45,11 @@ def login() -> Response:
 
 
 @auth_bp.route("/callback")
-def callback() -> Response | tuple[str, int]:
+def callback():
     """Handle the callback from Discord after user authorization.
     Returns:
-        Response: Redirect to the index page or error message.
-        tuple[str, int]: Error message with HTTP status code 400.
+        Redirect to the index page or error message.
+        or Error message with HTTP status code 400.
     """
     print("\n\nin callback\n\n")
     if request.args.get("error"):
@@ -102,10 +102,10 @@ def callback() -> Response | tuple[str, int]:
 
 
 @auth_bp.route("/logout")
-def logout() -> Response:
+def logout():
     """Log out the user by clearing the session.
     Returns:
-        Response: Redirect to the index page.
+        Redirect to the index page.
     """
     session.clear()
     return redirect(url_for("main.index"))

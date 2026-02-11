@@ -24,7 +24,6 @@ from app.models import (  # noqa: E402
     db,
 )
 
-
 # Initialize Flask application
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True

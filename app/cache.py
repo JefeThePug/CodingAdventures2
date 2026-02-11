@@ -1,11 +1,12 @@
 from functools import wraps
-from typing import ClassVar, Literal, TypedDict, cast
+from typing import Any, ClassVar, Literal, cast
 
 from flask import flash, session
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.appctx import exception, get_app, log_info, warning
+from app.appctx import exception, get_app, log_info
 from app.extensions import db
+from app.types import GlanceRow, SponsorRow, UserRow
 
 from .models import (
     DiscordID,
@@ -32,17 +33,6 @@ def with_ctx(fn):
     return wrapper
 
 
-class SponsorRow(TypedDict):
-    id: int
-    name: str
-    type: str
-    website: str
-    image: str
-    blurb: str
-    disabled: bool
-    bucket: str
-
-
 class AdminConstantsCache:
     """Cache and manage admin-controlled reference tables and settings."""
 
@@ -59,7 +49,7 @@ class AdminConstantsCache:
         self.html_nums: dict[str, dict[int | str, int | str]] = {}
         self.discord_ids: dict[str, dict[str, str]] = {}
         self.releases: dict[str, int] = {}
-        self._sponsors: list[dict[str, object]] = []
+        self._sponsors: list[dict[str, Any]] = []
         self._permissions: list[str] = []
 
     def get_permissions(self, login: bool = False) -> list[str]:
@@ -68,7 +58,9 @@ class AdminConstantsCache:
             return self._permissions
         return [p for p in self._permissions if p not in self.RPI]
 
-    def get_sponsors(self, include_disabled: bool = False) -> list[list[dict]]:
+    def get_sponsors(
+        self, include_disabled: bool = False
+    ) -> list[list[dict[str, Any]]]:
         """Return sponsors grouped by tier, optionally including disabled ones."""
         print(self._sponsors)
         if include_disabled:
@@ -184,15 +176,15 @@ class AdminConstantsCache:
     @with_ctx
     def update_perms(self, perms: list[str]) -> bool:
         """Replace the set of admin users and refresh the cache."""
-        perms = set(perms) | self.RPI
+        perm_set = set(perms) | self.RPI
         try:
             # ---- DB Phase ----
             existing = {
                 uid
                 for (uid,) in Permission.query.with_entities(Permission.user_id).all()
             }
-            to_delete = existing - perms
-            to_add = perms - existing
+            to_delete = existing - perm_set
+            to_add = perm_set - existing
             if to_delete:
                 Permission.query.filter(Permission.user_id.in_(to_delete)).delete(
                     synchronize_session=False
@@ -235,18 +227,19 @@ class AdminConstantsCache:
                 else:
                     db.session.add(
                         Sponsor(
-                            **{
-                                k: v
-                                for k, v in sponsor.items()
-                                if k not in ("id", "bucket")
-                            }
+                            name=sponsor["name"],
+                            type=sponsor["type"],
+                            website=sponsor["website"],
+                            image=sponsor["image"],
+                            blurb=sponsor["blurb"],
+                            disabled=sponsor["disabled"],
                         )
                     )
 
             changed = bool(db.session.dirty or db.session.new)
             db.session.commit()
             # ---- Cache Phase ----
-            self._sponsors = sponsors
+            self._sponsors = [dict(s) for s in sponsors]
 
             flash(
                 "Sponsors updated successfully" if changed else "No changes made",
@@ -264,7 +257,7 @@ class HtmlCache:
     """Cache challenge HTML content and solutions for fast lookup."""
 
     def __init__(self):
-        self.html: dict[str, dict[int, dict[int | str, dict[str, str]]]] = {}
+        self.html: dict[str, dict[int, dict[int | str, dict[str, str] | str]]] = {}
         self.solutions: dict[str, dict[int, dict[str, str]]] = {}
 
     @with_ctx
@@ -321,7 +314,7 @@ class HtmlCache:
             if main.ee != data[0]:
                 main.ee = data[0]
             for part, contents in data.items():
-                if part == 0:
+                if isinstance(contents, str):
                     continue
                 row = existing.get(part)
                 if not row:
@@ -336,7 +329,7 @@ class HtmlCache:
             db.session.commit()
             # ---- Cache Phase ----
             for part, contents in data.items():
-                if part == 0:
+                if isinstance(contents, str):
                     continue
                 self.html[year][week][part] = contents
             self.html[year][week]["ee"] = data[0]
@@ -386,10 +379,10 @@ class HtmlCache:
 
 
 class DataCache:
-    """High-level façade combining admin, HTML, and user progress cache helpers."""
+    """High-level facade combining admin, HTML, and user progress cache helpers."""
 
-    USER_KEYS: ClassVar[tuple[str]] = ("name", "github")
-    PROGRESS_KEYS: ClassVar[tuple[str]] = tuple(f"c{i}" for i in range(1, 11))
+    USER_KEYS: ClassVar[tuple[str, ...]] = ("name", "github")
+    PROGRESS_KEYS: ClassVar[tuple[str, ...]] = tuple(f"c{i}" for i in range(1, 11))
 
     def __init__(self):
         self.admin = AdminConstantsCache()
@@ -407,14 +400,14 @@ class DataCache:
     def load_progress(year: str, user_id: str) -> dict[str, list[bool]]:
         """Return a user's progress for a year or an empty result if not found."""
         try:
-            progress = (
-                Progress.query.join(User)
-                .filter(User.user_id == user_id, Progress.year == year)
-                .one_or_none()
-            )
+            main = User.query.filter_by(user_id=user_id).one_or_none()
+            if main is None:
+                main = DataCache.add_user(user_id, session["user_data"]["name"])
+            progress = Progress.query.filter_by(
+                year=year, user_id=main.id
+            ).one_or_none()
             if progress is None:
-                warning(f"User {user_id} not found in database when loading data")
-                return {}
+                progress = DataCache.add_empty_progress(year, main.id)
             return {f"c{i}": getattr(progress, f"c{i}") for i in range(1, 11)}
         except SQLAlchemyError as e:
             exception(f"Failed to load progress for user {user_id}", e)
@@ -439,7 +432,7 @@ class DataCache:
 
     @staticmethod
     @with_ctx
-    def get_glance(year: str) -> list[dict[str, object]]:
+    def get_glance(year: str) -> list[GlanceRow]:
         """Return a summary of each user's progress for a year."""
         try:
             all_users = Progress.query.join(User).filter(Progress.year == year).all()
@@ -525,7 +518,7 @@ class DataCache:
             return False
 
     @with_ctx
-    def update_users(self, year: str, users: list[dict[str, str | int]]) -> bool:
+    def update_users(self, year: str, users: list[UserRow]) -> bool:
         """Create or update users and their progress records for a year."""
         changed = False
         try:
@@ -593,7 +586,7 @@ class DataCache:
             return False
 
     @staticmethod
-    def add_user(user_id: str, name: str, github: str | None = None) -> User:
+    def add_user(user_id: str, name: str | None, github: str | None = None) -> User:
         """Insert a new user record and return it."""
         new_user = User(
             user_id=user_id,

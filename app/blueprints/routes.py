@@ -7,10 +7,9 @@ route_bp = Blueprint("routes", __name__)
 
 
 @route_bp.route("/how_to")
-def how_to() -> str:
+def how_to():
     """Render the help page.
-    Returns:
-        str: Rendered howto.html template with user information.
+    Returns: Rendered howto.html template with user information.
     """
     user = get_progress()
     return render_template(
@@ -21,10 +20,9 @@ def how_to() -> str:
 
 
 @route_bp.route("/champions")
-def champions() -> str:
+def champions():
     """Render the champions page.
-    Returns:
-        str: Rendered champions.html template with user information.
+    Returns: Rendered champions.html template with user information.
     """
     user = get_progress()
 
@@ -65,10 +63,9 @@ def champions() -> str:
 
 
 @route_bp.route("/gratitude")
-def gratitude() -> str:
+def gratitude():
     """Render the gratitude page.
-    Returns:
-        str: Rendered gratitude.html template with user information.
+    Returns: Rendered gratitude.html template with user information.
     """
     user = get_progress()
     return render_template(
@@ -79,10 +76,9 @@ def gratitude() -> str:
 
 
 @route_bp.route("/sponsor")
-def sponsor() -> str:
+def sponsor():
     """Render the sponsor page.
-    Returns:
-        str: Rendered sponsor.html template with user information.
+    Returns: Rendered sponsor.html template with user information.
     """
     user = get_progress()
 

@@ -28,18 +28,18 @@ def fix_static(txt: str) -> str:
 
 
 @challenge_bp.route("/challenge/<year>/<obs_num>", methods=["GET", "POST"])
-def challenge(year: str, obs_num: str) -> str | Response:
+def challenge(year: str, obs_num: str):
     """Render the challenge page for a specific challenge week number.
     Args:
         year (str): The desired year.
         obs_num (str): The obfuscated challenge number.
     Returns:
-        str: Rendered challenge.html template or error message.
-        Response: redirect to the challenge page on correct guess.
+        Rendered challenge.html template or error message.
+        or redirect to the challenge page on correct guess.
     """
     session["year"] = year
     app = get_app()
-    num = app.data_cache.admin.html_nums[year][obs_num]
+    num = int(app.data_cache.admin.html_nums[year][obs_num])
     error = None
 
     if request.method == "POST":
@@ -62,12 +62,19 @@ def challenge(year: str, obs_num: str) -> str | Response:
 
     user = get_progress()
     progress = user["progress"][f"c{num}"]
-    html = app.data_cache.html.html[year][num]
-    try:
-        a = {k: fix_static(v) for k, v in html[1].items()}
-        b = {k: fix_static(v) for k, v in html[2].items()}
-    except KeyError:
-        return redirect(url_for("main.index"))
+    html = app.data_cache.html.html.get(year, {})
+    parts = []
+    for part_num in (1, 2):
+        part_data = html.get(part_num)
+        if not isinstance(part_data, dict):
+            return redirect(url_for("main.index"))
+        parts.append(
+            {
+                k: fix_static(v) if isinstance(v, str) else v
+                for k, v in part_data.items()
+            }
+        )
+    a, b = parts
 
     params = {
         "img": user["img"],
@@ -85,12 +92,12 @@ def challenge(year: str, obs_num: str) -> str | Response:
 
 
 @challenge_bp.route("/access", methods=["POST"])
-def access() -> str | tuple[str, int]:
+def access():
     """Grant access to a user and assign roles in Discord.
 
     Returns:
-        str: Rendered link_complete.html template or error message.
-        tuple[str, int]: Error message with HTTP status code.
+        Rendered link_complete.html template or error message.
+        or Error message with HTTP status code.
     """
     app = get_app()
     bot_token = app.config["DISCORD_BOT_TOKEN"]
@@ -98,7 +105,7 @@ def access() -> str | tuple[str, int]:
     if not bot_token:
         return "Error: Bot token not found", 500
 
-    num = app.data_cache.admin.obfuscations[year][f"{request.form.get('num')}"]
+    num = int(app.data_cache.admin.obfuscations[year][f"{request.form.get('num')}"])
 
     guild_id = app.data_cache.admin.discord_ids["0"]["guild"]
     user_id = session["user_data"]["id"]

@@ -1,4 +1,4 @@
-from flask import Blueprint, Response, redirect, render_template, session, url_for
+from flask import Blueprint, redirect, render_template, session, url_for
 
 from app.appctx import get_app
 from app.services import get_progress
@@ -7,10 +7,9 @@ main_bp = Blueprint("main", __name__)
 
 
 @main_bp.route("/")
-def index() -> Response:
+def index():
     """Redirect to the index page for the current year or the year in session.
-    Returns:
-        Response: Rendered redirect to current year.
+    Returns: Redirect to current year.
     """
     if "year" not in session:
         session["year"] = f"{get_app().config['CURRENT_YEAR']}"
@@ -18,10 +17,9 @@ def index() -> Response:
 
 
 @main_bp.route("/<int:year>")
-def release(year: int) -> str:
+def release(year: int):
     """Render the index page for a specific year with user progress and release number.
-    Returns:
-        str: Rendered index.html template.
+    Returns: Rendered index.html template.
     """
     session["year"] = f"{year}"
     user = get_progress()

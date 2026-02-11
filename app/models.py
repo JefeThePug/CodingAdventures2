@@ -1,31 +1,37 @@
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, MappedAsDataclass, mapped_column, relationship
 
 from app.extensions import db
 
 
-class DiscordID(db.Model):
+class DiscordID(MappedAsDataclass, db.Model):
     __tablename__ = "discord_ids"
 
-    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True, init=False)
     year: Mapped[str] = mapped_column(db.String(4), nullable=False)
     name: Mapped[str] = mapped_column(db.String(10), nullable=False)
     discord_id: Mapped[str] = mapped_column(db.String(20), nullable=False)
 
 
-class MainEntry(db.Model):
+class MainEntry(MappedAsDataclass, db.Model):
     __tablename__ = "main_entries"
 
-    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True, init=False)
     year: Mapped[str] = mapped_column(db.String(4), nullable=False)
     val: Mapped[int] = mapped_column(db.Integer, nullable=False)
     ee: Mapped[str | None] = mapped_column(db.Text)
 
+    sub_entries: Mapped[list["SubEntry"]] = relationship(
+        "SubEntry",
+        back_populates="main_entry",
+        cascade="all, delete-orphan",
+    )
 
-class SubEntry(db.Model):
+
+class SubEntry(MappedAsDataclass, db.Model):
     __tablename__ = "sub_entries"
 
-    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True, init=False)
     main_entry_id: Mapped[int] = mapped_column(
         ForeignKey("main_entries.id", ondelete="CASCADE")
     )
@@ -38,23 +44,25 @@ class SubEntry(db.Model):
     solution: Mapped[str] = mapped_column(db.Text)
 
     # Define the relationship
-    main_entry: Mapped[MainEntry] = relationship("MainEntry", backref="sub_entries")
+    main_entry: Mapped[MainEntry] = relationship(
+        "MainEntry", back_populates="sub_entries"
+    )
 
 
-class Obfuscation(db.Model):
+class Obfuscation(MappedAsDataclass, db.Model):
     __tablename__ = "obfuscation"
 
-    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True, init=False)
     year: Mapped[str] = mapped_column(db.String(4), nullable=False)
     val: Mapped[int] = mapped_column(db.Integer, nullable=False)
     obfuscated_key: Mapped[str] = mapped_column(db.String(255), nullable=False)
     html_key: Mapped[str] = mapped_column(db.String(255), nullable=False)
 
 
-class User(db.Model):
+class User(MappedAsDataclass, db.Model):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True, init=False)
     user_id: Mapped[str] = mapped_column(db.String(20), nullable=False, unique=True)
     name: Mapped[str | None] = mapped_column(db.String(50))
     github: Mapped[str | None] = mapped_column(db.String(50))
@@ -64,13 +72,14 @@ class User(db.Model):
         back_populates="user",
         cascade="all, delete-orphan",
         passive_deletes=True,
+        init=False,
     )
 
 
-class Progress(db.Model):
+class Progress(MappedAsDataclass, db.Model):
     __tablename__ = "progress"
 
-    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     year: Mapped[str] = mapped_column(db.String(4), nullable=False)
     c1: Mapped[list[bool]] = mapped_column(db.ARRAY(db.Boolean))
@@ -85,41 +94,41 @@ class Progress(db.Model):
     c10: Mapped[list[bool]] = mapped_column(db.ARRAY(db.Boolean))
 
     # Define the relationship
-    user: Mapped[User] = relationship("User", back_populates="progress")
+    user: Mapped[User] = relationship("User", back_populates="progress", init=False)
 
     def challenge_states(self) -> list[list[bool]]:
-        """Return c1–c10 completion flags for a Progress record."""
+        """Return c1-c10 completion flags for a Progress record."""
         return [getattr(self, f"c{i}") for i in range(1, 11)]
 
 
-class Solution(db.Model):
+class Solution(MappedAsDataclass, db.Model):
     __tablename__ = "solutions"
 
-    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True, init=False)
     year: Mapped[str] = mapped_column(db.String(4), nullable=False)
     val: Mapped[int] = mapped_column(db.Integer, nullable=False)
     part1: Mapped[str] = mapped_column(db.Text, nullable=False)
     part2: Mapped[str] = mapped_column(db.Text, nullable=False)
 
 
-class Permission(db.Model):
+class Permission(MappedAsDataclass, db.Model):
     __tablename__ = "permissions"
 
-    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True, init=False)
     user_id: Mapped[str] = mapped_column(db.String(20), nullable=False)
 
 
-class Release(db.Model):
+class Release(MappedAsDataclass, db.Model):
     __tablename__ = "releases"
 
-    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True, init=False)
     year: Mapped[str] = mapped_column(db.String(4), nullable=False)
     release_number: Mapped[int] = mapped_column(db.Integer, nullable=False)
 
 
-class Sponsor(db.Model):
+class Sponsor(MappedAsDataclass, db.Model):
     __tablename__ = "sponsors"
-    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True, init=False)
     name: Mapped[str] = mapped_column(db.String(100), nullable=False)
     type: Mapped[str] = mapped_column(db.String(10), nullable=False)
     website: Mapped[str | None] = mapped_column(db.Text)

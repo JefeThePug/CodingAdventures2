@@ -11,6 +11,7 @@ from flask import (
 
 from app.appctx import get_app
 from app.auth.decorators import admin_only
+from app.types import SponsorRow
 
 admin_bp = Blueprint("admin", __name__)
 
@@ -146,8 +147,8 @@ def html():
 @admin_only
 def print_yaml():
     fields = ["title", "content", "instructions", "input_type", "form", "solution"]
-    year = int(request.form.get("year")) - 2025
-    week = int(request.form.get("week"))
+    year = int(request.form["year"]) - 2025
+    week = int(request.form["week"])
 
     data = [
         val
@@ -189,7 +190,7 @@ def solutions():
 
     if request.method == "POST":
         contents = {
-            i: {"part1": request.form.get(f"{i}1"), "part2": request.form.get(f"{i}2")}
+            i: {"part1": request.form[f"{i}1"], "part2": request.form[f"{i}2"]}
             for i in range(1, 11)
         }
         app.data_cache.html.update_solutions(selected_year, contents)
@@ -221,11 +222,11 @@ def user():
         deletes = []
         for n in sorted(numbers):
             if request.form.get(f"name_{n}", "").strip():
-                uid = int(app.data_cache.get_user_id(request.form.get(f"user_id_{n}")))
+                uid = int(app.data_cache.get_user_id(request.form[f"user_id_{n}"]))
                 user_data.append(
                     {
                         "id": uid,
-                        "user_id": request.form.get(f"user_id_{n}"),
+                        "user_id": request.form.get(f"user_id_{n}") or "",
                         "name": request.form.get(f"name_{n}") or None,
                         "github": request.form.get(f"github_{n}") or None,
                         **{
@@ -274,12 +275,16 @@ def sponsor():
             "explorer": "t2",
             "pioneer": "t3",
         }
-        sponsors = [
+        sponsors: list[SponsorRow] = [
             {
                 "disabled": f"disabled_{n}" in request.form,
-                "id": int(request.form.get(f"id_{n}")),
-                "bucket": bucket.get(request.form.get(f"type_{n}"), "t1"),
-                **{x: request.form.get(f"{x}_{n}") or None for x in fields},
+                "id": int(request.form[f"id_{n}"]),
+                "bucket": bucket[request.form[f"type_{n}"]],
+                "type": request.form[f"type_{n}"],
+                "name": request.form[f"name_{n}"],
+                "website": request.form.get(f"website_{n}"),
+                "image": request.form.get(f"image_{n}"),
+                "blurb": request.form.get(f"blurb_{n}"),
             }
             for n in sorted(numbers)
             if request.form.get(f"name_{n}", "").strip()

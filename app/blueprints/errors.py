@@ -1,3 +1,4 @@
+from typing import NoReturn
 from flask import Blueprint, Response, abort, make_response, send_from_directory
 from werkzeug.exceptions import NotFound
 
@@ -19,6 +20,6 @@ def teapot(_: NotFound) -> Response:
 
 
 @errors_bp.route("/418")
-def trigger_418() -> None:
+def trigger_418() -> NoReturn:
     """Trigger a 418 error for testing purposes."""
     abort(404)
