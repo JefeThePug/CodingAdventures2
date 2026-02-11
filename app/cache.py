@@ -190,7 +190,7 @@ class AdminConstantsCache:
                     synchronize_session=False
                 )
             if to_add:
-                db.session.bulk_save_objects([Permission(user_id=u) for u in to_add])
+                db.session.bulk_save_objects([Permission(user_id=u) for u in to_add])  # type: ignore
 
             changed = bool(to_delete or to_add)
             db.session.commit()
@@ -227,12 +227,12 @@ class AdminConstantsCache:
                 else:
                     db.session.add(
                         Sponsor(
-                            name=sponsor["name"],
-                            type=sponsor["type"],
-                            website=sponsor["website"],
-                            image=sponsor["image"],
-                            blurb=sponsor["blurb"],
-                            disabled=sponsor["disabled"],
+                            name=sponsor["name"],  # type: ignore
+                            type=sponsor["type"],  # type: ignore
+                            website=sponsor["website"],  # type: ignore
+                            image=sponsor["image"],  # type: ignore
+                            blurb=sponsor["blurb"],  # type: ignore
+                            disabled=sponsor["disabled"],  # type: ignore
                         )
                     )
 
@@ -587,9 +587,9 @@ class DataCache:
     def add_user(user_id: str, name: str | None, github: str | None = None) -> User:
         """Insert a new user record and return it."""
         new_user = User(
-            user_id=user_id,
-            name=name,
-            github=github,
+            user_id=user_id,  # type: ignore
+            name=name,  # type: ignore
+            github=github,  # type: ignore
         )
         db.session.add(new_user)
         db.session.flush()
@@ -600,8 +600,8 @@ class DataCache:
     def add_empty_progress(year: str, uid: int) -> Progress:
         """Create an empty progress row for a user and year."""
         new_progress = Progress(
-            user_id=uid,
-            year=year,
+            user_id=uid,  # type: ignore
+            year=year,  # type: ignore
             **{f"c{i}": [False, False] for i in range(1, 11)},
         )
         db.session.add(new_progress)
