@@ -1,7 +1,6 @@
 import requests
 from flask import (
     Blueprint,
-    Response,
     make_response,
     redirect,
     render_template,

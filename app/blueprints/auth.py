@@ -4,7 +4,6 @@ from urllib.parse import urlencode
 import requests
 from flask import (
     Blueprint,
-    Response,
     redirect,
     render_template,
     request,
