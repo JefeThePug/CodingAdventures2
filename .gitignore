@@ -190,4 +190,4 @@ Temporary Items
 
 # Editing
 html.yaml
-/.vscode/*
+/.vscode/**
