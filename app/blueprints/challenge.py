@@ -61,7 +61,7 @@ def challenge(year: str, obs_num: str):
 
     user = get_progress()
     progress = user["progress"][f"c{num}"]
-    html = app.data_cache.html.html.get(year, {})
+    html = app.data_cache.html.html.get(year, {}).get(num, {})
     parts = []
     for part_num in (1, 2):
         part_data = html.get(part_num)
