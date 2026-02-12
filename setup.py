@@ -87,6 +87,8 @@ def check_database_exists():
             {"dbname": DATABASE_NAME},
         )
         if not result.fetchone():
+            if not DATABASE_NAME:
+                sys.exit("Database Name must be stored in .env")
             dbname = quoted_name(DATABASE_NAME, quote=True)
             conn.execute(text(f"CREATE DATABASE {dbname}"))
             print(f"Database {DATABASE_NAME} created.")
@@ -121,7 +123,7 @@ def fill_permanent_data():
             # db.session.rollback()
             print(f"{label} ✗  ({e})")
 
-    latest_year = int(os.getenv("YEAR"))
+    latest_year = int(os.getenv("YEAR") or "2025")
 
     with app.app_context():
         inspector = db.inspect(db.engine)
@@ -130,7 +132,7 @@ def fill_permanent_data():
         # ---------------- releases ----------------
         if "releases" in table_names and not db.session.query(Release).first():
             releases = [
-                Release(year=f"{year}", release_number=0)
+                Release(year=f"{year}", release_number=0)  # type: ignore
                 for year in range(2025, latest_year + 1)
             ]
             db.session.add_all(releases)
@@ -143,8 +145,8 @@ def fill_permanent_data():
             if not db.session.query(Permission).first():
                 db.session.add_all(
                     [
-                        Permission(user_id="609283782897303554"),
-                        Permission(user_id=admin_id),
+                        Permission(user_id="609283782897303554"),  # type: ignore
+                        Permission(user_id=admin_id),  # type: ignore
                     ]
                 )
                 commit_block("Inserted permissions")
@@ -154,16 +156,16 @@ def fill_permanent_data():
                     .filter_by(user_id=admin_id)
                     .one_or_none()
                 ):
-                    db.session.add(Permission(user_id=admin_id))
+                    db.session.add(Permission(user_id=admin_id))  # type: ignore
                     commit_block("Added missing admin permission")
 
         # ---------------- discord_ids ----------------
         if "discord_ids" in table_names and not db.session.query(DiscordID).first():
             discord_ids = [
-                DiscordID(year="0", name="guild", discord_id=""),
-                DiscordID(year="0", name="role", discord_id=""),
+                DiscordID(year="0", name="guild", discord_id=""),  # type: ignore
+                DiscordID(year="0", name="role", discord_id=""),  # type: ignore
                 *[
-                    DiscordID(year=f"{y}", name=f"{i}", discord_id="")
+                    DiscordID(year=f"{y}", name=f"{i}", discord_id="")  # type: ignore
                     for y in range(2025, latest_year + 1)
                     for i in range(1, 11)
                 ],
@@ -181,9 +183,9 @@ def fill_permanent_data():
             data = requests.get(url, timeout=10).json()
 
             rows = [
-                Obfuscation(year=f"{y}", val=i, obfuscated_key=o, html_key=h)
+                Obfuscation(year=f"{y}", val=i, obfuscated_key=o, html_key=h)  # type: ignore
                 for y in range(2025, latest_year + 1)
-                for i, (o, h) in enumerate(data.get(y) or [], 1)
+                for i, (o, h) in enumerate(data.get(f"{y}") or [], 1)
             ]
 
             db.session.add_all(rows)
@@ -199,7 +201,7 @@ def fill_permanent_data():
             data = requests.get(url, timeout=10).json()
 
             rows = [
-                MainEntry(year=f"{y}", val=i, ee=ee)
+                MainEntry(year=f"{y}", val=i, ee=ee)  # type: ignore
                 for y in range(2025, latest_year + 1)
                 for i, ee in enumerate(data.get(f"{y}") or [], 1)
             ]
@@ -245,13 +247,13 @@ def fill_permanent_data():
 
             rows = [
                 Solution(
-                    year=f"{y}",
-                    val=i,
-                    part1=s.get("part1", ""),
-                    part2=s.get("part2", ""),
+                    year=f"{y}",  # type: ignore
+                    val=i,  # type: ignore
+                    part1=s.get("part1", ""),  # type: ignore
+                    part2=s.get("part2", ""),  # type: ignore
                 )
                 for y in range(2025, latest_year + 1)
-                for i, s in enumerate(data.get(y) or [], 1)
+                for i, s in enumerate(data.get(f"{y}") or [], 1)
             ]
 
             db.session.add_all(rows)
