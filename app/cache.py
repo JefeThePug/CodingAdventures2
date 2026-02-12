@@ -399,12 +399,13 @@ class DataCache:
         try:
             main = User.query.filter_by(user_id=user_id).one_or_none()
             if main is None:
-                main = DataCache.add_user(user_id, session["user_data"]["name"])
+                main = DataCache.add_user(user_id, session["user_data"]["username"])
             progress = Progress.query.filter_by(
                 year=year, user_id=main.id
             ).one_or_none()
             if progress is None:
                 progress = DataCache.add_empty_progress(year, main.id)
+                db.session.commit()
             return {f"c{i}": getattr(progress, f"c{i}") for i in range(1, 11)}
         except SQLAlchemyError as e:
             exception(f"Failed to load progress for user {user_id}", e)
