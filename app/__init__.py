@@ -2,6 +2,8 @@ import os
 
 from itsdangerous import URLSafeTimedSerializer
 
+from app.ui import ICON_REFERENCE
+
 from .cache import DataCache
 from .config import DevConfig, ProdConfig
 from .extensions import db, generate_csrf_token, validate_csrf
@@ -30,6 +32,7 @@ def create_app() -> AppFlask:
     db.init_app(app)
     app.before_request(validate_csrf)
     app.jinja_env.globals["csrf_token"] = generate_csrf_token
+    app.jinja_env.globals["ICONS"] = ICON_REFERENCE
     app.data_cache = DataCache()
 
     from .blueprints import (
