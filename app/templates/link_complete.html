@@ -7,10 +7,14 @@ Access Granted
 {% block main %}
 <section class="section" id="announcement">
     <div class="img-container">
-        {% set path = ['images', year, '%02d'|format(num), num ~ '.gif'] | join('/') %}
+        {% set path = ['images', year, '%02d'|format(num), num ~ '.mp4'] | join('/') %}
         {% set img_src = url_for('static', filename=path) %}
-        <img id="gif" src="{{ img_src }}" alt="Gif visualization" class="fill">
-        <span id="replay-btn" class="material-symbols-outlined">replay</span>
+        <video autoplay muted playsinline id="vid" class="fill">
+            <source src="{{ img_src }}" type="video/mp4">
+        </video>
+        <span id="replay-btn" class="material-symbols-outlined" style="cursor:pointer">
+            replay
+        </span>
         <script src="{{ url_for('static', filename='js/replay.js') }}" defer></script>
     </div>
     <div>

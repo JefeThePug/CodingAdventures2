@@ -1,7 +1,8 @@
-const gif = document.getElementById('gif');
+const vid = document.getElementById('vid');
 const replayBtn = document.getElementById('replay-btn');
 
 replayBtn.addEventListener('click', () => {
-    const clone = gif.cloneNode(true);
-    gif.replaceWith(clone);
+    vid.pause();
+    vid.currentTime = 0;
+    vid.play();
 });
