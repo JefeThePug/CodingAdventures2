@@ -1,14 +1,11 @@
-{% extends "default.html" %}
-
-{% block title %}
-Practical Python Code Adventure
-{% endblock %}
-
-{% block main %}
+{% extends "default.html" %} {% block title %} Practical Python Code Adventure
+{% endblock %} {% block main %}
 <section class="section" id="logo">
   <div class="logo-container">
-    <img alt="Illustration of Captain Xarlos"
-         src="{{ url_for('static', filename='images/' ~ year ~ '/index/logo.png') }}">
+    <img
+      alt="Illustration of Captain Xarlos"
+      src="{{ url_for('static', filename='images/' ~ year ~ '/index/logo.png') }}"
+    />
   </div>
   {% include year ~ '/index_content.html' %}
 </section>
@@ -17,31 +14,24 @@ Practical Python Code Adventure
   <ul>
     {% for week in range(1, num + 1) %}
     <li>
-      <a href="{{ url_for('challenge.challenge', year=year, obs_num=obfuscate(year, week)) }}">Week&nbsp;{{ "%2d" | format(week) }}</a>
-      {% if rockets[week - 1][0] %}
-      <span class="material-symbols-outlined icon on">
-                {{ 'rocket' if year == '2025' else 'nest_eco_leaf' }}
-            </span>
-      {% else %}
-      <span class="material-symbols-outlined icon off">
-                {{ 'rocket' if year == '2025' else 'nest_eco_leaf' }}
-            </span>
-      {% endif %}
-      {% if rockets[week - 1][1] %}
-      <span class="material-symbols-outlined icon on">
-                {{ 'rocket_launch' if year == '2025' else 'psychiatry' }}
-            </span>
-      {% else %}
-      <span class="material-symbols-outlined icon off">
-                {{ 'rocket_launch' if year == '2025' else 'psychiatry' }}
-            </span>
-      {% endif %}
+      <a
+        href="{{ url_for('challenge.challenge', year=year, obs_num=obfuscate(year, week)) }}"
+        >Week&nbsp;{{ "%2d" | format(week) }}</a
+      >
+      <span
+        class="material-symbols-outlined icon {{ ('off', 'on')[rockets[week - 1][0]] }}"
+      >
+        {{ ICONS[year]["a-icon"] }}
+      </span>
+      <span
+        class="material-symbols-outlined icon {{ ('off', 'on')[rockets[week - 1][1]] }}"
+      >
+        {{ ICONS[year]["b-icon"] }}
+      </span>
     </li>
     {% endfor %}
   </ul>
-  {% if num < 10 %}
-  More Challenges Coming Soon…
-  {% endif %}
+  {% if num < 10 %} More Challenges Coming Soon… {% endif %}
 </section>
 
 {% endblock %}
