@@ -23,4 +23,4 @@ class DevConfig(Config):
 
 class ProdConfig(Config):
     DEBUG = False
-    TEMPLATES_AUTO_RELOAD = True
+    TEMPLATES_AUTO_RELOAD = False
