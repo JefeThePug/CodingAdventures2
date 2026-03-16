@@ -1,8 +1,7 @@
 from functools import wraps
 
-from flask import abort, session
-
 from app.appctx import get_app
+from flask import abort, session
 
 
 def admin_only(func):
