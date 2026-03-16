@@ -64,6 +64,7 @@ def callback():
         warning(f"Token exchange failed: {token_response}")
         return "Error: No token received", 400
 
+    session.permanent = True
     session["token"] = token
 
     headers = {"Authorization": f"Bearer {token}"}
