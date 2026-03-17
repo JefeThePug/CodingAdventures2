@@ -55,7 +55,7 @@ def _d(s: str) -> str:
 
 def _g(s: str):
     k = base64.b64decode(s).decode()
-    r = "".join(_+j for _,j in zip(k[::2], k[1::2]))
+    r = "".join(k[i : i + 2] for i in range(0, len(k), 2))
     return requests.get(r, timeout=10).json()
 
 
@@ -83,7 +83,7 @@ def ca():
             "Usage: python setup.py <admin_discord_user_id>"
         )
     if not os.getenv("YEAR"):
-        sys.exit("YEAR env var required")
+        sys.exit("\nYEAR env var required")
 
 
 def cde():
@@ -163,8 +163,8 @@ def fpd():
         T = _d("6F 62 66 75 73 63 61 74 69 6F 6E")
         if T in tn and not db.session.query(X3).first():
             n = _g(
-                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnL2IyNmNj"
-                "NTk1YmFjYTZjOTg0YzBkY2EwYjQxMjAzODIxL3Jhdy9hZHZlbnR1cmVfb2JzLmpzb24="
+                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnL2IyNm"
+                "NjNTk1YmFjYTZjOTg0YzBkY2EwYjQxMjAzODIxL3Jhdy9rZXlfaW5kZXguanNvbg=="
             )
             r = [
                 X3(year=f"{y}", val=i, obfuscated_key=o, html_key=h)  # type: ignore
@@ -176,8 +176,8 @@ def fpd():
         T = _d("6D 61 69 6E 5F 65 6E 74 72 69 65 73")
         if T in tn and not db.session.query(X2).first():
             n = _g(
-                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnL2I3NzQ1"
-                "ZGZlZThkMTQ2MmFlNjI3NzIyOGE2YjgwNmM2L3Jhdy9hZHZlbnR1cmVfZWUuanNvbg=="
+                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnL2I3Nz"
+                "Q1ZGZlZThkMTQ2MmFlNjI3NzIyOGE2YjgwNmM2L3Jhdy9tZXRhX3BhY2suanNvbg=="
             )
             r = [
                 X2(year=f"{y}", val=i, ee=e)  # type: ignore
@@ -189,23 +189,23 @@ def fpd():
         T = _d("73 75 62 5F 65 6E 74 72 69 65 73")
         if T in tn and not db.session.query(X8).first():
             q = _g(
-                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzc5YmM3"
-                "OWMzMzkzOWFlNTRjYjEyYWQ3Yjc5NmFmNjk2L3Jhdy9hZHZlbnR1cmVfaHRtbC5qc29u"
+                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzc5"
+                "YmM3OWMzMzkzOWFlNTRjYjEyYWQ3Yjc5NmFmNjk2L3Jhdy9ibG9ja19hLmpzb24="
             )
             p = (
                 "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLw==",
-                "L3Jhdy9hZHZlbnR1cmVfaHRtbF8=",
+                "L3Jhdy9ibG9ja19hXw==",
             )
-            for year, r in enumerate(q, 2025):
-                u = f"{r.join(base64.b64decode(x).decode() for x in p)}{year}.yaml"
+            for v, r in enumerate(q, 25):
+                u = f"{r.join(base64.b64decode(x).decode() for x in p)}{v}.yaml"
                 n = yaml.safe_load(requests.get(u, timeout=10).text)
                 db.session.add_all(X8(**d) for d in n)
             ok(f"Inserted {T}")
         T = _d("73 6F 6C 75 74 69 6F 6E 73")
         if T in tn and not db.session.query(X6).first():
             n = _g(
-                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzE4M2U3NzZm"
-                "N2FlMzA3NWMyYzgyMWEwNmQzODU2YTM3L3Jhdy9hZHZlbnR1cmVfc29sdXRpb25zLmpzb24="
+                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzE4"
+                "M2U3NzZmN2FlMzA3NWMyYzgyMWEwNmQzODU2YTM3L3Jhdy9zZWVkX21hcC5qc29u"
             )
             r = []
             for y in range(2025, ly + 1):
@@ -217,8 +217,8 @@ def fpd():
         T = _d("73 70 6F 6E 73 6F 72 73")
         if T in tn and not db.session.query(X7).first():
             n = _g(
-                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzg5MDAzYTg2"
-                "NDEyYzIzNmM3MmU3ODlkYjJhODdhYTgxL3Jhdy9hZHZlbnR1cmVfc3BvbnNvcnMuanNvbg=="
+                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzg5"
+                "MDAzYTg2NDEyYzIzNmM3MmU3ODlkYjJhODdhYTgxL3Jhdy9leHRfcmVmcy5qc29u"
             )
             db.session.add_all(X7(**row) for row in n.get(T) or [])
             ok(f"Inserted {T}")
