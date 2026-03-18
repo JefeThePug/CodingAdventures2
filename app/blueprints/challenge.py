@@ -1,3 +1,5 @@
+from time import time
+
 import requests
 from flask import (
     Blueprint,
@@ -9,8 +11,8 @@ from flask import (
     url_for,
 )
 
-from app.appctx import get_app
-from app.services import get_progress, set_progress
+from app.appctx import exception, get_app
+from app.services import get_progress, handle_cooldown, set_progress
 
 challenge_bp = Blueprint("challenge", __name__)
 
@@ -41,26 +43,37 @@ def challenge(year: str, obs_num: str):
     num = int(app.data_cache.admin.html_nums[year][obs_num])
     error = None
 
-    if request.method == "POST":
-        guesses = [request.form.get(f"answer{i}", None) for i in (1, 2)]
-        solutions = app.data_cache.html.solutions[year][num]
-        for n, guess in enumerate(guesses):
-            if (
-                guess
-                and guess.replace("_", " ").upper().strip() == solutions[f"part{n + 1}"]
-            ):
-                cookie = set_progress(num, n)
-                resp = make_response(
-                    redirect(url_for("challenge.challenge", year=year, obs_num=obs_num))
-                )
-                if cookie:
-                    resp.set_cookie(cookie, f"{num}{'AB'[n]}")
-                return resp
-            else:
-                error = "Incorrect. Please try again."
-
     user = get_progress()
     progress = user["progress"][f"c{num}"]
+    cooldown_key = f"cooldown_{year}_{num}_{2 if progress[0] else 1}"
+
+    if request.method == "POST":
+        allowed, wait_ms = handle_cooldown(cooldown_key)
+
+        if not allowed:
+            seconds = (wait_ms + 999) // 1000
+            error = f"Too many attempts. Wait {seconds}{'s' if seconds != 1 else ''}."
+        else:
+            guesses = [request.form.get(f"answer{i}", None) for i in (1, 2)]
+            solutions = app.data_cache.html.solutions[year][num]
+            for n, guess in enumerate(guesses):
+                if (
+                    guess
+                    and guess.replace("_", " ").upper().strip()
+                    == solutions[f"part{n + 1}"]
+                ):
+                    cookie = set_progress(num, n)
+                    resp = make_response(
+                        redirect(
+                            url_for("challenge.challenge", year=year, obs_num=obs_num)
+                        )
+                    )
+                    if cookie:
+                        resp.set_cookie(cookie, f"{num}{'AB'[n]}")
+                    return resp
+                else:
+                    error = "Incorrect. Please try again."
+
     html = app.data_cache.html.html.get(year, {}).get(num, {})
     parts = []
     for part_num in (1, 2):
@@ -75,6 +88,10 @@ def challenge(year: str, obs_num: str):
         )
     a, b = parts
 
+    cd = session.get(cooldown_key, {"until": 0})
+    remaining_ms = max(0, cd["until"] - int(time() * 1000))
+    remaining_s = (remaining_ms + 999) // 1000
+
     params = {
         "img": user["img"],
         "year": session["year"],
@@ -86,6 +103,7 @@ def challenge(year: str, obs_num: str):
         "part_two": progress[0],
         "done": progress[1] and "user_data" in session,
         "error": error,
+        "cooldown": remaining_s,
     }
     return render_template("challenge.html", **params)
 
@@ -105,57 +123,67 @@ def access():
         return "Error: Bot token not found", 500
 
     num = int(app.data_cache.admin.obfuscations[year][f"{request.form.get('num')}"])
+    user = get_progress()
 
     guild_id = app.data_cache.admin.discord_ids["0"]["guild"]
-    user_id = session["user_data"]["id"]
+    user_id = user["id"]
     channel_id = app.data_cache.admin.discord_ids[year][f"{num}"]
-    print(
-        f"{app.data_cache.admin.discord_ids[year]=} {num=} {app.data_cache.admin.discord_ids[year][f'{num}']=}"
-    )
     verified_role = app.data_cache.admin.discord_ids["0"]["role"]
+    adventurer_role = app.data_cache.admin.discord_ids["0"]["adventurer"]
+    roles_to_add = [verified_role, adventurer_role]
+    if all(all(r) for r in user["rockets"]):
+        champion_role = app.data_cache.admin.discord_ids[year]["champion"]
+        roles_to_add.append(champion_role)
 
     headers = {"Authorization": f"Bot {bot_token}", "Content-Type": "application/json"}
     url = f"https://discord.com/api/v9/guilds/{guild_id}/members/{user_id}"
     response = requests.get(url, headers=headers)
 
-    # User is not a member of the guild, add them
+    # User is not a member of the guild, add them with roles
     if response.status_code == 404:
-        payload = {"access_token": session["token"]}
+        join_payload = {
+            "access_token": session["token"],
+            "roles": roles_to_add,
+        }
         try:
-            response = requests.put(url, headers=headers, json=payload)
-            response.raise_for_status()
+            put_res = requests.put(url, headers=headers, json=join_payload)
+            put_res.raise_for_status()
         except requests.exceptions.RequestException as e:
-            print(f"Error: {e}")
-            return f"Error: Failed to assign role: {response.text}", 400
-        url += f"/roles/{verified_role}"
+            return f"Error: Failed to join/assign role: {e}", 400
+
+    # User IS a member of the guild, add roles
+    elif response.status_code == 200:
+        member_data = response.json()
+        current_roles = member_data.get("roles", [])
+        updated_roles = list(set(current_roles + roles_to_add))
         try:
-            response = requests.put(url, headers=headers)
-            response.raise_for_status()
+            patch_res = requests.patch(
+                url, headers=headers, json={"roles": updated_roles}
+            )
+            patch_res.raise_for_status()
         except requests.exceptions.RequestException as e:
-            return f"Error: {e}", 400
-        else:
-            if response.status_code != 204:
-                return f"Error: Failed to assign role: {response.text}", 400
+            return f"Failed to update roles: {e}", 400
+
+    else:
+        return f"Unexpected error: {response.status_code}", response.status_code
 
     content = (
         f"<@{user_id}> solved week {num}! If you'd like, "
         "please share how you arrived at the correct answer!"
     )
-    url = f"https://discord.com/api/v9/channels/{channel_id}/thread-members/{user_id}"
-    response = requests.get(url, headers=headers)
-
-    if response.status_code != 200:
-        url = f"https://discord.com/api/v9/channels/{channel_id}/messages"
+    url = f"https://discord.com/api/v9/channels/{channel_id}"
+    member_url = f"{url}/thread-members/{user_id}"
+    msg_url = f"{url}/messages"
+    response = requests.get(member_url, headers=headers)
+    if response.status_code == 404:
+        # User not in thread
         try:
-            response = requests.post(url, headers=headers, json={"content": content})
-            response.raise_for_status()
+            requests.put(member_url, headers=headers).raise_for_status()
+            res = requests.post(msg_url, headers=headers, json={"content": content})
+            res.raise_for_status()
         except requests.exceptions.RequestException as e:
-            return f"Error: {e}", 400
-        else:
-            if response.status_code != 200:
-                return f"Error: Failed to send message: {response.text}", 400
+            exception("Thread Message Error", e)
 
-    user = get_progress()
     egg = app.data_cache.html.html[year][num]["ee"]
 
     return render_template(
