@@ -90,9 +90,13 @@ def discord():
     if request.method == "POST":
         values = {
             selected_year: {
-                f"{i}": request.form.get(f"c{i}", "").strip() for i in range(1, 11)
+                (f"{i}" if i > 0 else "champion"): request.form.get(f"c{i}", "").strip()
+                for i in range(11)
             },
-            "0": {key: request.form.get(key, "").strip() for key in ("guild", "role")},
+            "0": {
+                key: request.form.get(key, "").strip()
+                for key in ("guild", "role", "adventurer")
+            },
         }
         app.data_cache.admin.update_discord(values)
         return redirect(url_for("admin.discord", year=selected_year))
@@ -103,6 +107,7 @@ def discord():
         selected_year=selected_year,
         guild=main["guild"],
         role=main["role"],
+        adventurer=main["adventurer"],
         channels=channels,
     )
 

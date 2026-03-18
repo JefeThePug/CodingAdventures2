@@ -12,17 +12,24 @@
 
     <form action="/admin/discord" method="POST">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <h2>Guild ID</h2>
+        <h2>Guild</h2>
         <div class="form-group">
             <label for="guild">ID:</label>
             <input id="guild" name="guild" value="{{ guild }}" type="text" required/>
         </div>
         <hr>
 
-        <h2>Verified Role ID</h2>
+        <h2>Verified Role</h2>
         <div class="form-group">
             <label for="role">ID:</label>
             <input id="role" name="role" value="{{ role }}" type="text"/>
+        </div>
+        <hr>
+
+        <h2>Adventurer Role</h2>
+        <div class="form-group">
+            <label for="adventurer">ID:</label>
+            <input id="adventurer" name="adventurer" value="{{ adventurer }}" type="text"/>
         </div>
         <hr>
 
@@ -39,11 +46,12 @@
             <span class="alert">  ‼️Changing the year will discard any unsaved ID changes.</span>
         </div>
 
-        {% for n in range(1, 11) %}
+        {% for n in range(11) %}
         <div class="form-group">
-            <label for="c{{ n }}">Week {{ n }}:</label>
+            <label for="c{{ n }}">{{ 'Champion Role' if n == 0 else 'Week ' ~ n ~ ' Thread' }}:</label>
             {% set c = channels[selected_year] %}
-            {% set fill = c[n|string] if (n - 1) < c|length else '' %}
+            {% set key = 'champion' if n == 0 else n|string %}
+            {% set fill = c[key] if key in c else '' %}
             <input id="c{{ n }}" name="c{{ n }}" value="{{ fill }}" type="text" required/>
         </div>
         {% endfor %}
