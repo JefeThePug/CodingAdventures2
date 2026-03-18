@@ -153,9 +153,9 @@ def fpd():
                 X1(year="0", name="role", discord_id=""),  # type: ignore
                 X1(year="0", name="adventurer", discord_id=""),  # type: ignore
                 *[
-                    X1(year=f"{y}", name=f"{i}", discord_id="")  # type: ignore
+                    X1(year=f"{y}", name=f"{i}" if i > 0 else "champion", discord_id="")  # type: ignore
                     for y in range(2025, ly + 1)
-                    for i in range(1, 11)
+                    for i in range(11)
                 ],
             ]
             db.session.add_all(dis)
