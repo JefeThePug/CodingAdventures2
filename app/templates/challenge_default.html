@@ -16,6 +16,10 @@
 </script>
 {% endif %}
 
+<script>
+    const SERVER_COOLDOWN = {{ cooldown | tojson }};
+</script>
+
 <section class="section" id="part-one">
     <div class="header">
         <h2>{% block subtitle1 %}{% endblock %}</h2>
