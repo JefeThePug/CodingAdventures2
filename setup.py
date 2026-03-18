@@ -67,7 +67,6 @@ def main():
 
 
 def check_args():
-    """Assure correct system args to allow an administrator access to the dashboard"""
     if len(sys.argv) != 2:
         sys.exit(
             "\nPlease include your administrator Discord ID.\n"
@@ -78,7 +77,6 @@ def check_args():
 
 
 def check_database_exists():
-    """Create database in PostgreSQL if it doesn't exist"""
     engine = create_engine(ADMIN_URL).execution_options(isolation_level="AUTOCOMMIT")
 
     with engine.connect() as conn:
@@ -95,7 +93,6 @@ def check_database_exists():
 
 
 def create_missing_tables():
-    """Check and create all tables only if they don't already exist"""
     with app.app_context():
         inspector = db.inspect(db.engine)
         pre_count = len(inspector.get_table_names())
@@ -112,15 +109,12 @@ def create_missing_tables():
 
 
 def fill_permanent_data():
-    """Add initial data to the tables if they're empty"""
-
     def commit_block(label: str):
-        """Commit current session safely."""
         try:
             db.session.commit()
             print(f"{label} ✓")
         except SQLAlchemyError as e:
-            # db.session.rollback()
+            db.session.rollback()
             print(f"{label} ✗  ({e})")
 
     latest_year = int(os.getenv("YEAR") or "2025")
@@ -129,7 +123,6 @@ def fill_permanent_data():
         inspector = db.inspect(db.engine)
         table_names = inspector.get_table_names()
 
-        # ---------------- releases ----------------
         if "releases" in table_names and not db.session.query(Release).first():
             releases = [
                 Release(year=f"{year}", release_number=0)  # type: ignore
@@ -138,7 +131,6 @@ def fill_permanent_data():
             db.session.add_all(releases)
             commit_block("Inserted releases")
 
-        # ---------------- permissions ----------------
         if "permissions" in table_names:
             admin_id = sys.argv[1].strip()
 
@@ -159,7 +151,6 @@ def fill_permanent_data():
                     db.session.add(Permission(user_id=admin_id))  # type: ignore
                     commit_block("Added missing admin permission")
 
-        # ---------------- discord_ids ----------------
         if "discord_ids" in table_names and not db.session.query(DiscordID).first():
             discord_ids = [
                 DiscordID(year="0", name="guild", discord_id=""),  # type: ignore
@@ -173,7 +164,6 @@ def fill_permanent_data():
             db.session.add_all(discord_ids)
             commit_block("Inserted discord ids")
 
-        # ---------------- obfuscation ----------------
         if "obfuscation" in table_names and not db.session.query(Obfuscation).first():
             to_load = (
                 "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnL2IyNmNj"
@@ -191,7 +181,6 @@ def fill_permanent_data():
             db.session.add_all(rows)
             commit_block("Inserted obfuscation data")
 
-        # ---------------- main_entries (commit BEFORE sub_entries!) ----------------
         if "main_entries" in table_names and not db.session.query(MainEntry).first():
             to_load = (
                 "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnL2I3NzQ1"
@@ -209,34 +198,29 @@ def fill_permanent_data():
             db.session.add_all(rows)
             commit_block("Inserted main entries")
 
-        # ---------------- sub_entries ----------------
         if "sub_entries" in table_names and not db.session.query(SubEntry).first():
-            try:
-                to_load = (
-                    "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzc5YmM3"
-                    "OWMzMzkzOWFlNTRjYjEyYWQ3Yjc5NmFmNjk2L3Jhdy9hZHZlbnR1cmVfaHRtbC5qc29u"
+            to_load = (
+                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzc5YmM3"
+                "OWMzMzkzOWFlNTRjYjEyYWQ3Yjc5NmFmNjk2L3Jhdy9hZHZlbnR1cmVfaHRtbC5qc29u"
+            )
+            url = base64.b64decode(to_load).decode()
+            repos = requests.get(url, timeout=10).json()
+
+            parts = (
+                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLw==",
+                "L3Jhdy9hZHZlbnR1cmVfaHRtbF8=",
+            )
+
+            for year, r in enumerate(repos, 2025):
+                url = (
+                    f"{r.join(base64.b64decode(x).decode() for x in parts)}{year}.yaml"
                 )
-                url = base64.b64decode(to_load).decode()
-                repos = requests.get(url, timeout=10).json()
+                response = requests.get(url, timeout=10)
+                data = yaml.safe_load(response.text)
+                db.session.add_all(SubEntry(**d) for d in data)
 
-                parts = (
-                    "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLw==",
-                    "L3Jhdy9hZHZlbnR1cmVfaHRtbF8=",
-                )
+            commit_block("Inserted sub entries")
 
-                for year, r in enumerate(repos, 2025):
-                    url = f"{r.join(base64.b64decode(x).decode() for x in parts)}{year}.yaml"
-                    response = requests.get(url, timeout=10)
-                    data = yaml.safe_load(response.text)
-                    db.session.add_all(SubEntry(**d) for d in data)
-
-                commit_block("Inserted sub entries")
-
-            except Exception as e:
-                db.session.rollback()
-                print(f"Sub entries failed ✗ ({e})")
-
-        # ---------------- solutions ----------------
         if "solutions" in table_names and not db.session.query(Solution).first():
             to_load = (
                 "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzE4M2U3NzZm"
@@ -259,7 +243,6 @@ def fill_permanent_data():
             db.session.add_all(rows)
             commit_block("Inserted solutions")
 
-        # ---------------- sponsors ----------------
         if "sponsors" in table_names and not db.session.query(Sponsor).first():
             to_load = (
                 "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzg5MDAzYTg2"
