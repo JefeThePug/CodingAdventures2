@@ -1,4 +1,5 @@
 import time
+
 from flask import session
 
 COOL_DOWNS = [30, 60, 180, 300]  # seconds
