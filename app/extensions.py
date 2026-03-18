@@ -14,7 +14,7 @@ def generate_csrf_token():
 
 
 def validate_csrf():
-    """The Gatekeeper: Runs before every request."""
+    """Gatekeeper: Runs before every request."""
     if request.method == "POST":
         session_token = session.get("_csrf_token")
         form_token = request.form.get("csrf_token")
