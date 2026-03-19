@@ -171,8 +171,8 @@ def fill_permanent_data():
 
         if "obfuscation" in table_names and not db.session.query(Obfuscation).first():
             to_load = (
-                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnL2IyNmNj"
-                "NTk1YmFjYTZjOTg0YzBkY2EwYjQxMjAzODIxL3Jhdy9hZHZlbnR1cmVfb2JzLmpzb24="
+                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzYzNG"
+                "FhMjdkZDFmNGJkOTlhYWU4NDAzNjA1ZThhNWJiL3Jhdy9vYmZ1c2NhdGlvbi5qc29u"
             )
             url = base64.b64decode(to_load).decode()
             data = requests.get(url, timeout=10).json()
@@ -188,8 +188,8 @@ def fill_permanent_data():
 
         if "main_entries" in table_names and not db.session.query(MainEntry).first():
             to_load = (
-                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnL2I3NzQ1"
-                "ZGZlZThkMTQ2MmFlNjI3NzIyOGE2YjgwNmM2L3Jhdy9hZHZlbnR1cmVfZWUuanNvbg=="
+                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVn"
+                "L2M5NWFmY2IwOTFiY2JiODhmMDQ4NTRkMzZlYTMxOTRmL3Jhdy9lZS5qc29u"
             )
             url = base64.b64decode(to_load).decode()
             data = requests.get(url, timeout=10).json()
@@ -205,15 +205,15 @@ def fill_permanent_data():
 
         if "sub_entries" in table_names and not db.session.query(SubEntry).first():
             to_load = (
-                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzc5YmM3"
-                "OWMzMzkzOWFlNTRjYjEyYWQ3Yjc5NmFmNjk2L3Jhdy9hZHZlbnR1cmVfaHRtbC5qc29u"
+                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLz"
+                "c5YmM3OWMzMzkzOWFlNTRjYjEyYWQ3Yjc5NmFmNjk2L3Jhdy9odG1sLmpzb24="
             )
             url = base64.b64decode(to_load).decode()
             repos = requests.get(url, timeout=10).json()
 
             parts = (
                 "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLw==",
-                "L3Jhdy9hZHZlbnR1cmVfaHRtbF8=",
+                "L3Jhdy8=",
             )
 
             for year, r in enumerate(repos, 2025):
@@ -228,8 +228,8 @@ def fill_permanent_data():
 
         if "solutions" in table_names and not db.session.query(Solution).first():
             to_load = (
-                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzE4M2U3NzZm"
-                "N2FlMzA3NWMyYzgyMWEwNmQzODU2YTM3L3Jhdy9hZHZlbnR1cmVfc29sdXRpb25zLmpzb24="
+                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzQ2ZG"
+                "VhZmI5MmU1OTUwNzc4ZTY0NWYzYmVjMWU1NzUxL3Jhdy9zb2x1dGlvbnMuanNvbg=="
             )
             url = base64.b64decode(to_load).decode()
             data = requests.get(url, timeout=10).json()
@@ -250,8 +250,8 @@ def fill_permanent_data():
 
         if "sponsors" in table_names and not db.session.query(Sponsor).first():
             to_load = (
-                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzg5MDAzYTg2"
-                "NDEyYzIzNmM3MmU3ODlkYjJhODdhYTgxL3Jhdy9hZHZlbnR1cmVfc3BvbnNvcnMuanNvbg=="
+                "aHR0cHM6Ly9naXN0LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KZWZlVGhlUHVnLzg5"
+                "MDAzYTg2NDEyYzIzNmM3MmU3ODlkYjJhODdhYTgxL3Jhdy9zcG9uc29ycy5qc29u"
             )
             url = base64.b64decode(to_load).decode()
             data = requests.get(url, timeout=10).json()
