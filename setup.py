@@ -155,10 +155,15 @@ def fill_permanent_data():
             discord_ids = [
                 DiscordID(year="0", name="guild", discord_id=""),  # type: ignore
                 DiscordID(year="0", name="role", discord_id=""),  # type: ignore
+                DiscordID(year="0", name="adventurer", discord_id=""),  # type: ignore
                 *[
-                    DiscordID(year=f"{y}", name=f"{i}", discord_id="")  # type: ignore
+                    DiscordID(
+                        year=f"{y}",  # type: ignore
+                        name=(f"{i}" if i > 0 else "champion"),  # type: ignore
+                        discord_id="",  # type: ignore
+                    )
                     for y in range(2025, latest_year + 1)
-                    for i in range(1, 11)
+                    for i in range(11)
                 ],
             ]
             db.session.add_all(discord_ids)
