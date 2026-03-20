@@ -45,7 +45,6 @@ def register_globals():
         """
         year = app.config["CURRENT_YEAR"]
         return {
-            "borders": [f"{y}{p}" for y in range(2025, year + 1) for p in "AB"],
             "css_files": [
                 "main",
                 f"year_overrides/style{session.get('year', year)}",
