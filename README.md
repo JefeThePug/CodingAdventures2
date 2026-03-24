@@ -1,8 +1,8 @@
-# Practical Python Coding Adventure v2
+# Practical Python Code Adventure v2
 
 **Live at:** [https://adventure.practicalpython.org](https://adventure.practicalpython.org)
 
-Version 2 of **Coding Adventure** brings a fully modular backend, a redesigned user experience, and flexible setup options for new or returning users. The project remains a series of interactive coding challenges (each with two parts), inspired by [Advent of Code](https://adventofcode.com), built for the Practical Python Discord community. Currently there are two collections of puzzles, intended to be released one collection per year.
+Version 2 of **Code Adventure** brings a fully modular backend, a redesigned user experience, and flexible setup options for new or returning deployments. The project remains a series of interactive coding challenges (each with two parts), inspired by [Advent of Code](https://adventofcode.com), built for the Practical Python Discord community. Challenges are now organized into yearly collections, with one released each year.
 
 All previous features have been preserved and improved, with better code structure, usability, and deployment options.
 
@@ -10,12 +10,13 @@ All previous features have been preserved and improved, with better code structu
 
 ## Key Updates in Version 2
 
-- **Modular Backend** – Blueprints, services, and templating now separate concerns for clean, maintainable code.
+- **Modular Backend** – Blueprints, services, and templating now separate for clean, maintainable code.
 - **Updated Database** – New PostgreSQL schema for version 2 challenges, with optional migration from version 1.
 - **Flexible Setup Options** – Start fresh or carry over progress from version 1 using `SETUP_TYPE`.
-- **Redesigned UX** – Clearer layout, updated challenge pages, and better progress feedback.
+- **Redesigned UX** – Clearer layout, more eye-catching style, and expanded site content.
+- **Submission Cooldown** - Server-side timer that prevents repeated submissions and discourages brute-force guessing.
 - **Challenge Organization** – Puzzle inputs and media now structured for multiple years, simplifying future expansion.
-- **Improved Admin Dashboard** – Modular routes and updated UI for managing users, challenges, and releases.
+- **Improved Admin Dashboard** – Modular routes and updated UI for managing users, challenges, sponsors, and releases.
 
 ---
 
@@ -45,7 +46,7 @@ All previous features have been preserved and improved, with better code structu
 
 ### Environment Variables
 
-Create a `.env` file in the project root with the following variables:
+Create a `.env` file in the project root (you can copy `.env.EXAMPLE` and fill in the values):
 
 ```ini
 # PostgreSQL
@@ -85,15 +86,15 @@ KEY2026="DIFFERENT_KEY_HERE"
 > **FLASK_PORT** – Port Flask runs on (default 5000).  
 > **FLASK_ENV** – Set to `development` or `production`.
 
-> **SECRET_KEY** – Used by Flask / SQLAlchemy for session encryption.
+> **SECRET_KEY** – Used by SQLAlchemy for session encryption.
 
-> **DISCORD_ADMIN_USER_ID** – Your Discord user ID for admin access.  
+> **DISCORD_ADMIN_USER_ID** – Your Discord user ID for admin dashboard access.  
 > **DISCORD\_\* tokens** – OAuth2 credentials for authentication and bot access.
 
 > **SETUP_TYPE** – `setup` = new DB, `update` = migrate from 2025 DB without clearing progress.
 
-> **YEAR** – Latest challenge year to include (starting from 2025). Must not exceed released years.  
-> **KEY####** – Required key to access each year’s challenge and solution data.
+> **YEAR** – Latest challenge year to include (starting from 2025). _Must not exceed released years_.  
+> **KEY####** – Required key to access each year’s challenge and solution data to fill the DB.
 
 > To obtain KEYs, contact the project owner via
 > [Discord](https://discord.com/users/609283782897303554) or by
@@ -150,7 +151,7 @@ docker-compose up --build
 - **Login** – Authenticate via Discord to track progress.
 - **Challenges** – Access version 2 challenges, each with two parts.
 - **Submit Solutions** – Correct answers update progress and unlock discussion threads.
-- **Admin Tools** – Modular dashboard for managing users, challenges, and releases.
+- **Admin Tools** – Modular dashboard for managing users, challenges, sponsors, and releases.
 
 ---
 
@@ -166,7 +167,7 @@ docker-compose up --build
 
 ## Admin Dashboard
 
-The admin dashboard allows easy management of users, challenges, and sponsor info. Here's a quick look:
+The admin dashboard allows easy management of Discord channel assignment, user progress, challenge content, and sponsor info. Here's a quick look:
 
 ![Admin Dashboard](dashboard.gif)  
 _↗️ Looping demo of the admin dashboard showing user and challenge management._
@@ -205,6 +206,5 @@ Open-source, intended for educational and community-building use.
 
 - Inspired by [Advent of Code](https://adventofcode.com)
 - Built for the [Practical Python Discord](https://github.com/practical-python-org)
-- Thanks to community members who tested and provided feedback for version 2.
-
-Credit is acknowledged on the website.
+- Thanks to community members who tested and provided feedback for version 2.<br>
+  **Individual credit is acknowledged on the website.**
