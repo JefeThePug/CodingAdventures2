@@ -39,6 +39,8 @@ All previous features have been preserved and improved, with better code structu
 - Docker & Docker Compose
 - PostgreSQL (local or Docker-based)
 
+> ⚠️ Python 3.10+ is required due to `uv` dependency management.
+
 ---
 
 ### Environment Variables
@@ -78,17 +80,20 @@ KEY2026="DIFFERENT_KEY_HERE"
 # Add keys for other released years as needed
 ```
 
-> Your own Discord Bot Token and Client ID must be used
+> **POSTGRES\_\* variables / DATABASE_NAME** – DB credentials and host info.
 
-> `SETUP_TYPE` controls whether the database is initialized fresh (`setup`)
-> or updated from version 1 (`update`).
+> **FLASK_PORT** – Port Flask runs on (default 5000).  
+> **FLASK_ENV** – Set to `development` or `production`.
 
-> Set the `YEAR` variable to specify the latest challenge year to include
-> `(starting from 2025)`. Choosing a year higher than the most recently
-> released will cause an error.
+> **SECRET_KEY** – Used by Flask / SQLAlchemy for session encryption.
 
-> Each year requires a unique key (`KEY####`) to access its challenge data and
-> solutions, which must be set in the .env file.
+> **DISCORD_ADMIN_USER_ID** – Your Discord user ID for admin access.  
+> **DISCORD\_\* tokens** – OAuth2 credentials for authentication and bot access.
+
+> **SETUP_TYPE** – `setup` = new DB, `update` = migrate from 2025 DB without clearing progress.
+
+> **YEAR** – Latest challenge year to include (starting from 2025). Must not exceed released years.  
+> **KEY####** – Required key to access each year’s challenge and solution data.
 
 > To obtain KEYs, contact the project owner via
 > [Discord](https://discord.com/users/609283782897303554) or by
@@ -159,9 +164,22 @@ docker-compose up --build
 
 ---
 
+## Admin Dashboard
+
+The admin dashboard allows easy management of users, challenges, and sponsor info. Here's a quick look:
+
+![Admin Dashboard](dashboard.gif)  
+_↗️ Looping demo of the admin dashboard showing user and challenge management._
+
+---
+
 ## Sponsorship
 
-Version 2 now supports sponsorship. Individuals or companies can support the project financially. Sponsors are acknowledged on the site and help maintain and expand new challenges, infrastructure, and features. Contact the project owner for details on sponsoring.
+Version 2 now supports sponsorship.
+
+**Sponsorship helps maintain the server, fund new challenges, and support ongoing development.**
+
+Individuals or companies can support the project financially. Sponsors are acknowledged on the site and help maintain and expand new challenges, infrastructure, and features. Contact the project owner for details on sponsoring.
 
 ---
 
