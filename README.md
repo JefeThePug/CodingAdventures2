@@ -132,7 +132,7 @@ uv sync --frozen --no-dev --system
 python -m app.run
 ```
 
-5. **Visit the app**: [http://127.0.0.1:5000](http://127.0.0.1:5000)
+5. **Access the app**: [http://localhost:5000](http://localhost:5000)
 
 ---
 
