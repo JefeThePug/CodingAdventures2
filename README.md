@@ -1,8 +1,17 @@
 # Practical Python Code Adventure v2
 
-**Live at:** [https://adventure.practicalpython.org](https://adventure.practicalpython.org)
+![Made with Love](https://img.shields.io/badge/made%20with-love-red?style=for-the-badge)
+![and Python](https://img.shields.io/badge/%26-python-blue?style=for-the-badge)
+![(Python Logo)](https://img.shields.io/badge/-blue?logo=python&logoColor=white&style=for-the-badge)
 
-Version 2 of **Code Adventure** brings a fully modular backend, a redesigned user experience, and flexible setup options for new or returning deployments. The project remains a series of interactive coding challenges (each with two parts), inspired by [Advent of Code](https://adventofcode.com), built for the Practical Python Discord community. Challenges are now organized into yearly collections, with one released each year.
+![Last Commit](https://img.shields.io/github/last-commit/JefeThePug/Zorak-Coding-Challenges)
+![GitHub Stars](https://img.shields.io/github/stars/JefeThePug/Zorak-Coding-Challenges)
+
+> **`🌐 Live at:`** [https://adventure.practicalpython.org](https://adventure.practicalpython.org)
+
+Version 2 of **Code Adventure** brings a fully modular backend, a redesigned user experience, and flexible setup options for new or returning deployments.
+
+The project is a series of interactive coding challenges (each with two parts), inspired by [Advent of Code](https://adventofcode.com), built for the [Practical Python Discord community](https://github.com/practical-python-org). Challenges are now organized into yearly collections of 10, with a new set released each year.
 
 All previous features have been preserved and improved, with better code structure, usability, and deployment options.
 
@@ -10,7 +19,7 @@ All previous features have been preserved and improved, with better code structu
 
 ## Key Updates in Version 2
 
-- **Modular Backend** – Blueprints, services, and templating now separate for clean, maintainable code.
+- **Modular Backend** – Blueprints, services, and templating are now separated for clean, maintainable code.
 - **Updated Database** – New PostgreSQL schema for version 2 challenges, with optional migration from version 1.
 - **Flexible Setup Options** – Start fresh or carry over progress from version 1 using `SETUP_TYPE`.
 - **Redesigned UX** – Clearer layout, more eye-catching style, and expanded site content.
@@ -22,13 +31,13 @@ All previous features have been preserved and improved, with better code structu
 
 ## Tech Stack
 
-- Python 3.10+
-- Flask (modular blueprint architecture)
-- PostgreSQL
-- SQLAlchemy ORM
-- Docker / Docker Compose
-- uv for dependency management
-- Discord OAuth2 integration
+- ![Python3.10+](https://img.shields.io/badge/Python3.10+-3776AB?style=plastic&logo=python&logoColor=white)
+- ![Flask](https://img.shields.io/badge/Flask-3BABC3?style=plastic&logo=flask&logoColor=white)
+- ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=plastic&logo=postgresql&logoColor=white)
+- ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?style=plastic&logo=sqlalchemy&logoColor=white)
+- ![Docker / DockerCompose](https://img.shields.io/badge/Docker_/_DockerCompose-2496ED?style=plastic&logo=docker&logoColor=white)
+- ![uv](https://img.shields.io/badge/uv-DE5FE9?style=plastic&logo=uv&logoColor=white)
+- ![Discord](https://img.shields.io/badge/Discord-5865F2?style=plastic&logo=discord&logoColor=white) ![OAuth](https://img.shields.io/badge/OAuth2-EB5424?style=plastic&logo=auth0&logoColor=white)
 
 ---
 
@@ -59,8 +68,6 @@ DATABASE_NAME="YOUR_DB_NAME"
 # Flask
 FLASK_PORT=5000
 FLASK_ENV="production"  # or "development"
-
-# SQLAlchemy
 SECRET_KEY="Something_secret_goes_here"
 
 # Discord
@@ -85,8 +92,7 @@ KEY2026="DIFFERENT_KEY_HERE"
 
 > **FLASK_PORT** – Port Flask runs on (default 5000).  
 > **FLASK_ENV** – Set to `development` or `production`.
-
-> **SECRET_KEY** – Used by SQLAlchemy for session encryption.
+> **SECRET_KEY** – Used for securely signing application data and tokens.
 
 > **DISCORD_ADMIN_USER_ID** – Your Discord user ID for admin dashboard access.  
 > **DISCORD\_\* tokens** – OAuth2 credentials for authentication and bot access.
@@ -96,9 +102,7 @@ KEY2026="DIFFERENT_KEY_HERE"
 > **YEAR** – Latest challenge year to include (starting from 2025). _Must not exceed released years_.  
 > **KEY####** – Required key to access each year’s challenge and solution data to fill the DB.
 
-> To obtain KEYs, contact the project owner via
-> [Discord](https://discord.com/users/609283782897303554) or by
-> [email](mailto:jefethepug@protonmail.com).
+To obtain KEYs, contact the project owner via [Discord](https://discord.com/users/609283782897303554) or by [email](mailto:jefethepug@protonmail.com).
 
 ---
 
@@ -176,7 +180,7 @@ _↗️ Looping demo of the admin dashboard showing user and challenge managemen
 
 ## Sponsorship
 
-Version 2 now supports sponsorship.
+`Version 2 now supports sponsorship.`
 
 **Sponsorship helps maintain the server, fund new challenges, and support ongoing development.**
 
@@ -207,4 +211,4 @@ Open-source, intended for educational and community-building use.
 - Inspired by [Advent of Code](https://adventofcode.com)
 - Built for the [Practical Python Discord](https://github.com/practical-python-org)
 - Thanks to community members who tested and provided feedback for version 2.<br>
-  **Individual credit is acknowledged on the website.**
+  **Individual credit is acknowledged on [the website](https://adventure.practicalpython.org/gratitude).**
